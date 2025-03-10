@@ -1,4 +1,4 @@
-# Pet Grooming Booking Service
+# Pet App
 
 ## Overview
 

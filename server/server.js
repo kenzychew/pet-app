@@ -6,6 +6,9 @@ const mongoose = require("mongoose");
 const cors = require("cors");
 const logger = require("morgan");
 
+// Import routers
+const authRouter = require("./routes/authRoutes");
+
 mongoose.connect(process.env.MONGODB_URI);
 
 mongoose.connection.on("connected", () => {
@@ -16,8 +19,10 @@ app.use(cors());
 app.use(express.json());
 app.use(logger("dev"));
 
-// Routes go here
+// Routes
+app.use("/api/auth", authRouter);
+// Add other routes as needed
 
 app.listen(3000, () => {
-  console.log("The express app is ready!");
+  console.log("Express server is running on port 3000");
 });
