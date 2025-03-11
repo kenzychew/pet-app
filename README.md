@@ -8,10 +8,10 @@ A minimalist web application for pet grooming appointment bookings. This MVP ena
 
 - **Dual User System**: Separate interfaces for pet owners and groomers
 - **Pet Profiles**: Create and manage basic pet information
-- **Service Catalog**: Browse and select from available grooming services
+- **Fixed Service Options**: Two service types with preset durations
 - **Appointment Scheduling**: Book appointments based on groomer availability
-- **Appointment Cancellation**: Pet owners can cancel appointments they can no longer attend
-- **Admin Controls**: Groomers can accept/reject appointments and manage their schedule
+- **Appointment Management**: Cancel or update appointments with time restrictions
+- **Admin Controls**: Groomers can view and manage their schedule
 - **Basic Notifications**: Email notifications for booking confirmations and cancellations
 
 ## User Stories
@@ -42,35 +42,32 @@ A minimalist web application for pet grooming appointment bookings. This MVP ena
 
 #### As a pet owner
 
-- I want to view available grooming services so I can choose what my pet needs
-- I want to see service prices before booking so I can plan accordingly
-
-#### As a groomer
-
-- I want to add new services to the catalog so customers know what I offer
+- I want to select either Basic Grooming (60 minutes) or Full Grooming (120 minutes) when booking
 
 ### Appointment Management
 
 #### As a pet owner
 
+- I want to be able to see all groomers and select them to see their availability
 - I want to book a grooming appointment for my pet on a specific date and time
+- I want to select either Basic Grooming(60 minutes) or Full Grooming(120 minutes) when booking
 - I want to see my upcoming appointments to remember when to bring my pet
-- I want to cancel an appointment I can no longer attend
-- I want to receive a confirmation email when my booking is complete
+- I want to cancel an appointment (more than 24 hours before the start time)
+- I want to update an appointment (more than 24 hours before the start time) \*\*Add later
+- I want to receive a confirmation email when my booking is complete (stretch)
 
 #### As a groomer
 
-- I want to see all upcoming appointments so I can prepare for my day
-- I want to accept or reject appointment requests based on my availability
-- I want to view which pet is scheduled for each appointment
-- I want to be notified when new appointments are booked
+- I want to see all upcoming appointments chronologically so I can prepare for my day
+- I want my dashboard to show when new appointments are booked
+- I want to see my availability calendar with booked time slots
+- I want to view details of the pet for each upcoming appointment to better prepare for the session
 
-### Admin Functionality
+### Availability
 
 #### As a groomer
 
-- I want to manage my schedule to control when I'm available for bookings
-- I want to view my appointment history to track my work
+- I want to be able to manage my availability by setting my work hours.
 
 ## Technology Stack
 
@@ -147,30 +144,26 @@ pet-grooming-service/
 - `POST /api/auth/register` - Register a new user (owner or groomer)
 - `POST /api/auth/login` - User login
 
-### Pet Owners
+### Pet Management
 
-- `GET /api/owners/profile` - Get owner profile
-- `POST /api/owners/pets` - Add a new pet
-- `GET /api/owners/pets` - Get all pets for an owner
-- `GET /api/owners/appointments` - Get all appointments for an owner
+- `GET /api/pets` - Get all pets for the current user (owner)
+- `GET /api/pets/:id` - Get a specific pet by ID
+- `POST /api/pets` - Create a new pet (owners only)
+- `PUT /api/pets/:id` - Update a pet
+- `DELETE /api/pets/:id` - Delete a pet
 
-### Groomers
+### Groomer Availability
 
-- `GET /api/groomers/profile` - Get groomer profile
-- `GET /api/groomers/appointments` - Get all appointments for a groomer
-- `PUT /api/groomers/appointments/:id` - Update appointment status
-
-### Services
-
-- `GET /api/services` - Get all grooming services
-- `POST /api/services` - Add a new service (admin only)
+- `GET /api/groomers` - List all available groomers
+- `GET /api/groomers/:id` - Get details for a specific groomer
+- `GET /api/groomers/:id/availability?date=YYYY-MM-DD&duration=60` - Get available appointment slots
 
 ### Appointments
 
-- `POST /api/appointments` - Create a new appointment
-- `GET /api/appointments/:id` - Get appointment details
-- `PUT /api/appointments/:id` - Update an appointment
-- `DELETE /api/appointments/:id` - Cancel/delete an appointment
+- `POST /api/appointments` - Book a new appointment (owners only)
+- `GET /api/appointments` - Get all appointments for the current user
+- `GET /api/appointments/:id` - Get a specific appointment by ID
+- `PATCH /api/appointments/:id/status` - Update appointment status
 
 ## Database Schema
 
@@ -191,16 +184,9 @@ pet-grooming-service/
 - `breed`: String
 - `age`: Number
 - `ownerId`: ObjectId (reference to User)
+- `notes`: String
 - `createdAt`: Date
-
-### Services
-
-- `_id`: ObjectId
-- `name`: String
-- `description`: String
-- `price`: Number
-- `duration`: Number (in minutes)
-- `createdAt`: Date
+- `updatedAt`: Date
 
 ### Appointments
 
@@ -208,11 +194,49 @@ pet-grooming-service/
 - `petId`: ObjectId (reference to Pet)
 - `ownerId`: ObjectId (reference to User)
 - `groomerId`: ObjectId (reference to User)
-- `serviceId`: ObjectId (reference to Service)
-- `date`: Date
-- `time`: String
-- `status`: String (pending/confirmed/rejected/completed)
+- `serviceType`: String (basic/full)
+- `duration`: Number (60 or 120 minutes)
+- `startTime`: Date
+- `endTime`: Date
+- `status`: String (confirmed/cancelled/completed)
 - `createdAt`: Date
+- `updatedAt` : Date
+
+## Service Structure
+
+- **Service Types as Appointment Properties**:
+
+  - Basic Grooming: 60 minutes duration
+  - Full Grooming: 120 minutes duration
+  - Selected at the time of booking as a property of the appointment
+
+- **Groomer Availability**:
+  - All groomers are available from 09:00 to 18:00 daily by default
+  - All groomers provide both basic and full grooming services
+
+## Appointment Rules
+
+- **Creation**:
+
+  - Only pet owners can create bookings
+  - Appointments must fall within groomer's available timeslots (09:00-18:00)
+  - System must check for existing appointments to avoid conflicts
+
+- **Updates**:
+
+  - Only allowed more than 24 hours before the appointment
+  - Subject to groomer's available timeslots
+  - Updates by owners are reflected on the groomer's dashboard
+
+- **Cancellation**:
+
+  - Only allowed more than 24 hours before the appointment
+  - Cancellations by owners are reflected on the groomer's dashboard
+
+- **Status Types**:
+  - Confirmed
+  - Cancelled
+  - Completed
 
 ## Future Enhancements (Post-MVP)
 
@@ -221,3 +245,32 @@ pet-grooming-service/
 - Customer reviews and ratings
 - Recurring appointment scheduling
 - Mobile app version
+
+## Attributions
+
+### Material UI
+
+https://mui.com/material-ui/api/app-bar/
+https://mui.com/material-ui/api/toolbar/
+https://mui.com/material-ui/api/typography/
+https://mui.com/material-ui/api/button/
+https://mui.com/material-ui/api/box/
+https://mui.com/system/the-sx-prop/
+
+### Node.JS / MongoDB
+
+https://stackoverflow.com/questions/71142537/how-to-join-model-in-mongodbmongoose-and-express
+https://chankapure.medium.com/building-a-doctor-appointment-scheduler-with-node-js-and-mongodb-10b52fba79af
+https://developer.mozilla.org/en-US/docs/Learn_web_development/Extensions/Server-side/Express_Nodejs/mongoose
+https://dev.to/itz_giddy/how-to-query-documents-in-mongodb-that-fall-within-a-specified-date-range-using-mongoose-and-node-524a
+https://www.corbado.com/blog/nodejs-express-mongodb-jwt-authentication-roles
+https://stackoverflow.com/questions/61464600/how-create-a-schema-for-booking-system-with-availability-time-slots
+https://stackoverflow.com/questions/48782039/mongodb-find-and-insert-if-time-slots-doesnt-conflict-with-other-time-slots
+
+### Express MVC
+
+https://stackoverflow.com/questions/11076179/node-js-express-routes-vs-controller
+https://dev.to/ericchapman/nodejs-express-part-5-routes-and-controllers-55d3
+https://developer.mozilla.org/en-US/docs/Learn_web_development/Extensions/Server-side/Express_Nodejs/routes
+https://mongoosejs.com/docs/schematypes.html
+https://mongoosejs.com/docs/models.html
