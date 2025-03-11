@@ -10,6 +10,7 @@ const logger = require("morgan");
 const authRouter = require("./routes/authRoutes");
 const petRouter = require("./routes/petRoutes");
 const groomerRouter = require("./routes/groomerRoutes");
+const appointmentRouter = require("./routes/appointmentRoutes");
 
 mongoose.connect(process.env.MONGODB_URI);
 
@@ -25,7 +26,8 @@ app.use(logger("dev"));
 app.use("/api/auth", authRouter);
 app.use("/api/pets", petRouter);
 app.use("/api/groomers", groomerRouter);
+app.use("/api/appointments", appointmentRouter);
 
-app.listen(3000, () => {
-  console.log("Express server is running on port 3000");
+app.listen(process.env.PORT, () => {
+  console.log(`Express server is running on port ${process.env.PORT}`);
 });

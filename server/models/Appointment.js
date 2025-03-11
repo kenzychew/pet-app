@@ -27,7 +27,7 @@ AppointmentSchema.methods.canModify = function () {
   return hoursDifference > 24;
 };
 
-// custom method to check for time conflicts
+// custom method to check for time conflicts, super impt job of checking whether potential appt overlaps with existing one
 AppointmentSchema.statics.checkForConflicts = async function (
   groomerId,
   startTime,
@@ -41,7 +41,21 @@ AppointmentSchema.statics.checkForConflicts = async function (
       // new appointment starts during an existing appointment
       { startTime: { $lt: endTime }, endTime: { $gt: startTime } },
     ],
-  };
+  }; //* this condition captures all possible overlap scenarios
+  /* 
+  S1: New appt starts during existing appt
+  Existing:  |------------|
+  New:              |------------|
+  S2: New appt ends during existing appt
+  Existing:  |------------|
+  New:              |------------|
+  S3: New appt completely inside existing appt
+  Existing:  |---------------|
+  New:          |-----|
+  S4: New appt completely contains existing appt
+  Existing:     |-----|
+  New:      |--------------|
+  */
 
   // exclude the current appointment if updating
   if (excludeAppointmentId) {

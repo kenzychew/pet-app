@@ -1,14 +1,11 @@
 {
   "info": {
-    "_postman_id": "3e845f8f-a123-4b56-9c78-1d2e3f4a5b6c",
     "name": "Pet Grooming API",
-    "description": "Collection for testing the Pet Grooming API endpoints",
     "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
   },
   "item": [
     {
       "name": "Authentication",
-      "description": "Endpoints for user authentication",
       "item": [
         {
           "name": "Register User",
@@ -22,19 +19,18 @@
             ],
             "body": {
               "mode": "raw",
-              "raw": "{\n    \"name\": \"John Owner\",\n    \"email\": \"owner@example.com\",\n    \"password\": \"password123\",\n    \"role\": \"owner\"\n}"
+              "raw": "{\n  \"name\": \"Ken\",\n  \"email\": \"kenzy@gmail.com\",\n  \"password\": \"Super123!\",\n  \"role\": \"owner\"\n}"
             },
             "url": {
               "raw": "{{baseUrl}}/api/auth/register",
               "host": ["{{baseUrl}}"],
               "path": ["api", "auth", "register"]
             },
-            "description": "Register a new user"
-          },
-          "response": []
+            "description": "Register a new user (owner or groomer)"
+          }
         },
         {
-          "name": "Register Groomer",
+          "name": "Login",
           "request": {
             "method": "POST",
             "header": [
@@ -45,94 +41,15 @@
             ],
             "body": {
               "mode": "raw",
-              "raw": "{\n    \"name\": \"Jane Groomer\",\n    \"email\": \"groomer@example.com\",\n    \"password\": \"password123\",\n    \"role\": \"groomer\"\n}"
-            },
-            "url": {
-              "raw": "{{baseUrl}}/api/auth/register",
-              "host": ["{{baseUrl}}"],
-              "path": ["api", "auth", "register"]
-            },
-            "description": "Register a new groomer"
-          },
-          "response": []
-        },
-        {
-          "name": "Login as Owner",
-          "event": [
-            {
-              "listen": "test",
-              "script": {
-                "exec": [
-                  "var jsonData = pm.response.json();",
-                  "if (jsonData && jsonData.token) {",
-                  "    pm.environment.set('authToken', jsonData.token);",
-                  "    pm.environment.set('userId', jsonData.user._id);",
-                  "    console.log('Token saved to environment');",
-                  "}"
-                ],
-                "type": "text/javascript"
-              }
-            }
-          ],
-          "request": {
-            "method": "POST",
-            "header": [
-              {
-                "key": "Content-Type",
-                "value": "application/json"
-              }
-            ],
-            "body": {
-              "mode": "raw",
-              "raw": "{\n    \"email\": \"owner@example.com\",\n    \"password\": \"password123\"\n}"
+              "raw": "{\n  \"email\": \"kenzy@gmail.com\",\n  \"password\": \"Super123!\"\n}"
             },
             "url": {
               "raw": "{{baseUrl}}/api/auth/login",
               "host": ["{{baseUrl}}"],
               "path": ["api", "auth", "login"]
             },
-            "description": "Login as pet owner"
-          },
-          "response": []
-        },
-        {
-          "name": "Login as Groomer",
-          "event": [
-            {
-              "listen": "test",
-              "script": {
-                "exec": [
-                  "var jsonData = pm.response.json();",
-                  "if (jsonData && jsonData.token) {",
-                  "    pm.environment.set('authToken', jsonData.token);",
-                  "    pm.environment.set('groomerId', jsonData.user._id);",
-                  "    console.log('Token saved to environment');",
-                  "}"
-                ],
-                "type": "text/javascript"
-              }
-            }
-          ],
-          "request": {
-            "method": "POST",
-            "header": [
-              {
-                "key": "Content-Type",
-                "value": "application/json"
-              }
-            ],
-            "body": {
-              "mode": "raw",
-              "raw": "{\n    \"email\": \"groomer@example.com\",\n    \"password\": \"password123\"\n}"
-            },
-            "url": {
-              "raw": "{{baseUrl}}/api/auth/login",
-              "host": ["{{baseUrl}}"],
-              "path": ["api", "auth", "login"]
-            },
-            "description": "Login as groomer"
-          },
-          "response": []
+            "description": "Login and get authentication token"
+          }
         },
         {
           "name": "Get Current User",
@@ -149,43 +66,14 @@
               "host": ["{{baseUrl}}"],
               "path": ["api", "auth", "me"]
             },
-            "description": "Get the current authenticated user"
-          },
-          "response": []
+            "description": "Get current user profile"
+          }
         }
       ]
     },
     {
       "name": "Pets",
-      "description": "Endpoints for managing pets",
       "item": [
-        {
-          "name": "Add Pet",
-          "request": {
-            "method": "POST",
-            "header": [
-              {
-                "key": "Content-Type",
-                "value": "application/json"
-              },
-              {
-                "key": "Authorization",
-                "value": "Bearer {{authToken}}"
-              }
-            ],
-            "body": {
-              "mode": "raw",
-              "raw": "{\n    \"name\": \"Fluffy\",\n    \"species\": \"Dog\",\n    \"breed\": \"Golden Retriever\",\n    \"age\": 3,\n    \"notes\": \"Very friendly, likes to play with toys\"\n}"
-            },
-            "url": {
-              "raw": "{{baseUrl}}/api/pets",
-              "host": ["{{baseUrl}}"],
-              "path": ["api", "pets"]
-            },
-            "description": "Add a new pet (owner only)"
-          },
-          "response": []
-        },
         {
           "name": "Get All Pets",
           "request": {
@@ -201,15 +89,101 @@
               "host": ["{{baseUrl}}"],
               "path": ["api", "pets"]
             },
-            "description": "Get all pets for the authenticated owner"
-          },
-          "response": []
+            "description": "Get all pets for current owner"
+          }
+        },
+        {
+          "name": "Get Pet by ID",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{authToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/pets/{{petId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "pets", "{{petId}}"]
+            },
+            "description": "Get a specific pet by ID"
+          }
+        },
+        {
+          "name": "Create Pet",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{authToken}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Penpen\",\n  \"species\": \"Dog\",\n  \"breed\": \"Shihtzu\",\n  \"age\": 3,\n  \"notes\": \"Very friendly\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/pets",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "pets"]
+            },
+            "description": "Create a new pet (owner only)"
+          }
+        },
+        {
+          "name": "Update Pet",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{authToken}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Penpen\",\n  \"age\": 4,\n  \"notes\": \"Very friendly and calm\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/pets/{{petId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "pets", "{{petId}}"]
+            },
+            "description": "Update a pet's information (owner only)"
+          }
+        },
+        {
+          "name": "Delete Pet",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{authToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/pets/{{petId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "pets", "{{petId}}"]
+            },
+            "description": "Delete a pet (owner only)"
+          }
         }
       ]
     },
     {
       "name": "Groomers",
-      "description": "Endpoints for managing groomers",
       "item": [
         {
           "name": "Get All Groomers",
@@ -226,9 +200,8 @@
               "host": ["{{baseUrl}}"],
               "path": ["api", "groomers"]
             },
-            "description": "Get all groomers"
-          },
-          "response": []
+            "description": "Get all available groomers"
+          }
         },
         {
           "name": "Get Groomer by ID",
@@ -246,8 +219,7 @@
               "path": ["api", "groomers", "{{groomerId}}"]
             },
             "description": "Get a specific groomer by ID"
-          },
-          "response": []
+          }
         },
         {
           "name": "Get Groomer Availability",
@@ -260,13 +232,13 @@
               }
             ],
             "url": {
-              "raw": "{{baseUrl}}/api/groomers/{{groomerId}}/availability?date={{testDate}}&duration=60",
+              "raw": "{{baseUrl}}/api/groomers/{{groomerId}}/availability?date=2025-03-15&duration=60",
               "host": ["{{baseUrl}}"],
               "path": ["api", "groomers", "{{groomerId}}", "availability"],
               "query": [
                 {
                   "key": "date",
-                  "value": "{{testDate}}"
+                  "value": "2025-03-15"
                 },
                 {
                   "key": "duration",
@@ -275,26 +247,109 @@
               ]
             },
             "description": "Get available time slots for a groomer on a specific date"
-          },
-          "response": []
+          }
         }
       ]
-    }
-  ],
-  "event": [
-    {
-      "listen": "prerequest",
-      "script": {
-        "type": "text/javascript",
-        "exec": [""]
-      }
     },
     {
-      "listen": "test",
-      "script": {
-        "type": "text/javascript",
-        "exec": [""]
-      }
+      "name": "Appointments",
+      "item": [
+        {
+          "name": "Create Appointment",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{authToken}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"petId\": \"{{petId}}\",\n  \"groomerId\": \"{{groomerId}}\",\n  \"serviceType\": \"basic\",\n  \"startTime\": \"2025-03-15T10:00:00Z\",\n  \"endTime\": \"2025-03-15T11:00:00Z\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/appointments",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "appointments"]
+            },
+            "description": "Book a new appointment (owner only)"
+          }
+        },
+        {
+          "name": "Get User Appointments",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{authToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/appointments",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "appointments"],
+              "query": [
+                {
+                  "key": "status",
+                  "value": "confirmed",
+                  "disabled": true
+                }
+              ]
+            },
+            "description": "Get all appointments for current user (owner sees their appointments, groomer sees appointments assigned to them)"
+          }
+        },
+        {
+          "name": "Get Appointment by ID",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{authToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/appointments/{{appointmentId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "appointments", "{{appointmentId}}"]
+            },
+            "description": "Get a specific appointment by ID"
+          }
+        },
+        {
+          "name": "Update Appointment Status",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{authToken}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"status\": \"cancelled\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/appointments/{{appointmentId}}/status",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "appointments", "{{appointmentId}}", "status"]
+            },
+            "description": "Update appointment status (cancel or complete)"
+          }
+        }
+      ]
     }
   ],
   "variable": [
@@ -304,8 +359,23 @@
       "type": "string"
     },
     {
-      "key": "testDate",
-      "value": "2023-06-05",
+      "key": "authToken",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "petId",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "groomerId",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "appointmentId",
+      "value": "",
       "type": "string"
     }
   ]
