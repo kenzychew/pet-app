@@ -27,6 +27,35 @@ AppointmentSchema.methods.canModify = function () {
   return hoursDifference > 24;
 };
 
+// Method to check if appointment should be marked as completed
+AppointmentSchema.methods.shouldBeCompleted = function () {
+  const currentTime = new Date();
+  const appointmentEndTime = new Date(this.endTime);
+  return currentTime > appointmentEndTime && this.status === "confirmed";
+};
+
+// Static method to update status of completed appointments
+AppointmentSchema.statics.updateCompletedAppointments = async function (
+  appointments
+) {
+  const currentTime = new Date();
+  const updatedAppointments = [];
+
+  for (const appointment of appointments) {
+    if (
+      appointment.status === "confirmed" &&
+      new Date(appointment.endTime) < currentTime
+    ) {
+      appointment.status = "completed";
+      appointment.updatedAt = currentTime;
+      await appointment.save();
+      updatedAppointments.push(appointment._id);
+    }
+  }
+
+  return updatedAppointments;
+};
+
 // custom method to check for time conflicts, super impt job of checking whether potential appt overlaps with existing one
 AppointmentSchema.statics.checkForConflicts = async function (
   groomerId,

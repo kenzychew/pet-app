@@ -140,7 +140,7 @@ exports.getUserAppointments = async (req, res) => {
       query.groomerId = userId;
     }
 
-    // filter by status
+    // filter by status if provided
     if (status && ["confirmed", "completed"].includes(status)) {
       query.status = status;
     }
@@ -149,8 +149,32 @@ exports.getUserAppointments = async (req, res) => {
     const appointments = await Appointment.find(query)
       .populate("petId", "name species breed")
       .populate("ownerId", "name email")
-      .populate("groomerId", "name email")
-      .sort({ startTime: 1 });
+      .populate("groomerId", "name email");
+
+    // Automatically update status of appointments that have ended
+    const currentTime = new Date();
+    const updatedAppointments = [];
+
+    for (const appointment of appointments) {
+      if (
+        appointment.status === "confirmed" &&
+        new Date(appointment.endTime) < currentTime
+      ) {
+        appointment.status = "completed";
+        appointment.updatedAt = currentTime;
+        await appointment.save();
+        updatedAppointments.push(appointment._id);
+      }
+    }
+
+    if (updatedAppointments.length > 0) {
+      console.log(
+        `Automatically marked ${updatedAppointments.length} appointments as completed`
+      );
+    }
+
+    // Sort appointments by start time (newest first)
+    appointments.sort((a, b) => new Date(b.startTime) - new Date(a.startTime));
 
     res.status(200).json(appointments);
   } catch (error) {
@@ -172,6 +196,21 @@ exports.getAppointmentById = async (req, res) => {
     if (!appointment) {
       return res.status(404).json({ error: "Appointment not found" });
     }
+
+    // Check if appointment should be marked as completed
+    const currentTime = new Date();
+    if (
+      appointment.status === "confirmed" &&
+      new Date(appointment.endTime) < currentTime
+    ) {
+      appointment.status = "completed";
+      appointment.updatedAt = currentTime;
+      await appointment.save();
+      console.log(
+        `Automatically marked appointment ${appointment._id} as completed`
+      );
+    }
+
     // checks if user authorized to view appt
     if (
       (req.user.role === "owner" &&
@@ -189,57 +228,6 @@ exports.getAppointmentById = async (req, res) => {
     res
       .status(500)
       .json({ error: "Server error fetching appointment details" });
-  }
-};
-
-// update appt status (groomer marks as completed)
-exports.updateAppointmentStatus = async (req, res) => {
-  try {
-    const appointmentId = req.params.id;
-    const { status } = req.body;
-
-    if (!status || !["confirmed", "completed"].includes(status)) {
-      return res.status(400).json({ error: "Invalid status" });
-    }
-    const appointment = await Appointment.findById(appointmentId);
-    if (!appointment) {
-      return res.status(404).json({ error: "Appointment not found" });
-    }
-
-    // auth check - who can update status?
-    if (req.user.role === "owner") {
-      // owners cannot mark appointments as completed
-      if (appointment.ownerId.toString() !== req.user.id) {
-        return res
-          .status(403)
-          .json({ error: "Not authorized to update this appointment" });
-      }
-      if (status === "completed") {
-        return res
-          .status(403)
-          .json({ error: "Only groomers can mark appointments as completed" });
-      }
-    } else if (req.user.role === "groomer") {
-      // groomers can only update appts assigned to them
-      if (appointment.groomerId.toString() !== req.user.id) {
-        return res
-          .status(403)
-          .json({ error: "Not authorized to update this appointment" });
-      }
-    }
-    // update appt status
-    appointment.status = status;
-    appointment.updatedAt = new Date();
-
-    await appointment.save();
-
-    res.status(200).json({
-      message: "Appointment status updated successfully",
-      appointment,
-    });
-  } catch (error) {
-    console.error("Error updating appointment status:", error);
-    res.status(500).json({ error: "Server error updating appointment status" });
   }
 };
 
@@ -313,6 +301,8 @@ exports.updateAppointment = async (req, res) => {
     appointment.startTime = appointmentStart;
     appointment.endTime = appointmentEnd;
     appointment.updatedAt = new Date();
+    // Reset status to confirmed if it was previously completed
+    appointment.status = "confirmed";
 
     await appointment.save();
 

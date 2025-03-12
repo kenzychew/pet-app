@@ -15,12 +15,6 @@ router.post("/", isOwner, appointmentController.createAppointment);
 router.get("/", isAuthenticated, appointmentController.getUserAppointments);
 // get a specific appt by ID
 router.get("/:id", isAuthenticated, appointmentController.getAppointmentById);
-// update appt status
-router.patch(
-  "/:id/status",
-  isAuthenticated,
-  appointmentController.updateAppointmentStatus
-); // PATCH /api/appointments/:id/status
 // update appt
 router.put("/:id", isOwner, appointmentController.updateAppointment);
 // delete appt
