@@ -29,6 +29,11 @@ const NavBar = () => {
               <Button color="inherit" component={Link} to="/dashboard">
                 Dashboard
               </Button>
+              {user?.role === "owner" && (
+                <Button color="inherit" component={Link} to="/pets">
+                  My Pets
+                </Button>
+              )}
               <Button color="inherit" onClick={handleLogout}>
                 Logout
               </Button>

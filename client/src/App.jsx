@@ -12,7 +12,7 @@ import Login from "./components/Login";
 import Register from "./components/Register";
 import Dashboard from "./components/Dashboard";
 import NavBar from "./components/Navbar";
-
+import PetManagement from "./components/PetManagement";
 // Protected route component
 const ProtectedRoute = ({ children }) => {
   const { isAuthenticated, loading } = useAuth();
@@ -44,6 +44,7 @@ function AppContent() {
               </ProtectedRoute>
             }
           />
+          <Route path="/pets" element={<ProtectedRoute><PetManagement /></ProtectedRoute >} />
           <Route path="/" element={<Navigate to="/login" />} />
         </Routes>
       </div>
