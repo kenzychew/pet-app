@@ -1,8 +1,8 @@
 import axios from "axios";
+import { API_ENDPOINTS } from "../config/api";
 
-const API_URL = "http://localhost:3000/api/pets";
+const API_URL = API_ENDPOINTS.PETS;
 
-// Get all pets for the current user
 const getUserPets = async () => {
   try {
     const response = await axios.get(API_URL);
@@ -12,7 +12,6 @@ const getUserPets = async () => {
   }
 };
 
-// Get a specific pet by ID
 const getPetById = async (petId) => {
   try {
     const response = await axios.get(`${API_URL}/${petId}`);
@@ -22,7 +21,6 @@ const getPetById = async (petId) => {
   }
 };
 
-// Create a new pet
 const createPet = async (petData) => {
   try {
     const response = await axios.post(API_URL, petData);
@@ -32,7 +30,6 @@ const createPet = async (petData) => {
   }
 };
 
-// Update a pet
 const updatePet = async (petId, petData) => {
   try {
     const response = await axios.put(`${API_URL}/${petId}`, petData);
@@ -42,7 +39,6 @@ const updatePet = async (petId, petData) => {
   }
 };
 
-// Delete a pet
 const deletePet = async (petId) => {
   try {
     const response = await axios.delete(`${API_URL}/${petId}`);
