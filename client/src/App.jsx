@@ -6,13 +6,15 @@ import {
   Navigate,
 } from "react-router-dom";
 import { AuthProvider, useAuth } from "./contexts/AuthContext.jsx";
+import { Container, Box } from "@mui/material";
 
-// Import your components
-import Login from "./components/Login";
-import Register from "./components/Register";
-import Dashboard from "./components/Dashboard";
+// Import your pages
 import NavBar from "./components/Navbar";
-import PetManagement from "./components/PetManagement";
+import Dashboard from "./components/Dashboard";
+import LoginPage from "./pages/LoginPage";
+import RegisterPage from "./pages/RegisterPage";
+import PetPage from "./pages/PetPage";
+
 // Protected route component
 const ProtectedRoute = ({ children }) => {
   const { isAuthenticated, loading } = useAuth();
@@ -32,22 +34,17 @@ function AppContent() {
   return (
     <Router>
       <NavBar />
-      <div className="container mt-4">
-        <Routes>
-          <Route path="/login" element={<Login />} />
-          <Route path="/register" element={<Register />} />
-          <Route
-            path="/dashboard"
-            element={
-              <ProtectedRoute>
-                <Dashboard />
-              </ProtectedRoute>
-            }
-          />
-          <Route path="/pets" element={<ProtectedRoute><PetManagement /></ProtectedRoute >} />
-          <Route path="/" element={<Navigate to="/login" />} />
-        </Routes>
-      </div>
+      <Box sx={{ py: 4 }}>
+        <Container maxWidth="lg">
+          <Routes>
+            <Route path="/login" element={<LoginPage />} />
+            <Route path="/register" element={<RegisterPage />} />
+            <Route path="/dashboard" element={<ProtectedRoute><Dashboard /></ProtectedRoute>} />
+            <Route path="/pets" element={<ProtectedRoute><PetPage /></ProtectedRoute>} />
+            <Route path="/" element={<Navigate to="/login" />} />
+          </Routes>
+        </Container>
+      </Box>
     </Router>
   );
 }

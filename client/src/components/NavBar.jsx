@@ -21,7 +21,7 @@ const NavBar = () => {
           to="/"
           sx={{ flexGrow: 1, textDecoration: "none", color: "white" }}
         >
-          Pet Grooming
+          Pet App
         </Typography>
         <Box>
           {isAuthenticated ? (
@@ -31,7 +31,7 @@ const NavBar = () => {
               </Button>
               {user?.role === "owner" && (
                 <Button color="inherit" component={Link} to="/pets">
-                  My Pets
+                  Pets
                 </Button>
               )}
               <Button color="inherit" onClick={handleLogout}>
