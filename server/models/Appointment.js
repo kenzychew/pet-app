@@ -11,7 +11,7 @@ const AppointmentSchema = new Schema({
   endTime: { type: Date, required: true }, // ISO 8601 format (e.g., 2025-03-15T14:30:00Z)
   status: {
     type: String,
-    enum: ["confirmed", "cancelled", "completed"],
+    enum: ["confirmed", "completed"],
     default: "confirmed",
   },
   createdAt: { type: Date, default: Date.now },

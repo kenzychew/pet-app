@@ -141,7 +141,7 @@ exports.getUserAppointments = async (req, res) => {
     }
 
     // filter by status
-    if (status && ["confirmed", "cancelled", "completed"].includes(status)) {
+    if (status && ["confirmed", "completed"].includes(status)) {
       query.status = status;
     }
 
@@ -192,13 +192,13 @@ exports.getAppointmentById = async (req, res) => {
   }
 };
 
-// update appt status (owner cancels, groomer updates)
+// update appt status (groomer marks as completed)
 exports.updateAppointmentStatus = async (req, res) => {
   try {
     const appointmentId = req.params.id;
     const { status } = req.body;
 
-    if (!status || !["confirmed", "cancelled", "completed"].includes(status)) {
+    if (!status || !["confirmed", "completed"].includes(status)) {
       return res.status(400).json({ error: "Invalid status" });
     }
     const appointment = await Appointment.findById(appointmentId);
@@ -208,24 +208,16 @@ exports.updateAppointmentStatus = async (req, res) => {
 
     // auth check - who can update status?
     if (req.user.role === "owner") {
-      // owners can only cancel own appts
+      // owners cannot mark appointments as completed
       if (appointment.ownerId.toString() !== req.user.id) {
         return res
           .status(403)
           .json({ error: "Not authorized to update this appointment" });
       }
-      // owners can only cancel appts, not mark them as completed
       if (status === "completed") {
         return res
           .status(403)
           .json({ error: "Only groomers can mark appointments as completed" });
-      }
-      // check if appt can be modified (>24h before start)
-      if (status === "cancelled" && !appointment.canModify()) {
-        return res.status(400).json({
-          error:
-            "Cannot cancel appointments less than 24 hours before start time",
-        });
       }
     } else if (req.user.role === "groomer") {
       // groomers can only update appts assigned to them
