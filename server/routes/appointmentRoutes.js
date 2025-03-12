@@ -21,5 +21,9 @@ router.patch(
   isAuthenticated,
   appointmentController.updateAppointmentStatus
 ); // PATCH /api/appointments/:id/status
+// update appt
+router.put("/:id", isOwner, appointmentController.updateAppointment);
+// delete appt
+router.delete("/:id", isOwner, appointmentController.deleteAppointment);
 
 module.exports = router;

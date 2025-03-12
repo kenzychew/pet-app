@@ -250,3 +250,111 @@ exports.updateAppointmentStatus = async (req, res) => {
     res.status(500).json({ error: "Server error updating appointment status" });
   }
 };
+
+// reschedule appt (owners only)
+exports.updateAppointment = async (req, res) => {
+  try {
+    const appointmentId = req.params.id;
+    const { petId, groomerId, serviceType, startTime } = req.body;
+
+    // validate required fields
+    if (!petId || !groomerId || !serviceType || !startTime) {
+      return res
+        .status(400)
+        .json({ error: "Missing required appointment information" });
+    }
+
+    // find the appt
+    const appointment = await Appointment.findById(appointmentId);
+    if (!appointment) {
+      return res.status(404).json({ error: "Appointment not found" });
+    }
+    // check if user is owner of this appt
+    if (appointment.ownerId.toString() !== req.user.id) {
+      return res
+        .status(403)
+        .json({ error: "Not authorized to update this appointment" });
+    }
+    // check if appt can be modified
+    if (!appointment.canModify()) {
+      return res.status(400).json({
+        error:
+          "Cannot modify appointments less than 24 hours before start time",
+      });
+    }
+    // set duration based on svc type
+    const duration = serviceType === "basic" ? 60 : 120;
+    // parse date string to Date object
+    const appointmentStart = new Date(startTime);
+    // calculate endTime based on startTime + duration
+    const appointmentEnd = new Date(appointmentStart);
+    appointmentEnd.setMinutes(appointmentStart.getMinutes() + duration);
+    // check for conflicts with other appts
+    const hasConflict = await Appointment.checkForConflicts(
+      groomerId,
+      appointmentStart,
+      appointmentEnd,
+      appointmentId // exclude this appt from conflict check
+    );
+
+    if (hasConflict) {
+      return res.status(409).json({
+        error:
+          "This time slot is no longer available. Please choose another time.",
+      });
+    }
+
+    // update the appt
+    appointment.petId = petId;
+    appointment.groomerId = groomerId;
+    appointment.serviceType = serviceType;
+    appointment.duration = duration;
+    appointment.startTime = appointmentStart;
+    appointment.endTime = appointmentEnd;
+    appointment.updatedAt = new Date();
+
+    await appointment.save();
+
+    res.status(200).json({
+      message: "Appointment updated successfully",
+      appointment,
+    });
+  } catch (error) {
+    console.error("Error updating appointment:", error);
+    res.status(500).json({ error: "Server error updating appointment" });
+  }
+};
+
+// delete an appt (owners only)
+exports.deleteAppointment = async (req, res) => {
+  try {
+    const appointmentId = req.params.id;
+
+    const appointment = await Appointment.findById(appointmentId);
+    if (!appointment) {
+      return res.status(404).json({ error: "Appointment not found" });
+    }
+
+    // check user is owner of appt
+    if (appointment.ownerId.toString() !== req.user.id) {
+      return res
+        .status(403)
+        .json({ error: "Not authorized to delete this appointment" });
+    }
+
+    // check if appt can be modified
+    if (!appointment.canModify()) {
+      return res.status(400).json({
+        error:
+          "Cannot delete appointments less than 24 hours before start time",
+      });
+    }
+    // delete appt
+    await Appointment.deleteOne({ _id: appointmentId });
+
+    res.status(200).json({ message: "Appointment deleted successfully" });
+  } catch (error) {
+    console.error("Error deleting appointment:", error);
+    res.status(500).json({ error: "Server error deleting appointment" });
+  }
+};
