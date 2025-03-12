@@ -164,6 +164,8 @@ pet-grooming-service/
 - `GET /api/appointments` - Get all appointments for the current user
 - `GET /api/appointments/:id` - Get a specific appointment by ID
 - `PATCH /api/appointments/:id/status` - Update appointment status
+- `PUT /api//appointments/:id` - Reschedule appointment (owners only)
+- `DELETE /api/appointments/:id` - Delete appointment (owners only)
 
 ## Database Schema
 
@@ -247,6 +249,12 @@ pet-grooming-service/
 - Mobile app version
 
 ## Attributions
+
+### React
+
+https://stackoverflow.com/questions/73120266/how-can-i-combine-multiple-state-values-into-one-usestate
+https://react.dev/learn/choosing-the-state-structure
+https://www.robinwieruch.de/react-hooks-fetch-data
 
 ### Material UI
 
