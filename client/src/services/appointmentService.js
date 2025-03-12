@@ -39,7 +39,30 @@ const updateAppointmentStatus = async (appointmentId, status) => {
     });
     return response.data;
   } catch (error) {
+    throw (
+      error.response?.data || { error: "Failed to update appointment status" }
+    );
+  }
+};
+
+const updateAppointment = async (appointmentId, appointmentData) => {
+  try {
+    const response = await axios.put(
+      `${API_URL}/${appointmentId}`,
+      appointmentData
+    );
+    return response.data;
+  } catch (error) {
     throw error.response?.data || { error: "Failed to update appointment" };
+  }
+};
+
+const deleteAppointment = async (appointmentId) => {
+  try {
+    const response = await axios.delete(`${API_URL}/${appointmentId}`);
+    return response.data;
+  } catch (error) {
+    throw error.response?.data || { error: "Failed to delete appointment" };
   }
 };
 
@@ -48,6 +71,8 @@ const appointmentService = {
   getAppointmentById,
   createAppointment,
   updateAppointmentStatus,
+  updateAppointment,
+  deleteAppointment,
 };
 
 export default appointmentService;
