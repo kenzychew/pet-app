@@ -278,6 +278,15 @@ exports.updateAppointment = async (req, res) => {
     const duration = serviceType === "basic" ? 60 : 120;
     // parse date string to Date object
     const appointmentStart = new Date(startTime);
+
+    // check if appointment is in the past
+    const currentTime = new Date();
+    if (appointmentStart < currentTime) {
+      return res
+        .status(400)
+        .json({ error: "Cannot reschedule to a time in the past" });
+    }
+
     // calculate endTime based on startTime + duration
     const appointmentEnd = new Date(appointmentStart);
     appointmentEnd.setMinutes(appointmentStart.getMinutes() + duration);
