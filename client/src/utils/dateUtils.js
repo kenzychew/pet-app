@@ -16,8 +16,8 @@ export const formatDateForInput = (date) => {
 // format date with day for display
 export const formatDateWithDay = (dateString) => {
   const date = new Date(dateString);
-  const day = date.toLocaleDateString("en-US", { weekday: "long" });
-  const formattedDate = date.toLocaleDateString();
+  const day = date.toLocaleDateString("en-GB", { weekday: "long" });
+  const formattedDate = date.toLocaleDateString("en-GB");
   return `${day}, ${formattedDate}`;
 };
 
