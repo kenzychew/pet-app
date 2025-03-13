@@ -45,11 +45,11 @@ const UserSchema = new Schema({
       { day: "Friday", isWorking: true, startTime: "09:00", endTime: "17:00" },
       {
         day: "Saturday",
-        isWorking: false,
+        isWorking: true,
         startTime: "09:00",
         endTime: "17:00",
       },
-      { day: "Sunday", isWorking: false, startTime: "09:00", endTime: "17:00" },
+      { day: "Sunday", isWorking: true, startTime: "09:00", endTime: "17:00" },
     ],
   },
 });

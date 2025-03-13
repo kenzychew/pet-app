@@ -83,16 +83,19 @@ exports.getGroomerAvailability = async (req, res) => {
       "Saturday",
     ][appointmentDate.getDay()];
 
-    // checks if groomer is working on the day
-    const daySchedule = groomer.workingHours.find(
-      (day) => day.day === dayOfWeek
-    );
-    if (!daySchedule || !daySchedule.isWorking) {
-      return res.status(200).json({
-        message: `Groomer does not work on ${dayOfWeek}s`,
-        availableSlots: [],
-      });
-    }
+    // checks if groomer is working on the day (including weekends)
+    // get day of the week name for appt date, look up the day in the groomer's workingHours record, check if isWorking is true for that day
+    // if not working, return empty [] of avail slots
+    // removed to allow bookings regardless of a groomer's normal working days
+    // const daySchedule = groomer.workingHours.find(
+    //   (day) => day.day === dayOfWeek
+    // );
+    // if (!daySchedule || !daySchedule.isWorking) {
+    //   return res.status(200).json({
+    //     message: `Groomer does not work on ${dayOfWeek}s`,
+    //     availableSlots: [],
+    //   });
+    // }
 
     // model static method to get available time slots
     const availableSlots = await Appointment.getAvailableTimeSlots(
