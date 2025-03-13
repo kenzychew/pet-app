@@ -1,76 +1,108 @@
-import React from "react";
-import { Box, Typography, Card, CardContent, Chip, Button } from "@mui/material";
+import React, { useState } from "react";
+import { Box, Typography, Card, CardContent, Chip, Button, Dialog, DialogTitle, DialogContent, DialogActions } from "@mui/material";
+import { formatDateWithDay, formatTimeRange } from "../utils/dateUtils";
 
-const AppointmentCard = ({ appointment, statusColors, onReschedule }) => {
+const AppointmentCard = ({ appointment, statusColors, onReschedule, onDelete }) => {
+  const [isCancelDialogOpen, setIsCancelDialogOpen] = useState(false);
+  
+  // format dates and check if appointment can be modified
   const startTime = new Date(appointment.startTime);
   const endTime = new Date(appointment.endTime);
-  
-  const formattedDate = startTime.toLocaleDateString();
-  const formattedStartTime = startTime.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
-  const formattedEndTime = endTime.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
-  
-  // check if appt is in future and confirmed
   const currentTime = new Date();
+  
+
+  // minute = 1000 * 60
+  // hour = minute * 60
+  // day = hour * 24
+  // year = day * 365
   const isUpcoming = startTime > currentTime;
   const isConfirmed = appointment.status === "confirmed";
-  const canReschedule = isUpcoming && isConfirmed;
-  
-  // allow modification if >24 hrs
   const hoursDifference = (startTime - currentTime) / (1000 * 60 * 60);
-  const canModify = hoursDifference > 24;
-  
-  const handleReschedule = () => {
-    if (onReschedule) {
-      onReschedule(appointment);
-    }
-  };
+  const canModify = isUpcoming && isConfirmed && hoursDifference > 24;
   
   return (
     <Card sx={{ mb: 2 }}>
       <CardContent>
-        <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start" }}>
+        <Box sx={{ display: "flex", justifyContent: "space-between" }}>
           <Box>
             <Typography variant="h6">
-              {appointment.serviceType.charAt(0).toUpperCase() + appointment.serviceType.slice(1)} Grooming [{appointment.duration / 60} hours]
+              {appointment.serviceType.charAt(0).toUpperCase() + appointment.serviceType.slice(1)} Grooming 
+              [{appointment.duration / 60} hours]
             </Typography>
+            
             <Typography variant="body2" color="text.secondary" sx={{ mt: 1 }}>
-              {formattedDate}, {formattedStartTime} - {formattedEndTime}
+              {formatDateWithDay(startTime)}, {formatTimeRange(startTime, endTime)}
             </Typography>
+            
             <Typography variant="body2" sx={{ mt: 1 }}>
               Pet: {appointment.petId?.name || "Pet"}
             </Typography>
+            
             <Typography variant="body2" sx={{ mt: 1 }}>
               Groomer: {appointment.groomerId?.name || "Assigned Groomer"}
             </Typography>
             
-            {canReschedule && (
-              <Box sx={{ mt: 2 }}>
+            {isUpcoming && isConfirmed && (
+              <Box sx={{ mt: 2, display: "flex", gap: 2 }}>
                 <Button 
                   variant="outlined" 
                   color="primary" 
                   size="small"
-                  onClick={handleReschedule}
+                  onClick={() => onReschedule(appointment)}
                   disabled={!canModify}
                 >
                   Reschedule
                 </Button>
-                {!canModify && (
-                  <Typography variant="caption" color="text.secondary" sx={{ display: 'block', mt: 0.5 }}>
-                    Cannot reschedule less than 24 hours before appointment
+                
+                <Button 
+                  variant="outlined" 
+                  color="error" 
+                  size="small"
+                  onClick={() => setIsCancelDialogOpen(true)}
+                  disabled={!canModify}
+                >
+                  Cancel
+                </Button>
+                
+                {!canModify && hoursDifference <= 24 && (
+                  <Typography variant="caption" color="text.secondary" sx={{ mt: 0.5 }}>
+                    Cannot modify less than 24 hours before appointment
                   </Typography>
                 )}
               </Box>
             )}
           </Box>
+          
           <Chip 
             label={appointment.status} 
             color={statusColors[appointment.status] || "default"} 
-            size="med" 
           />
         </Box>
       </CardContent>
+      
+      <Dialog open={isCancelDialogOpen} onClose={() => setIsCancelDialogOpen(false)}>
+        <DialogTitle>Cancel Appointment</DialogTitle>
+        <DialogContent>
+          Sure to cancel this appointment? This action cannot be undone.
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={() => setIsCancelDialogOpen(false)}>Keep</Button>
+          <Button 
+            onClick={() => {
+              onDelete(appointment._id);
+              setIsCancelDialogOpen(false);
+            }} 
+            color="error" 
+            variant="contained"
+          >
+            Cancel Appointment
+          </Button>
+        </DialogActions>
+      </Dialog>
     </Card>
   );
 };
 
 export default AppointmentCard; 
+
+// https://www.w3schools.com/js/js_date_methods.asp
