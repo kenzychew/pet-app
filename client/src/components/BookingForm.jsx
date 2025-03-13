@@ -228,3 +228,4 @@ export default BookingForm;
 // time slot dropdown displays available time slots fetched from useAvailability
 //  time slot selection only appears once a groomer and a date have been chosen
 
+// TODO: https://mui.com/x/react-date-pickers/getting-started/ change calendar to datepicker
