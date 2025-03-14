@@ -35,17 +35,12 @@ AppointmentSchema.methods.shouldBeCompleted = function () {
 };
 
 // Static method to update status of completed appointments
-AppointmentSchema.statics.updateCompletedAppointments = async function (
-  appointments
-) {
+AppointmentSchema.statics.updateCompletedAppointments = async function (appointments) {
   const currentTime = new Date();
   const updatedAppointments = [];
 
   for (const appointment of appointments) {
-    if (
-      appointment.status === "confirmed" &&
-      new Date(appointment.endTime) < currentTime
-    ) {
+    if (appointment.status === "confirmed" && new Date(appointment.endTime) < currentTime) {
       appointment.status = "completed";
       appointment.updatedAt = currentTime;
       await appointment.save();
@@ -106,10 +101,7 @@ AppointmentSchema.pre("save", function (next) {
 });
 
 // added these static methods to simplify availability checks, controller will be a lot cleaner
-AppointmentSchema.statics.getGroomerAvailability = async function (
-  groomerId,
-  date
-) {
+AppointmentSchema.statics.getGroomerAvailability = async function (groomerId, date) {
   // convert date to start/end of day
   const startOfDay = new Date(date);
   startOfDay.setHours(0, 0, 0, 0);
@@ -127,25 +119,21 @@ AppointmentSchema.statics.getGroomerAvailability = async function (
   return appointments;
 };
 
-AppointmentSchema.statics.getAvailableTimeSlots = async function (
-  groomerId,
-  date,
-  duration
-) {
-  // biz hours (variable)
+AppointmentSchema.statics.getAvailableTimeSlots = async function (groomerId, date, duration) {
+  // biz hours (should be variable but lets hardcode this for now)
   const businessStart = 9;
   const businessEnd = 17;
 
   // get all appointments for this day
   const appointments = await this.getGroomerAvailability(groomerId, date);
 
-  // start with full day slots in 30-minute increments
+  // start with full day slots in 60-minute increments
   const dayDate = new Date(date);
   const slots = [];
 
-  // generate all possible time slots during business hours
+  // generate all possible time slots during biz hours
   for (let hour = businessStart; hour < businessEnd; hour++) {
-    for (let minute = 0; minute < 60; minute += 30) {
+    for (let minute = 0; minute < 60; minute += 60) {
       const slotStart = new Date(dayDate);
       slotStart.setHours(hour, minute, 0, 0);
 

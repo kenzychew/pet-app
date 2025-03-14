@@ -38,5 +38,28 @@ export const formatTimeRange = (startTime, endTime) => {
   return `${startStr} - ${endStr}`;
 };
 
+// added this to filter out past time slots if selected date is today
+export const filterPastTimeSlots = (slots, selectedDate) => {
+  if (!slots || slots.length === 0) return [];
+
+  // check if selected date is today
+  const today = new Date(); // current datetime
+  const selected = new Date(selectedDate); // data from selectedDate param
+  const isToday =
+    today.getFullYear() === selected.getFullYear() &&
+    today.getMonth() === selected.getMonth() &&
+    today.getDate() === selected.getDate();
+
+  // if not today, return all slots
+  if (!isToday) return slots;
+
+  // if today, filter out slots that have already passed
+  const currentTime = new Date();
+  return slots.filter((slot) => {
+    const slotTime = new Date(slot.start);
+    return slotTime > currentTime;
+  });
+};
+
 // in js, jan is month 0, feb is month 1, ..., dec is month 11
 // https://www.w3schools.com/js/js_date_methods.asp

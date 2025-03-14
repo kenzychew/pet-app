@@ -4,7 +4,7 @@ import { Dialog, DialogTitle, DialogContent, DialogActions, Button, FormControl,
 import appointmentService from "../services/appointmentService";
 import useInitialData from "../hooks/useInitialData";
 import useAvailability from "../hooks/useAvailability";
-import { formatDateForInput } from "../utils/dateUtils";
+import { formatDateForInput, filterPastTimeSlots } from "../utils/dateUtils";
 
 const BookingForm = ({ open, onClose, onSuccess, isRescheduling = false, appointmentToReschedule = null }) => {
   // uses useInitialData custom hook for fetching initial data required for the form
@@ -96,9 +96,12 @@ const BookingForm = ({ open, onClose, onSuccess, isRescheduling = false, appoint
     }
   };
 
+  // Get valid time slots using the utility function
+  const validTimeSlots = filterPastTimeSlots(slots, formData.date);
+
   // form is valid if pet, groomer and startTime are selected
   const isFormValid = formData.petId && formData.groomerId && formData.startTime;
-  const today = formatDateForInput(new Date()); // date fields restricted to dates not earlier than today
+  const today = formatDateForInput(new Date()); // date fields restricted to dates not earlier than today via form input props below
 
   return (
     <Dialog open={open} onClose={onClose} maxWidth="sm" fullWidth>
@@ -183,9 +186,9 @@ const BookingForm = ({ open, onClose, onSuccess, isRescheduling = false, appoint
                 name="startTime"
                 value={formData.startTime}
                 onChange={handleChange}
-                disabled={loading || slots.length === 0}
+                disabled={loading || validTimeSlots.length === 0}
               >
-                {slots.map((slot) => {
+                {validTimeSlots.map((slot) => {
                   const time = new Date(slot.start);
                   return (
                     <MenuItem key={slot.start} value={slot.start}>
@@ -194,8 +197,8 @@ const BookingForm = ({ open, onClose, onSuccess, isRescheduling = false, appoint
                   );
                 })}
               </Select>
-              {slots.length === 0 && formData.groomerId && (
-                <FormHelperText error>No available slots for this date</FormHelperText>
+              {validTimeSlots.length === 0 && formData.groomerId && (
+                <FormHelperText error>No available slots left for this date</FormHelperText>
               )}
             </FormControl>
           )}
