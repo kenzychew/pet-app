@@ -48,26 +48,28 @@ A minimalist web application for pet grooming appointment bookings. This MVP ena
 
 #### As a pet owner
 
-- I want to be able to see all groomers and select them to see their availability
-- I want to book a grooming appointment for my pet on a specific date and time
-- I want to select either Basic Grooming(60 minutes) or Full Grooming(120 minutes) when booking
-- I want to see my upcoming appointments to remember when to bring my pet
-- I want to cancel an appointment (more than 24 hours before the start time)
-- I want to update an appointment (more than 24 hours before the start time) \*\*Add later
+- I want to be able to add a pet so I can send it for grooming
+- I want to be able to update notes for the groomer so they know what to expect
+- I want to see a list of appointments to remember when to bring my pet
+- I want to see a list of past appointments to track my pet's grooming history
+- I want to be create an grooming appointment for a pet by selecting a specific groomer
+- I want to know what time slots are available for the groomer by selecting a date
+- I want to to be able to reschedule an appointment (more than 24 hours before the start time)
+- I want to to be able to cancel an appointment if I make an appointment with another groomer (more than 24 hours before the start time)
 - I want to receive a confirmation email when my booking is complete (stretch)
 
 #### As a groomer
 
-- I want to see all upcoming appointments chronologically so I can prepare for my day
-- I want my dashboard to show when new appointments are booked
-- I want to see my availability calendar with booked time slots
+- I want to see my daily schedule of appointments to prepare for my day
 - I want to view details of the pet for each upcoming appointment to better prepare for the session
+- I want to see my past and future appointments to track my work history
 
 ### Availability
 
 #### As a groomer
 
-- I want to be able to manage my availability by setting my work hours.
+- I want to be able to manage my availability by setting my work hours (Stretch)
+- I want to receive notifications when a new appointment has been made
 
 ## Technology Stack
 
@@ -163,7 +165,6 @@ pet-grooming-service/
 - `POST /api/appointments` - Book a new appointment (owners only)
 - `GET /api/appointments` - Get all appointments for the current user
 - `GET /api/appointments/:id` - Get a specific appointment by ID
-- `PATCH /api/appointments/:id/status` - Update appointment status
 - `PUT /api//appointments/:id` - Reschedule appointment (owners only)
 - `DELETE /api/appointments/:id` - Delete appointment (owners only)
 
@@ -255,15 +256,23 @@ pet-grooming-service/
 https://stackoverflow.com/questions/73120266/how-can-i-combine-multiple-state-values-into-one-usestate
 https://react.dev/learn/choosing-the-state-structure
 https://www.robinwieruch.de/react-hooks-fetch-data
+https://blog.logrocket.com/best-react-scheduler-component-libraries
+https://medium.com/@linjdiana/creating-an-appointment-calendar-using-react-js-cd9912be06f6
+https://www.dhiwise.com/post/react-appointment-scheduler-top-libraries-for-event-booking
+https://www.geeksforgeeks.org/appointment-management-system-using-react
+https://stackoverflow.com/questions/3552461/how-do-i-format-a-date-in-javascript
+https://javascript.info/date
+https://www.dhiwise.com/post/guide-to-integrating-react-hook-form-with-material-ui
+https://mui.com/material-ui/migration/pickers-migration/
 
 ### Material UI
 
-https://mui.com/material-ui/api/app-bar/
-https://mui.com/material-ui/api/toolbar/
-https://mui.com/material-ui/api/typography/
-https://mui.com/material-ui/api/button/
-https://mui.com/material-ui/api/box/
-https://mui.com/system/the-sx-prop/
+https://mui.com/material-ui/api/app-bar
+https://mui.com/material-ui/api/toolbar
+https://mui.com/material-ui/api/typography
+https://mui.com/material-ui/api/button
+https://mui.com/material-ui/api/box
+https://mui.com/system/the-sx-prop
 
 ### Node.JS / MongoDB
 
