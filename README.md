@@ -263,7 +263,7 @@ https://www.geeksforgeeks.org/appointment-management-system-using-react
 https://stackoverflow.com/questions/3552461/how-do-i-format-a-date-in-javascript
 https://javascript.info/date
 https://www.dhiwise.com/post/guide-to-integrating-react-hook-form-with-material-ui
-https://mui.com/material-ui/migration/pickers-migration/
+https://dev.to/jps27cse/understanding-layout-components-and-react-router-outlet-in-react-3l2e
 
 ### Material UI
 
@@ -273,6 +273,7 @@ https://mui.com/material-ui/api/typography
 https://mui.com/material-ui/api/button
 https://mui.com/material-ui/api/box
 https://mui.com/system/the-sx-prop
+https://mui.com/material-ui/migration/pickers-migration/
 
 ### Node.JS / MongoDB
 
