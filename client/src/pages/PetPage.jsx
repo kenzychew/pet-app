@@ -1,11 +1,9 @@
 import React, { useState, useEffect } from "react";
-import { 
-  Typography, Paper, Box, List, ListItem, ListItemText, 
-  Divider, Alert, Container, Button, IconButton,
-  Dialog, DialogActions, DialogContent, DialogTitle
-} from "@mui/material";
+import { Typography, Paper, Box, List, ListItem, ListItemText, Divider, Alert, 
+  Container, Button, IconButton, Dialog, DialogActions, DialogContent, DialogTitle } from "@mui/material";
 import { Delete as DeleteIcon, Edit as EditIcon, Add as AddIcon } from "@mui/icons-material";
 import petService from "../services/petService";
+import appointmentService from "../services/appointmentService";
 import PetForm from "../components/PetForm";
 
 const PetPage = () => {
@@ -13,13 +11,24 @@ const PetPage = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
   const [modal, setModal] = useState({ form: false, delete: false, pet: null });
+  const [deleteError, setDeleteError] = useState("");
 
   useEffect(() => {
-    petService.getUserPets()
-      .then(data => setPets(data))
-      .catch(err => setError(err.error || "Failed to load pets"))
-      .finally(() => setLoading(false));
+    fetchPets();
   }, []);
+
+  const fetchPets = async () => {
+    try {
+      setLoading(true);
+      const data = await petService.getUserPets();
+      setPets(data);
+      setError("");
+    } catch (err) {
+      setError(err.error || "Failed to load pets");
+    } finally {
+      setLoading(false);
+    }
+  };
 
   const handleSavePet = async (formData, petId) => {
     try {
@@ -35,12 +44,43 @@ const PetPage = () => {
       setError(err.error || "Failed to save pet");
     }
   };
+  // logic to prevent deleting pets with upcoming appts
+  const checkPetAppointments = async (petId) => {
+    try {
+      const appointments = await appointmentService.getUserAppointments();
+      const currentDate = new Date();
+      return appointments.some(appointment => // some() instead of filter().length > 0
+        appointment.petId._id === petId &&
+        new Date(appointment.startTime) > currentDate && 
+        appointment.status === "confirmed"
+      );
+    } catch (err) {
+      console.error("Error checking pet appointments:", err);
+      throw err;
+    }
+  };
+
+  const handleOpenDeleteModal = async (pet) => {
+    try {
+      const hasAppointments = await checkPetAppointments(pet._id);      
+      if (hasAppointments) {
+        setDeleteError(`Cannot delete ${pet.name} because they have upcoming appointments scheduled. Please cancel all appointments first.`);
+      } else {
+        setDeleteError("");
+        setModal({ ...modal, delete: true, pet });
+      }
+    } catch (err) {
+      setError("Error checking pet appointments, try again");
+      throw err;
+    }
+  };
 
   const handleDeletePet = async () => {
     try {
       await petService.deletePet(modal.pet._id);
       setPets(pets.filter(p => p._id !== modal.pet._id));
       setModal({ ...modal, delete: false, pet: null });
+      setDeleteError("");
     } catch (err) {
       setError(err.error || "Failed to delete pet");
       setModal({ ...modal, delete: false });
@@ -64,6 +104,7 @@ const PetPage = () => {
         </Box>
         
         {error && <Alert severity="error" sx={{ mb: 2 }}>{error}</Alert>}
+        {deleteError && <Alert severity="warning" sx={{ mb: 2 }}>{deleteError}</Alert>}
         
         <Paper elevation={3} sx={{ p: 3 }}>
           {pets.length === 0 ? (
@@ -80,7 +121,7 @@ const PetPage = () => {
                         <IconButton onClick={() => setModal({ ...modal, form: true, pet })}>
                           <EditIcon />
                         </IconButton>
-                        <IconButton onClick={() => setModal({ ...modal, delete: true, pet })}>
+                        <IconButton onClick={() => handleOpenDeleteModal(pet)}>
                           <DeleteIcon />
                         </IconButton>
                       </>
