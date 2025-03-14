@@ -21,5 +21,3 @@ const ProtectedRoute = ({ allowedRoles = [] }) => {
 };
 
 export default ProtectedRoute;
-
-// https://dev.to/jps27cse/understanding-layout-components-and-react-router-outlet-in-react-3l2e

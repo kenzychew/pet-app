@@ -10,7 +10,6 @@ const AppointmentCard = ({ appointment, statusColors, onReschedule, onDelete }) 
   const endTime = new Date(appointment.endTime);
   const currentTime = new Date();
   
-
   // minute = 1000 * 60
   // hour = minute * 60
   // day = hour * 24

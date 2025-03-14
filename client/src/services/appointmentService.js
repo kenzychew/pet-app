@@ -17,9 +17,7 @@ const getAppointmentById = async (appointmentId) => {
     const response = await axios.get(`${API_URL}/${appointmentId}`);
     return response.data;
   } catch (error) {
-    throw (
-      error.response?.data || { error: "Failed to fetch appointment details" }
-    );
+    throw error.response?.data || { error: "Failed to fetch appointment details" };
   }
 };
 
@@ -39,18 +37,13 @@ const updateAppointmentStatus = async (appointmentId, status) => {
     });
     return response.data;
   } catch (error) {
-    throw (
-      error.response?.data || { error: "Failed to update appointment status" }
-    );
+    throw error.response?.data || { error: "Failed to update appointment status" };
   }
 };
 
 const updateAppointment = async (appointmentId, appointmentData) => {
   try {
-    const response = await axios.put(
-      `${API_URL}/${appointmentId}`,
-      appointmentData
-    );
+    const response = await axios.put(`${API_URL}/${appointmentId}`, appointmentData);
     return response.data;
   } catch (error) {
     throw error.response?.data || { error: "Failed to update appointment" };
