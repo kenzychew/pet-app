@@ -107,7 +107,6 @@ const AppointmentList = () => {
           )
         )}
       </Box>
-
       {/* Reschedule form */}
       {rescheduleData.appointment && (
         <BookingForm
@@ -125,4 +124,4 @@ const AppointmentList = () => {
   );
 };
 
-export default AppointmentList; 
+export default AppointmentList;

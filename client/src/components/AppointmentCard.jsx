@@ -1,6 +1,5 @@
 import React, { useState } from "react";
 import { Box, Typography, Card, CardContent, Chip, Button, Dialog, DialogTitle, DialogContent, DialogActions } from "@mui/material";
-import { formatDateWithDay, formatTimeRange } from "../utils/dateUtils";
 
 const AppointmentCard = ({ appointment, statusColors, onReschedule, onDelete }) => {
   const [isCancelDialogOpen, setIsCancelDialogOpen] = useState(false);
@@ -26,12 +25,13 @@ const AppointmentCard = ({ appointment, statusColors, onReschedule, onDelete }) 
         <Box sx={{ display: "flex", justifyContent: "space-between" }}>
           <Box>
             <Typography variant="h6">
-              {appointment.serviceType.charAt(0).toUpperCase() + appointment.serviceType.slice(1)} Grooming 
-              [{appointment.duration / 60} hours]
+              {startTime.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })} - 
+              {endTime.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
             </Typography>
             
-            <Typography variant="body2" color="text.secondary" sx={{ mt: 1 }}>
-              {formatDateWithDay(startTime)}, {formatTimeRange(startTime, endTime)}
+            <Typography variant="body1" sx={{ mt: 1 }}>
+              {appointment.serviceType.charAt(0).toUpperCase() + appointment.serviceType.slice(1)} Grooming 
+              ({appointment.duration / 60} hours)
             </Typography>
             
             <Typography variant="body2" sx={{ mt: 1 }}>
@@ -103,6 +103,4 @@ const AppointmentCard = ({ appointment, statusColors, onReschedule, onDelete }) 
   );
 };
 
-export default AppointmentCard; 
-
-// https://www.w3schools.com/js/js_date_methods.asp
+export default AppointmentCard;
