@@ -57,10 +57,10 @@ const RegisterPage = () => {
         <Paper elevation={3}>
           <Box p={4} component="form" onSubmit={handleSubmit}>
             <Typography variant="h4" align="center" gutterBottom>
-              Create an Account
+              Create user account
             </Typography>
             <Typography variant="body1" align="center" color="textSecondary" gutterBottom>
-              Join our pet grooming service
+              Join as a pet owner or groomer
             </Typography>
 
             {error && <Alert severity="error" sx={{ my: 2 }}>{error}</Alert>}
