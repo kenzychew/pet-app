@@ -1,8 +1,5 @@
 import { useState, useEffect } from "react";
-import { 
-  Dialog, DialogTitle, DialogContent, DialogActions,
-  TextField, Button, Grid, Alert
-} from "@mui/material";
+import { Dialog, DialogTitle, DialogContent, DialogActions, TextField, Button, Stack, Alert } from "@mui/material";
 
 const PetForm = ({ open, onClose, pet, onSave, error }) => {
   const [formData, setFormData] = useState({
@@ -47,53 +44,56 @@ const PetForm = ({ open, onClose, pet, onSave, error }) => {
         <DialogContent>
           {error && <Alert severity="error" sx={{ mb: 2 }}>{error}</Alert>}
           
-          <Grid container spacing={2}>
-            <Grid item xs={12} sm={6}>
+          <Stack spacing={2} sx={{ mt: 1 }}>
+            <Stack direction={{ xs: 'column', sm: 'row' }} spacing={2}>
               <TextField
-                fullWidth margin="normal"
-                label="Name" name="name"
+                fullWidth
+                label="Name"
+                name="name"
                 value={formData.name}
                 onChange={handleChange}
                 required
               />
-            </Grid>
-            <Grid item xs={12} sm={6}>
               <TextField
-                fullWidth margin="normal"
-                label="Species" name="species"
+                fullWidth
+                label="Species"
+                name="species"
                 value={formData.species}
                 onChange={handleChange}
                 required
               />
-            </Grid>
-            <Grid item xs={12} sm={6}>
+            </Stack>
+            
+            <Stack direction={{ xs: 'column', sm: 'row' }} spacing={2}>
               <TextField
-                fullWidth margin="normal"
-                label="Breed" name="breed"
+                fullWidth
+                label="Breed"
+                name="breed"
                 value={formData.breed}
                 onChange={handleChange}
                 required
               />
-            </Grid>
-            <Grid item xs={12} sm={6}>
               <TextField
-                fullWidth margin="normal"
-                label="Age" name="age" type="number"
+                fullWidth
+                label="Age"
+                name="age"
+                type="number"
                 value={formData.age}
                 onChange={handleChange}
                 required
               />
-            </Grid>
-            <Grid item xs={12}>
-              <TextField
-                fullWidth margin="normal"
-                label="Notes" name="notes"
-                value={formData.notes}
-                onChange={handleChange}
-                multiline rows={2}
-              />
-            </Grid>
-          </Grid>
+            </Stack>
+            
+            <TextField
+              fullWidth
+              label="Notes"
+              name="notes"
+              value={formData.notes}
+              onChange={handleChange}
+              multiline
+              rows={2}
+            />
+          </Stack>
         </DialogContent>
         <DialogActions>
           <Button onClick={onClose}>Cancel</Button>
