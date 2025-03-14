@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import { Box, Typography, Card, CardContent, Chip, Button, Dialog, DialogTitle, DialogContent, DialogActions } from "@mui/material";
+import { formatDateWithDay } from "../utils/dateUtils";
 
 const AppointmentCard = ({ appointment, statusColors, onReschedule, onDelete }) => {
   const [isCancelDialogOpen, setIsCancelDialogOpen] = useState(false);
@@ -22,10 +23,10 @@ const AppointmentCard = ({ appointment, statusColors, onReschedule, onDelete }) 
   return (
     <Card sx={{ mb: 2 }}>
       <CardContent>
-        <Box sx={{ display: "flex", justifyContent: "space-between" }}>
+        <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start" }}>
           <Box>
             <Typography variant="h6">
-              {startTime.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })} - 
+              {formatDateWithDay(startTime)}, {startTime.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })} - 
               {endTime.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
             </Typography>
             
@@ -35,7 +36,7 @@ const AppointmentCard = ({ appointment, statusColors, onReschedule, onDelete }) 
             </Typography>
             
             <Typography variant="body2" sx={{ mt: 1 }}>
-              Pet: {appointment.petId?.name || "Pet"}
+              Pet: {appointment.petId?.name || "Pet"} ({appointment.petId?.species || "Unknown"})
             </Typography>
             
             <Typography variant="body2" sx={{ mt: 1 }}>
