@@ -1,5 +1,5 @@
 import React from "react";
-import { Stack, CircularProgress, Alert, Chip, Card, CardContent, Box, Typography } from "@mui/material";
+import { Grid, CircularProgress, Alert, Chip, Card, CardContent, Box, Typography } from "@mui/material";
 
 const ScheduledAppointments = ({ appointments, loading, error, onAppointmentClick,statusColors }) => {
   if (loading) return <CircularProgress />;
@@ -7,13 +7,13 @@ const ScheduledAppointments = ({ appointments, loading, error, onAppointmentClic
   if (appointments.length === 0) return <Alert severity="info">No appointments scheduled for this day</Alert>;
 
   return (
-    <Stack container spacing={2}>
+    <Grid container spacing={2}>
       {appointments.map((appointment) => {
         const startTime = new Date(appointment.startTime);
         const endTime = new Date(appointment.endTime);
         
         return (
-          <Stack item xs={12} key={appointment._id}>
+          <Grid item xs={12} key={appointment._id}>
             <Card sx={{ cursor: 'pointer'}} onClick={() => onAppointmentClick(appointment)}>
               <CardContent>
                 <Box sx={{ display: "flex", justifyContent: "space-between" }}>
@@ -44,10 +44,10 @@ const ScheduledAppointments = ({ appointments, loading, error, onAppointmentClic
                 </Box>
               </CardContent>
             </Card>
-          </Stack>
+          </Grid>
         );
       })}
-    </Stack>
+    </Grid>
   );
 };
 
