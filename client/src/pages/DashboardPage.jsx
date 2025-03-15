@@ -4,6 +4,8 @@ import { Link } from "react-router-dom";
 import { useAuth } from "../contexts/AuthContext";
 import PetsIcon from "@mui/icons-material/Pets";
 import EventIcon from "@mui/icons-material/Event";
+import EventNoteIcon from '@mui/icons-material/EventNote';
+import CalendarMonthIcon from '@mui/icons-material/CalendarMonth';
 
 const DashboardPage = () => {
   const { user } = useAuth();
@@ -64,13 +66,14 @@ const DashboardPage = () => {
           
           {/* Groomer Dashboard */}
           {user?.role === "groomer" && (
+            <>
             <Grid item xs={12} md={6}>
               <Paper elevation={3} sx={{ p: 3 }}>
                 <Box sx={{ display: "flex", flexDirection: "column" }}>
-                  <EventIcon sx={{ fontSize: 40, mb: 2, color: "primary.main" }} />
+                  <EventNoteIcon sx={{ fontSize: 40, mb: 2, color: "primary.main" }} />
                   <Typography variant="h5" gutterBottom>My Schedule</Typography>
                   <Typography variant="body2" sx={{ mb: 3 }}>
-                    View your upcoming grooming appointments.
+                    View your daily schedule.
                   </Typography>
                   <Button 
                     variant="contained"
@@ -83,6 +86,26 @@ const DashboardPage = () => {
                 </Box>
               </Paper>
             </Grid>
+            <Grid item xs={12} md={6}>
+              <Paper elevation={3} sx={{ p: 3 }}>
+                <Box sx={{ display: "flex", flexDirection: "column" }}>
+                  <CalendarMonthIcon sx={{ fontSize: 40, mb: 2, color: "primary.main" }} />
+                  <Typography variant="h5" gutterBottom>My Calendar</Typography>
+                  <Typography variant="body2" sx={{ mb: 3 }}>
+                    View your calendar.
+                  </Typography>
+                  <Button 
+                    variant="contained"
+                    component={Link}
+                    to="/calendar"
+                    fullWidth
+                  >
+                    View Calendar
+                  </Button>
+                </Box>
+              </Paper>
+            </Grid>
+            </>
           )}
         </Grid>
       </Box>

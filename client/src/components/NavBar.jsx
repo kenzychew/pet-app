@@ -44,9 +44,14 @@ const NavBar = () => {
               
               {/* Groomer-specific navigation */}
               {user?.role === "groomer" && (
+                <>
                 <Button color="inherit" component={Link} to="/schedule">
                   Schedule
                 </Button>
+                <Button color="inherit" component={Link} to="/calendar">
+                  Calendar
+                </Button>
+                </>
               )}
               
               <Button color="inherit" onClick={handleLogout}>

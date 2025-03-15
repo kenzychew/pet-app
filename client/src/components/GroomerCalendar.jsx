@@ -64,13 +64,10 @@ const GroomerCalendar = ({ appointments }) => {
 
     return (
         <Paper>
-            <Typography>
-                Appointment Calendar
-            </Typography>
             <Box sx={{ height: '550px'}}>
                 <FullCalendar
                     plugins={[dayGridPlugin, timeGridPlugin, interactionPlugin]}
-                initialView="timeGridWeek"
+                initialView="timeGridDay"
                 headerToolbar={{
                     left: 'prev today next',
                     center: 'title',

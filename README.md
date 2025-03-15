@@ -11,7 +11,7 @@ A minimalist web application for pet grooming appointment bookings. This MVP ena
 - **Fixed Service Options**: Two service types with preset durations
 - **Appointment Scheduling**: Book appointments based on groomer availability
 - **Appointment Management**: Cancel or update appointments with time restrictions
-- **Admin Controls**: Groomers can view and manage their schedule
+- **Groomer Controls**: Groomers can view and manage their schedule
 - **Basic Notifications**: Email notifications for booking confirmations and cancellations
 
 ## User Stories
@@ -222,7 +222,7 @@ pet-grooming-service/
 - **Creation**:
 
   - Only pet owners can create bookings
-  - Appointments must fall within groomer's available timeslots (09:00-18:00)
+  - Appointments must fall within groomer's available timeslots (09:00-17:00)
   - System must check for existing appointments to avoid conflicts
 
 - **Updates**:
@@ -264,6 +264,10 @@ https://stackoverflow.com/questions/3552461/how-do-i-format-a-date-in-javascript
 https://javascript.info/date
 https://www.dhiwise.com/post/guide-to-integrating-react-hook-form-with-material-ui
 https://dev.to/jps27cse/understanding-layout-components-and-react-router-outlet-in-react-3l2e
+https://isamatov.com/react-fullcalendar-tutorial
+https://github.com/fullcalendar/fullcalendar-react/issues
+https://youtu.be/X2zLbKimvQQ?si=9CzuMgBe6opBIEk0
+https://fullcalendar.io/docs/event-object
 
 ### Material UI
 
