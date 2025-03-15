@@ -17,6 +17,7 @@ const DashboardPage = () => {
         </Typography>
         
         <Grid container spacing={3} sx={{ mt: 2 }}>
+          {/* Pet Owner Dashboard */}
           {user?.role === "owner" && (
             <>
               <Grid item xs={12} md={6}>
@@ -43,16 +44,17 @@ const DashboardPage = () => {
                 <Paper elevation={3} sx={{ p: 3, height: "100%" }}>
                   <Box sx={{ display: "flex", flexDirection: "column", height: "100%" }}>
                     <EventIcon sx={{ fontSize: 40, mb: 2, color: "primary.main" }} />
-                    <Typography variant="h5" gutterBottom>Book Appointment</Typography>
+                    <Typography variant="h5" gutterBottom>Manage Appointments</Typography>
                     <Typography variant="body2" sx={{ mb: 3, flexGrow: 1 }}>
-                      Schedule a grooming appointment for your pet.
+                      Book and manage your pet grooming appointments.
                     </Typography>
                     <Button 
-                      variant="outlined"
+                      variant="contained"
+                      component={Link}
+                      to="/appointments"
                       fullWidth
-                      disabled
                     >
-                      Coming Soon
+                      My Appointments
                     </Button>
                   </Box>
                 </Paper>
@@ -60,21 +62,23 @@ const DashboardPage = () => {
             </>
           )}
           
+          {/* Groomer Dashboard */}
           {user?.role === "groomer" && (
             <Grid item xs={12} md={6}>
               <Paper elevation={3} sx={{ p: 3 }}>
                 <Box sx={{ display: "flex", flexDirection: "column" }}>
                   <EventIcon sx={{ fontSize: 40, mb: 2, color: "primary.main" }} />
-                  <Typography variant="h5" gutterBottom>Appointments</Typography>
+                  <Typography variant="h5" gutterBottom>My Schedule</Typography>
                   <Typography variant="body2" sx={{ mb: 3 }}>
-                    View and manage your upcoming appointments.
+                    View your upcoming grooming appointments.
                   </Typography>
                   <Button 
-                    variant="outlined"
+                    variant="contained"
+                    component={Link}
+                    to="/schedule"
                     fullWidth
-                    disabled
                   >
-                    Coming Soon
+                    View Schedule
                   </Button>
                 </Box>
               </Paper>

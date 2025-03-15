@@ -1,54 +1,59 @@
 import React from "react";
-import {BrowserRouter as Router, Routes, Route, Navigate} from "react-router-dom";
-import { AuthProvider, useAuth } from "./contexts/AuthContext.jsx";
-import { Container, Box } from "@mui/material";
+import { BrowserRouter as Router, Routes, Route, Navigate } from "react-router-dom";
+import { ThemeProvider, CssBaseline } from "@mui/material";
+import theme from "./theme";
+import { AuthProvider } from "./contexts/AuthContext";
 
-// Import your pages
-import NavBar from "./components/Navbar";
+// Components
+import Layout from "./components/Layout";
+import ProtectedRoute from "./components/ProtectedRoute";
+
+// Pages
+import HomePage from "./pages/HomePage";
 import LoginPage from "./pages/LoginPage";
 import RegisterPage from "./pages/RegisterPage";
 import DashboardPage from "./pages/DashboardPage";
 import PetPage from "./pages/PetPage";
-
-// Protected route component
-const ProtectedRoute = ({ children }) => {
-  const { isAuthenticated, loading } = useAuth();
-
-  if (loading) {
-    return <div>Loading...</div>;
-  }
-
-  if (!isAuthenticated) {
-    return <Navigate to="/login" />;
-  }
-
-  return children;
-};
-
-function AppContent() {
-  return (
-    <Router>
-      <NavBar />
-      <Box sx={{ py: 4 }}>
-        <Container maxWidth="lg">
-          <Routes>
-            <Route path="/login" element={<LoginPage />} />
-            <Route path="/register" element={<RegisterPage />} />
-            <Route path="/dashboard" element={<ProtectedRoute><DashboardPage /></ProtectedRoute>} />
-            <Route path="/pets" element={<ProtectedRoute><PetPage /></ProtectedRoute>} />
-            <Route path="/" element={<Navigate to="/login" />} />
-          </Routes>
-        </Container>
-      </Box>
-    </Router>
-  );
-}
+import AppointmentPage from "./pages/AppointmentPage";
+import GroomerSchedulePage from "./pages/GroomerSchedulePage";
+import GroomerCalendarView from "./pages/GroomerCalendarView";
 
 function App() {
   return (
-    <AuthProvider>
-      <AppContent />
-    </AuthProvider>
+    <ThemeProvider theme={theme}>
+      <CssBaseline />
+      <AuthProvider>
+        <Router>
+          <Layout>
+            <Routes>
+              {/* Public routes */}
+              <Route path="/" element={<HomePage />} />
+              <Route path="/login" element={<LoginPage />} />
+              <Route path="/register" element={<RegisterPage />} />
+              
+              {/* Protected routes for authenticated users */}
+              <Route element={<ProtectedRoute />}>
+                <Route path="/dashboard" element={<DashboardPage />} />
+              </Route>
+              
+              {/* Protected routes for owners */}
+              <Route element={<ProtectedRoute allowedRoles={["owner"]} />}>
+                <Route path="/pets" element={<PetPage />} />
+                <Route path="/appointments" element={<AppointmentPage />} />
+              </Route>
+              
+              {/* Protected routes for groomers */}
+              <Route element={<ProtectedRoute allowedRoles={["groomer"]} />}>
+                <Route path="/schedule" element={<GroomerSchedulePage />} />
+              </Route>
+              
+              {/* Fallback route */}
+              <Route path="*" element={<Navigate to="/login" replace />} />
+            </Routes>
+          </Layout>
+        </Router>
+      </AuthProvider>
+    </ThemeProvider>
   );
 }
 
