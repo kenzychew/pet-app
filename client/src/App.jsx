@@ -16,7 +16,7 @@ import DashboardPage from "./pages/DashboardPage";
 import PetPage from "./pages/PetPage";
 import AppointmentPage from "./pages/AppointmentPage";
 import GroomerSchedulePage from "./pages/GroomerSchedulePage";
-import GroomerCalendarView from "./pages/GroomerCalendarView";
+import GroomerCalendarPage from "./pages/GroomerCalendarPage";
 
 function App() {
   return (
@@ -45,6 +45,7 @@ function App() {
               {/* Protected routes for groomers */}
               <Route element={<ProtectedRoute allowedRoles={["groomer"]} />}>
                 <Route path="/schedule" element={<GroomerSchedulePage />} />
+                <Route path="/calendar" element={<GroomerCalendarPage />} />
               </Route>
               
               {/* Fallback route */}
