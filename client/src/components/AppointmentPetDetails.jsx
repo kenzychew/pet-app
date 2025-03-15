@@ -2,18 +2,15 @@ import React from "react";
 import { Dialog, DialogTitle, DialogContent, DialogActions, Button, CircularProgress, Alert, Box, List, ListItem, ListItemText, Divider } from "@mui/material";
 
 const AppointmentPetDetails = ({ open, onClose, pet, loading, error }) => {
+  if (loading) return <CircularProgress />;
+  if (error) return <Alert severity="error">{error}</Alert>;
+
   return (
     <Dialog open={open} onClose={onClose} maxWidth="sm" fullWidth>
       <DialogTitle>Pet Details</DialogTitle>
       
       <DialogContent>
-        {loading ? (
-          <Box>
-            <CircularProgress />
-          </Box>
-        ) : error ? (
-          <Alert severity="error">{error}</Alert>
-        ) : pet && (
+        {pet && (
           <List>
             <ListItem>
               <ListItemText 
