@@ -49,8 +49,9 @@ const PetPage = () => {
     try {
       const appointments = await appointmentService.getUserAppointments();
       const currentDate = new Date();
-      return appointments.some(appointment => // some() instead of filter().length > 0
-        appointment.petId._id === petId &&
+      return appointments.some(appointment => 
+        appointment.petId && 
+        (appointment.petId._id === petId || appointment.petId === petId) &&
         new Date(appointment.startTime) > currentDate && 
         appointment.status === "confirmed"
       );
