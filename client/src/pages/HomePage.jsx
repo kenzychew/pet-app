@@ -3,12 +3,13 @@ import { Typography, Paper, Box, Button, Container } from "@mui/material";
 import { Link } from "react-router-dom";
 import { useAuth } from "../contexts/AuthContext";
 import ServiceRates from "../components/ServiceRates";
+
 const HomePage = () => {
   const { isAuthenticated } = useAuth();
 
   return (
-    <Container maxWidth="md">
-      <Paper elevation={3} sx={{ p: 4, mt: 8, textAlign: "center" }}>
+    <Container maxWidth="lg">
+      <Paper elevation={3} sx={{ p: 4, mt: 4, textAlign: "center" }}>
         <Typography variant="h3" component="h1" gutterBottom>
           Furkids Booking App
         </Typography>
@@ -37,16 +38,7 @@ const HomePage = () => {
                 component={Link}
                 to="/login"
               >
-                Login
-              </Button>
-              <Button
-                variant="outlined"
-                color="primary"
-                size="large"
-                component={Link}
-                to="/register"
-              >
-                Register
+                Book Now
               </Button>
             </Box>
           )}
