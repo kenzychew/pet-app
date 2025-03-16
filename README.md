@@ -268,6 +268,7 @@ https://isamatov.com/react-fullcalendar-tutorial
 https://github.com/fullcalendar/fullcalendar-react/issues
 https://youtu.be/X2zLbKimvQQ?si=9CzuMgBe6opBIEk0
 https://fullcalendar.io/docs/event-object
+https://stackoverflow.com/questions/61244957/how-to-show-value-when-using-date-type-in-textfield
 
 ### Material UI
 

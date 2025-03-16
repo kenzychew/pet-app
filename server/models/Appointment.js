@@ -128,22 +128,22 @@ AppointmentSchema.statics.getAvailableTimeSlots = async function (groomerId, dat
   const appointments = await this.getGroomerAvailability(groomerId, date);
 
   // start with full day slots in 60-minute increments
-  const dayDate = new Date(date);
+  const dayDate = new Date(date); // 2024-03-16 => 2024-03-16T00:00:00
   const slots = [];
 
   // generate all possible time slots during biz hours
   for (let hour = businessStart; hour < businessEnd; hour++) {
     for (let minute = 0; minute < 60; minute += 60) {
-      const slotStart = new Date(dayDate);
-      slotStart.setHours(hour, minute, 0, 0);
+      const slotStart = new Date(dayDate); // Date obj for start time
+      slotStart.setHours(hour, minute, 0, 0); // set seconds and ms to 0
 
       const slotEnd = new Date(slotStart);
       slotEnd.setMinutes(slotStart.getMinutes() + duration);
 
       // do not add slots that extend beyond biz hrs
       if (
-        slotEnd.getHours() < businessEnd ||
-        (slotEnd.getHours() === businessEnd && slotEnd.getMinutes() === 0)
+        slotEnd.getHours() < businessEnd || // if end time before 5pm
+        (slotEnd.getHours() === businessEnd && slotEnd.getMinutes() === 0) // if end time is exactly 5:00pm
       ) {
         slots.push({
           start: new Date(slotStart),
@@ -169,6 +169,16 @@ AppointmentSchema.statics.getAvailableTimeSlots = async function (groomerId, dat
 
   // filter to only available slots
   return slots.filter((slot) => slot.available);
+  // assuming all available slots are returned, output:
+  // [
+  //   { "start": "2025-03-15T09:00:00Z", "end": "2025-03-15T10:00:00Z", "available": true },
+  //   { "start": "2025-03-15T11:00:00Z", "end": "2025-03-15T12:00:00Z", "available": true },
+  //   { "start": "2025-03-15T12:00:00Z", "end": "2025-03-15T13:00:00Z", "available": true },
+  //   { "start": "2025-03-15T13:00:00Z", "end": "2025-03-15T14:00:00Z", "available": true },
+  //   { "start": "2025-03-15T14:00:00Z", "end": "2025-03-15T15:00:00Z", "available": true },
+  //   { "start": "2025-03-15T15:00:00Z", "end": "2025-03-15T16:00:00Z", "available": true },
+  //   { "start": "2025-03-15T16:00:00Z", "end": "2025-03-15T17:00:00Z", "available": true }
+  // ]
 };
 
 module.exports = mongoose.model("Appointment", AppointmentSchema);
