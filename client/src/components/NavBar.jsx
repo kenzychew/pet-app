@@ -21,7 +21,7 @@ const NavBar = () => {
           to="/"
           sx={{ flexGrow: 1, textDecoration: "none", color: "white" }}
         >
-          Pet App
+          Furkids
         </Typography>
         <Box>
           {isAuthenticated ? (

@@ -2,7 +2,7 @@ import React from "react";
 import { Typography, Paper, Box, Button, Container } from "@mui/material";
 import { Link } from "react-router-dom";
 import { useAuth } from "../contexts/AuthContext";
-
+import ServiceRates from "../components/ServiceRates";
 const HomePage = () => {
   const { isAuthenticated } = useAuth();
 
@@ -10,7 +10,7 @@ const HomePage = () => {
     <Container maxWidth="md">
       <Paper elevation={3} sx={{ p: 4, mt: 8, textAlign: "center" }}>
         <Typography variant="h3" component="h1" gutterBottom>
-          Welcome to Pet App
+          Furkids Booking App
         </Typography>
         
         <Typography variant="h6" color="text.secondary">
@@ -51,6 +51,7 @@ const HomePage = () => {
             </Box>
           )}
         </Box>
+        <ServiceRates />
       </Paper>
     </Container>
   );
