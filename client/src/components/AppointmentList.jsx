@@ -4,7 +4,7 @@ import AppointmentCard from "./AppointmentCard";
 import BookingForm from "./BookingForm";
 import appointmentService from "../services/appointmentService";
 
-const AppointmentList = () => {
+const AppointmentList = ({ onRescheduleSuccess, onDeleteSuccess, onError }) => {
   const [appointments, setAppointments] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -25,6 +25,7 @@ const AppointmentList = () => {
       setError(null);
     } catch (err) {
       setError(err.error || "Failed to load appointments");
+      if (onError) onError(err.error || "Failed to load appointments");
     } finally {
       setLoading(false);
     }
@@ -34,11 +35,19 @@ const AppointmentList = () => {
     try {
       setLoading(true);
       await appointmentService.deleteAppointment(id);
-      fetchAppointments();
+      await fetchAppointments();
+      if (onDeleteSuccess) onDeleteSuccess();
     } catch (err) {
       setError(err.error || "Failed to cancel appointment");
+      if (onError) onError(err.error || "Failed to cancel appointment");
       setLoading(false);
     }
+  };
+
+  const handleRescheduleSuccess = () => {
+    fetchAppointments();
+    setRescheduleData({ open: false, appointment: null });
+    if (onRescheduleSuccess) onRescheduleSuccess();
   };
 
   // sorted by startTime in asc order
@@ -53,12 +62,54 @@ const AppointmentList = () => {
   
   const pastAppointments = sortedAppointments.filter(
     appt => new Date(appt.startTime) < currentDate
-  );
+  ).reverse();
 
   // status color mapping - primary, secondary, error, info (blue)
   const statusColors = {
     confirmed: "warning",
     completed: "success"
+  };
+
+  // Render appointment cards or empty state message for upcoming appointments
+  const renderUpcomingAppointments = () => {
+    if (upcomingAppointments.length === 0) {
+      return (
+        <Typography variant="body1" sx={{ textAlign: "center", mt: 3 }}>
+          No upcoming appointments
+        </Typography>
+      );
+    }
+
+    return upcomingAppointments.map(appointment => (
+      <AppointmentCard 
+        key={appointment._id} 
+        appointment={appointment} 
+        statusColors={statusColors}
+        onReschedule={(appt) => setRescheduleData({ open: true, appointment: appt })}
+        onDelete={handleDelete}
+      />
+    ));
+  };
+
+  // Render appointment cards or empty state message for past appointments
+  const renderPastAppointments = () => {
+    if (pastAppointments.length === 0) {
+      return (
+        <Typography variant="body1" sx={{ textAlign: "center", mt: 3 }}>
+          No past appointments
+        </Typography>
+      );
+    }
+
+    return pastAppointments.map(appointment => (
+      <AppointmentCard 
+        key={appointment._id} 
+        appointment={appointment} 
+        statusColors={statusColors}
+        onReschedule={(appt) => setRescheduleData({ open: true, appointment: appt })}
+        onDelete={handleDelete}
+      />
+    ));
   };
 
   if (loading) return <CircularProgress />;
@@ -73,49 +124,16 @@ const AppointmentList = () => {
 
       <Box sx={{ mt: 2 }}>
         {/* Display appointments based on active tab */}
-        {activeTab === 0 ? (
-          upcomingAppointments.length > 0 ? (
-            upcomingAppointments.map(appointment => (
-              <AppointmentCard 
-                key={appointment._id} 
-                appointment={appointment} 
-                statusColors={statusColors}
-                onReschedule={(appt) => setRescheduleData({ open: true, appointment: appt })}
-                onDelete={handleDelete}
-              />
-            ))
-          ) : (
-            <Typography variant="body1" sx={{ textAlign: "center", mt: 3 }}>
-              No upcoming appointments
-            </Typography>
-          )
-        ) : (
-          pastAppointments.length > 0 ? (
-            pastAppointments.map(appointment => (
-              <AppointmentCard 
-                key={appointment._id} 
-                appointment={appointment} 
-                statusColors={statusColors}
-                onReschedule={(appt) => setRescheduleData({ open: true, appointment: appt })}
-                onDelete={handleDelete}
-              />
-            ))
-          ) : (
-            <Typography variant="body1" sx={{ textAlign: "center", mt: 3 }}>
-              No past appointments
-            </Typography>
-          )
-        )}
+        {activeTab === 0 ? renderUpcomingAppointments() : renderPastAppointments()}
       </Box>
+      
       {/* Reschedule form */}
       {rescheduleData.appointment && (
         <BookingForm
           open={rescheduleData.open}
           onClose={() => setRescheduleData({ open: false, appointment: null })}
-          onSuccess={() => {
-            fetchAppointments();
-            setRescheduleData({ open: false, appointment: null });
-          }}
+          onSuccess={handleRescheduleSuccess}
+          onError={onError}
           isRescheduling={true}
           appointmentToReschedule={rescheduleData.appointment}
         />
