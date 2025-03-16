@@ -6,7 +6,7 @@ import useInitialData from "../hooks/useInitialData";
 import useAvailability from "../hooks/useAvailability";
 import { formatDateForInput, filterPastTimeSlots } from "../utils/dateUtils";
 
-const BookingForm = ({ open, onClose, onSuccess, isRescheduling = false, appointmentToReschedule = null }) => {
+const BookingForm = ({ open, onClose, onSuccess, onError, isRescheduling = false, appointmentToReschedule = null }) => {
   // uses useInitialData custom hook for fetching initial data required for the form
   const { pets, groomers, loading: dataLoading, error: dataError } = useInitialData(open);
   
@@ -55,7 +55,7 @@ const BookingForm = ({ open, onClose, onSuccess, isRescheduling = false, appoint
     }
   }, [isRescheduling, appointmentToReschedule, open]);
 
-  // updates formData for each input field
+  // changes to input field updates formData state
   const handleChange = (e) => {
     const { name, value } = e.target;
     
@@ -90,13 +90,15 @@ const BookingForm = ({ open, onClose, onSuccess, isRescheduling = false, appoint
       // triggers onSuccess callback which calls fetchAppointments and resets reschedule data, 
       onSuccess();
     } catch (err) { // sets error msg accordingly
-      setError(err.message || `Failed to ${isRescheduling ? 'reschedule' : 'book'} appointment`);
+      const errorMessage = err.message || `Failed to ${isRescheduling ? 'reschedule' : 'book'} appointment`;
+      setError(errorMessage);
+      if (onError) onError(errorMessage);
     } finally {
       setSubmitting(false);
     }
   };
 
-  // Get valid time slots using the utility function
+  // filters out past time slots using the utility function in dateUtils.js
   const validTimeSlots = filterPastTimeSlots(slots, formData.date);
 
   // form is valid if pet, groomer and startTime are selected

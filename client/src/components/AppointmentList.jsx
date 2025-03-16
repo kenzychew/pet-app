@@ -70,7 +70,7 @@ const AppointmentList = ({ onRescheduleSuccess, onDeleteSuccess, onError }) => {
     completed: "success"
   };
 
-  // Render appointment cards or empty state message for upcoming appointments
+  // render upcoming appointment cards
   const renderUpcomingAppointments = () => {
     if (upcomingAppointments.length === 0) {
       return (
@@ -91,7 +91,7 @@ const AppointmentList = ({ onRescheduleSuccess, onDeleteSuccess, onError }) => {
     ));
   };
 
-  // Render appointment cards or empty state message for past appointments
+  // render past appointment cards
   const renderPastAppointments = () => {
     if (pastAppointments.length === 0) {
       return (

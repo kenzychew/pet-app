@@ -14,6 +14,7 @@ const AppointmentCard = ({ appointment, statusColors, onReschedule, onDelete }) 
   // hour = minute * 60
   // day = hour * 24
   // year = day * 365
+  // business logic for reschedule and cancellations
   const isUpcoming = startTime > currentTime;
   const isConfirmed = appointment.status === "confirmed";
   const hoursDifference = (startTime - currentTime) / (1000 * 60 * 60);
