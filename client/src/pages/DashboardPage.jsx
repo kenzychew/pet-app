@@ -13,7 +13,7 @@ const DashboardPage = () => {
   return (
     <Container maxWidth="md">
       <Box sx={{ py: 3 }}>
-        <Typography variant="h4" gutterBottom>Dashboard</Typography>
+        <Typography variant="h4" gutterBottom>{user?.role === "owner" ? "Owner Dashboard" : "Groomer Dashboard"}</Typography>
         <Typography variant="h6" gutterBottom color="text.secondary">
           Welcome, {user?.name}
         </Typography>
