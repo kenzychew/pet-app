@@ -150,8 +150,12 @@ AppointmentSchema.statics.getAvailableTimeSlots = async function (groomerId, dat
     for (let minute = 0; minute < 60; minute += 60) {
       const slotStart = new Date(dayDate); // Date obj for start time
       slotStart.setHours(hour, minute, 0, 0); // set seconds and ms to 0
-
+      // create new Date obj that is a copy of slotStart
+      // impt bc Date objs are reference types, so this ensures we dont modify the og slotStart obj
       const slotEnd = new Date(slotStart);
+      // gets current mins from slotStart and adds duration
+      // 2:30PM + 45 = 3.15PM, sets slotEnd to 3:15PM
+      // handles minute overflow correctly
       slotEnd.setMinutes(slotStart.getMinutes() + duration);
 
       // do not add slots that extend beyond biz hrs
