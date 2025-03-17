@@ -34,26 +34,37 @@ const BookingForm = ({ open, onClose, onSuccess, onError, isRescheduling = false
   const formError = error || dataError || slotsError; // submission, initial data, or slot fetching
 
   // useEffect for initializing form data when form is open or if rescheduling mode is active
-  useEffect(() => { // if rescheduling, pre-fill form using appointmentToReschedule data
-    if (isRescheduling && appointmentToReschedule) {
-      const appointmentDate = new Date(appointmentToReschedule.startTime);
-      setFormData({
-        petId: appointmentToReschedule.petId._id || appointmentToReschedule.petId,
-        groomerId: appointmentToReschedule.groomerId._id || appointmentToReschedule.groomerId,
-        serviceType: appointmentToReschedule.serviceType,
-        date: formatDateForInput(appointmentDate), // output: YYYY-MM-DD
-        startTime: ""
-      });
-    } else { // sets default values for new booking
-      setFormData({
-        petId: "",
-        groomerId: "",
-        serviceType: "basic",
-        date: formatDateForInput(new Date()),
-        startTime: ""
-      });
+  useEffect(() => {
+    // only set form data when both the form is open AND the required data is loaded
+    if (open && !dataLoading && pets.length > 0 && groomers.length > 0) {
+      if (isRescheduling && appointmentToReschedule) {
+        const appointmentDate = new Date(appointmentToReschedule.startTime);
+        const petId = appointmentToReschedule.petId._id || appointmentToReschedule.petId;
+        const groomerId = appointmentToReschedule.groomerId._id || appointmentToReschedule.groomerId;
+        
+        // verify that the petId and groomerId exist in our loaded data
+        const petExists = pets.some(pet => pet._id === petId);
+        const groomerExists = groomers.some(groomer => groomer._id === groomerId);
+        
+        setFormData({
+          petId: petExists ? petId : "",
+          groomerId: groomerExists ? groomerId : "",
+          serviceType: appointmentToReschedule.serviceType,
+          date: formatDateForInput(appointmentDate),
+          startTime: ""
+        });
+      } else {
+        // default values for new booking
+        setFormData({
+          petId: pets.length > 0 ? pets[0]._id : "",
+          groomerId: "",
+          serviceType: "basic",
+          date: formatDateForInput(new Date()),
+          startTime: ""
+        });
+      }
     }
-  }, [isRescheduling, appointmentToReschedule, open]);
+  }, [isRescheduling, appointmentToReschedule, open, dataLoading, pets, groomers]);
 
   // changes to input field updates formData state
   const handleChange = (e) => {
@@ -102,6 +113,7 @@ const BookingForm = ({ open, onClose, onSuccess, onError, isRescheduling = false
   const validTimeSlots = filterPastTimeSlots(slots, formData.date);
 
   // form is valid if pet, groomer and startTime are selected
+  // ensures all required fields are filled
   const isFormValid = formData.petId && formData.groomerId && formData.startTime;
   const today = formatDateForInput(new Date()); // date fields restricted to dates not earlier than today via form input props below
 
@@ -115,7 +127,7 @@ const BookingForm = ({ open, onClose, onSuccess, onError, isRescheduling = false
         {formError && <Alert severity="error" sx={{ mb: 2 }}>{formError}</Alert>}
         
         <Stack spacing={2} sx={{ mt: 1 }}>
-          {/* Pet Selection */}
+          {/* Pet selection field */}
           <FormControl fullWidth required>
             <InputLabel>Pet</InputLabel>
             <Select
@@ -135,7 +147,7 @@ const BookingForm = ({ open, onClose, onSuccess, onError, isRescheduling = false
             )}
           </FormControl>
           
-          {/* Groomer Selection */}
+          {/* Groomer selection field */}
           <FormControl fullWidth required>
             <InputLabel>Groomer</InputLabel>
             <Select
@@ -152,7 +164,7 @@ const BookingForm = ({ open, onClose, onSuccess, onError, isRescheduling = false
             </Select>
           </FormControl>
           
-          {/* Service Type */}
+          {/* Service type selection */}
           <FormControl fullWidth required>
             <InputLabel>Service Type</InputLabel>
             <Select
@@ -166,7 +178,7 @@ const BookingForm = ({ open, onClose, onSuccess, onError, isRescheduling = false
             </Select>
           </FormControl>
           
-          {/* Date Selection */}
+          {/* Date selection field */}
           <TextField
             label="Date"
             type="date"
@@ -180,7 +192,8 @@ const BookingForm = ({ open, onClose, onSuccess, onError, isRescheduling = false
             disabled={loading}
           />
           
-          {/* Time Slot Selection */}
+          {/* Time slot selection */}
+          {/* Dynamic field availability */}
           {formData.groomerId && formData.date && (
             <FormControl fullWidth required>
               <InputLabel>Time Slot</InputLabel>
