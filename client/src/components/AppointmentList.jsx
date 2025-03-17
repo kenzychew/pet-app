@@ -33,6 +33,8 @@ const AppointmentList = ({ onRescheduleSuccess, onDeleteSuccess, onError }) => {
   }, []); // empty dependency array with lint disable comment
 
   // separate fetchAppointments for event handlers
+  // defined at component level, to fix ESLint dependency warning React Hook useEffect has a missing dependency
+  // useCallback was producing weird behaviour
   const fetchAppointments = async () => {
     try {
       setLoading(true);

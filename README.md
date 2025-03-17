@@ -360,6 +360,8 @@ https://github.com/fullcalendar/fullcalendar-react/issues
 https://youtu.be/X2zLbKimvQQ?si=9CzuMgBe6opBIEk0
 https://fullcalendar.io/docs/event-object
 https://stackoverflow.com/questions/61244957/how-to-show-value-when-using-date-type-in-textfield
+https://github.com/facebook/react/issues/14920
+https://stackoverflow.com/questions/55840294/how-to-fix-missing-dependency-warning-when-using-useeffect-react-hook
 
 ### Material UI
 
