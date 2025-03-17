@@ -56,7 +56,7 @@ AppointmentSchema.statics.checkForConflicts = async function (
   groomerId,
   startTime,
   endTime,
-  excludeAppointmentId = null
+  excludeAppointmentId = null // optional param to exclude current appt from check, used when updating existing appt
 ) {
   const query = {
     groomerId,
@@ -65,14 +65,18 @@ AppointmentSchema.statics.checkForConflicts = async function (
       // new appointment starts during an existing appointment
       { startTime: { $lt: endTime }, endTime: { $gt: startTime } },
     ],
-  }; //* this condition captures all possible overlap scenarios
+  };
+  // finds appts that overlap with proposed time slot
+  // the existing appointment starts before (lt) the new end time AND ends after (gt) the new start time
+
+  // this condition captures all possible overlap scenarios
   /* 
   S1: New appt starts during existing appt
   Existing:  |------------|
   New:              |------------|
   S2: New appt ends during existing appt
-  Existing:  |------------|
-  New:              |------------|
+  Existing:          |------------|
+  New:      |------------|
   S3: New appt completely inside existing appt
   Existing:  |---------------|
   New:          |-----|
@@ -85,22 +89,24 @@ AppointmentSchema.statics.checkForConflicts = async function (
   if (excludeAppointmentId) {
     query._id = { $ne: excludeAppointmentId };
   }
-
+  // executes query to get all appts that satisfy the conditions
   const conflictingAppointments = await this.find(query);
+  // returns true if there are any conflicting appointments
   return conflictingAppointments.length > 0;
 };
-
-// add validation for startTime before endTime
+// middleware (pre-save validation)
+// ensure startTime always before endTime
 AppointmentSchema.pre("save", function (next) {
   if (this.startTime >= this.endTime) {
     const err = new Error("Start time must be before end time");
     return next(err);
   }
-  this.updatedAt = Date.now();
+  this.updatedAt = Date.now(); // updates updatedAt field
   next();
 });
 
 // added these static methods to simplify availability checks, controller will be a lot cleaner
+// get all confirmed appointments for a groomer on a given day
 AppointmentSchema.statics.getGroomerAvailability = async function (groomerId, date) {
   // convert date to start/end of day
   const startOfDay = new Date(date);
@@ -109,7 +115,8 @@ AppointmentSchema.statics.getGroomerAvailability = async function (groomerId, da
   const endOfDay = new Date(date);
   endOfDay.setHours(23, 59, 59, 999);
 
-  // find all confirmed appointments for this groomer on this day
+  // find all appointments with confirmed status for this groomer on this day
+  // sort by startTime
   const appointments = await this.find({
     groomerId,
     status: "confirmed",
@@ -149,27 +156,28 @@ AppointmentSchema.statics.getAvailableTimeSlots = async function (groomerId, dat
           start: new Date(slotStart),
           end: new Date(slotEnd),
           available: true,
-        });
+        }); // get array of slot objs
       }
     }
   }
 
   // mark slots as unavailable if they conflict with existing appointments
+  // loop through all existing (confirmed) appointments
   for (const appointment of appointments) {
     const appointmentStart = new Date(appointment.startTime);
     const appointmentEnd = new Date(appointment.endTime);
-
+    // loop through all possible slots
     for (const slot of slots) {
-      // Check if this slot overlaps with the appointment
+      // check if proposed slot overlaps with existing appointment
       if (slot.start < appointmentEnd && slot.end > appointmentStart) {
         slot.available = false;
       }
     }
   }
 
-  // filter to only available slots
+  // filter and return only available slots
   return slots.filter((slot) => slot.available);
-  // assuming all available slots are returned, output:
+  // assuming all slots are available ie. no conflicts, output:
   // [
   //   { "start": "2025-03-15T09:00:00Z", "end": "2025-03-15T10:00:00Z", "available": true },
   //   { "start": "2025-03-15T11:00:00Z", "end": "2025-03-15T12:00:00Z", "available": true },

@@ -44,7 +44,7 @@ export const filterPastTimeSlots = (slots, selectedDate) => {
 
   // check if selected date is today
   const today = new Date(); // current datetime
-  const selected = new Date(selectedDate); // data from selectedDate param
+  const selected = new Date(selectedDate); // formData.date
   const isToday =
     today.getFullYear() === selected.getFullYear() &&
     today.getMonth() === selected.getMonth() &&

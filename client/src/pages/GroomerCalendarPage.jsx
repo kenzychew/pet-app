@@ -4,19 +4,19 @@ import appointmentService from '../services/appointmentService';
 import GroomerCalendar from '../components/GroomerCalendar';
 
 const GroomerCalendarPage = () => {
-    const [appointments, setAppointments] = useState([]);
+    const [appointments, setAppointments] = useState([]); // stores list of appts fetched from API
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
-    
+    // useCallback memoizes the fetchAppointments function
     const fetchAppointments = useCallback(async () => {
         try {
             setLoading(true);
             const data = await appointmentService.getUserAppointments();
-            
+            // filters out invalid appts (those without start or end times)
             const validAppointments = data.filter(appointment => 
                 appointment.startTime && appointment.endTime
             );
-
+            // updates appointments state with valid appts
             setAppointments(validAppointments);
             setError(null);
         } catch (err) {
@@ -26,10 +26,10 @@ const GroomerCalendarPage = () => {
             setLoading(false);
         }
     }, []);
-
+    // fetch appointments on mount
     useEffect(() => {
         fetchAppointments();
-    }, [fetchAppointments]);
+    }, [fetchAppointments]); // dependency array contains fetchAppointments to properly handle memoized function
 
     if (loading) return <CircularProgress />;
     if (error) return <Alert severity="error">{error}</Alert>;

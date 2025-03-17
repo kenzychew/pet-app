@@ -78,7 +78,7 @@ exports.createAppointment = async (req, res) => {
         .json({ error: "Cannot book appointments in the past" });
     }
 
-    // verify start time is before end time, probably can remove this since no longer using endTime
+    // verify start time is before end time
     if (appointmentStart >= appointmentEnd) {
       return res
         .status(400)

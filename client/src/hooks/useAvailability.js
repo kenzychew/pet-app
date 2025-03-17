@@ -18,7 +18,7 @@ const useAvailability = (groomerId, date, serviceType) => {
         setLoading(true);
         const duration = serviceType === "basic" ? 60 : 120; // determine duration based on serviceType
         const availableSlots = await groomerService.getGroomerAvailability(
-          groomerId, // API call to groomerService to get
+          groomerId, // service call to groomerService to get groomer's availability
           date,
           duration
         );
