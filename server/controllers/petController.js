@@ -115,6 +115,24 @@ exports.deletePet = async (req, res) => {
         .json({ error: "Not authorized to delete this pet" });
     }
 
+    // prevent pets with upcoming appointments from being deleted
+    const Appointment = require("../models/Appointment");
+    const currentDate = new Date();
+
+    const upcomingAppointments = await Appointment.find({
+      petId: petId,
+      status: "confirmed",
+      startTime: { $gte: currentDate },
+    });
+
+    if (upcomingAppointments.length > 0) {
+      return res.status(400).json({
+        error:
+          "Cannot delete pets with upcoming appointments. Please cancel all appointments first.",
+        appointments: upcomingAppointments,
+      });
+    }
+
     await Pet.deleteOne({ _id: petId });
 
     res.status(200).json({
