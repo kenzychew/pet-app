@@ -1,7 +1,7 @@
 import React from "react";
 import { Grid, CircularProgress, Alert, Chip, Card, CardContent, Box, Typography } from "@mui/material";
 
-const ScheduledAppointments = ({ appointments, loading, error, onAppointmentClick,statusColors }) => {
+const ScheduledAppointments = ({ appointments, loading, error, onAppointmentClick, statusColors }) => {
   if (loading) return <CircularProgress />;
   if (error) return <Alert severity="error">{error}</Alert>;
   if (appointments.length === 0) return <Alert severity="info">No appointments scheduled for this day</Alert>;

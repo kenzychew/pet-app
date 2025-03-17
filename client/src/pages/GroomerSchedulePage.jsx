@@ -13,13 +13,13 @@ import { isSameDay } from "date-fns";
 // handles date navigation
 // coordinate communication between child components
 
-const ScheduledAppointmentsPage = () => {
-  const [appointments, setAppointments] = useState([]);
+const GroomerSchedulePage = () => {
+  const [appointments, setAppointments] = useState([]); // stores filtered list of appts for selected date
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-  const [selectedDate, setSelectedDate] = useState(formatDateForInput(new Date()));
+  const [selectedDate, setSelectedDate] = useState(formatDateForInput(new Date())); // tracks currently selected date for filtering
   const [petDetailsOpen, setPetDetailsOpen] = useState(false);
-  const [selectedPet, setSelectedPet] = useState(null);
+  const [selectedPet, setSelectedPet] = useState(null); // store details of the selected pet
   const [petLoading, setPetLoading] = useState(false);
   const [petError, setPetError] = useState(null);
   
@@ -55,7 +55,7 @@ const ScheduledAppointmentsPage = () => {
     };
 
     fetchAppointments();
-  }, [selectedDate]); // only include selectedDate as a dependency
+  }, [selectedDate]); // selectedDate serves as dependency for use hook, triggering re-fetch when date changes
   
   // navigate to prev/next day, update selected date state
   const changeDate = (days) => {
@@ -153,4 +153,4 @@ const ScheduledAppointmentsPage = () => {
   );
 };
 
-export default ScheduledAppointmentsPage;
+export default GroomerSchedulePage;
