@@ -11,6 +11,9 @@ const PetPage = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
   const [modal, setModal] = useState({ form: false, delete: false, pet: null });
+  // form controls add/edit form visibility
+  // delete controls delete confirmation dialog visibility
+  // pet stores the pet being edited or deleted
   const [deleteError, setDeleteError] = useState("");
 
   useEffect(() => {
@@ -34,9 +37,11 @@ const PetPage = () => {
     try {
       if (petId) {
         const { pet } = await petService.updatePet(petId, formData);
+        // after updating pet
         setPets(pets.map(p => p._id === petId ? pet : p));
       } else {
         const { pet } = await petService.createPet(formData);
+        // after creating a pet
         setPets([...pets, pet]);
       }
       setModal({ ...modal, form: false, pet: null });
@@ -47,12 +52,17 @@ const PetPage = () => {
   // logic to prevent deleting pets with upcoming appts
   const checkPetAppointments = async (petId) => {
     try {
+      // 1. fetch all user appts
       const appointments = await appointmentService.getUserAppointments();
       const currentDate = new Date();
+      // 2. check if any appts meet ALL criteria:
       return appointments.some(appointment => 
+        // a. the appt is for this pet (handles both obj and ID refs)
         appointment.petId && 
         (appointment.petId._id === petId || appointment.petId === petId) &&
+        // b. the appt is in the future
         new Date(appointment.startTime) > currentDate && 
+        // c. the appt is confirmed
         appointment.status === "confirmed"
       );
     } catch (err) {
@@ -63,10 +73,13 @@ const PetPage = () => {
 
   const handleOpenDeleteModal = async (pet) => {
     try {
+      // check if pet has upcoming appts
       const hasAppointments = await checkPetAppointments(pet._id);      
       if (hasAppointments) {
+        // if has appts, set err msg, prevent deletion
         setDeleteError(`Cannot delete ${pet.name} because they have upcoming appointments scheduled. Please cancel all appointments first.`);
       } else {
+        // if no appts, allow deletion
         setDeleteError("");
         setModal({ ...modal, delete: true, pet });
       }
@@ -79,6 +92,7 @@ const PetPage = () => {
   const handleDeletePet = async () => {
     try {
       await petService.deletePet(modal.pet._id);
+      // after deleting pet
       setPets(pets.filter(p => p._id !== modal.pet._id));
       setModal({ ...modal, delete: false, pet: null });
       setDeleteError("");
