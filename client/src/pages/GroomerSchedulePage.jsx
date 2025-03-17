@@ -31,41 +31,31 @@ const ScheduledAppointmentsPage = () => {
   
   // fetch appts when component mounts or date changes
   useEffect(() => {
-    fetchAppointments();
-  }, [selectedDate]);
-  
-  const fetchAppointments = async () => {
-    try {
-      setLoading(true);
-      const data = await appointmentService.getUserAppointments();
-      
-      // filter appointments for the selected date
-      // const dateAppointments = data.filter(appointment => {
-      //   const appointmentDate = new Date(appointment.startTime);
-      //   const selectedDateObj = new Date(selectedDate);
-      //   return (
-      //     appointmentDate.getDate() === selectedDateObj.getDate() &&
-      //     appointmentDate.getMonth() === selectedDateObj.getMonth() &&
-      //     appointmentDate.getFullYear() === selectedDateObj.getFullYear()
-      //   );
-      // });
+    // define fetchAppointments directly inside the useEffect
+    const fetchAppointments = async () => {
+      try {
+        setLoading(true);
+        const data = await appointmentService.getUserAppointments();
+        
+        // simplified date comparison using isSameDay from date-fns
+        // filter to only show appts by selected date
+        const dateAppointments = data.filter(appointment =>
+          isSameDay(new Date(appointment.startTime), new Date(selectedDate))
+        );
+        // sorts filtered appts by asc order
+        dateAppointments.sort((a, b) => new Date(a.startTime) - new Date(b.startTime));
+        // updates the appointments state with date appt
+        setAppointments(dateAppointments); // set state to filtered appts for passing to child components
+        setError(null);
+      } catch (err) {
+        setError(err.error || "Failed to load appointments"); 
+      } finally {
+        setLoading(false);
+      }
+    };
 
-      // simplified date comparison using isSameDay from date-fns
-      // filter to only show appts by selected date
-      const dateAppointments = data.filter(appointment =>
-        isSameDay(new Date(appointment.startTime), new Date(selectedDate))
-      );
-      // sorts filtered appts by asc order
-      dateAppointments.sort((a, b) => new Date(a.startTime) - new Date(b.startTime));
-      // updates the appointments state with date appt
-      setAppointments(dateAppointments); // set state to filtered appts for passing to child components
-      setError(null);
-    } catch (err) {
-      setError(err.error || "Failed to load appointments"); 
-    } finally {
-      setLoading(false);
-    }
-  };
+    fetchAppointments();
+  }, [selectedDate]); // only include selectedDate as a dependency
   
   // navigate to prev/next day, update selected date state
   const changeDate = (days) => {
