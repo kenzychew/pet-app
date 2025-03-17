@@ -13,10 +13,26 @@ const AppointmentList = ({ onRescheduleSuccess, onDeleteSuccess, onError }) => {
 
   // fetch appointments on component mount
   useEffect(() => {
-    fetchAppointments();
-  }, []);
+    // define fetchAppointments inside useEffect
+    const fetchAppointments = async () => {
+      try {
+        setLoading(true);
+        const data = await appointmentService.getUserAppointments();
+        setAppointments(data);
+        setError(null);
+      } catch (err) {
+        setError(err.error || "Failed to load appointments");
+        if (onError) onError(err.error || "Failed to load appointments");
+      } finally {
+        setLoading(false);
+      }
+    };
 
-  // fetch appt data from api
+    fetchAppointments();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []); // empty dependency array with lint disable comment
+
+  // separate fetchAppointments for event handlers
   const fetchAppointments = async () => {
     try {
       setLoading(true);
