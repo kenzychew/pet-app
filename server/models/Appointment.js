@@ -18,23 +18,26 @@ const AppointmentSchema = new Schema({
   updatedAt: { type: Date, default: Date.now },
 });
 
-// custom method to check if the appointment can be modified (>24h before start)
+// instance methods are useful when working with individual appointment instances
+// ie. one specific appt at a time
+// check if the appointment can be modified (>24h before start)
 AppointmentSchema.methods.canModify = function () {
   const currentTime = new Date();
   const appointmentTime = new Date(this.startTime);
   // calculate difference in hours
   const hoursDifference = (appointmentTime - currentTime) / (1000 * 60 * 60);
-  return hoursDifference > 24;
+  return hoursDifference > 24; // returns true if more than 24 hrs before start
 };
 
-// Method to check if appointment should be marked as completed
+// instance method to check if appointment should be marked as completed
 AppointmentSchema.methods.shouldBeCompleted = function () {
   const currentTime = new Date();
   const appointmentEndTime = new Date(this.endTime);
+  // checks if current time is after appointment end time and if status is confirmed
   return currentTime > appointmentEndTime && this.status === "confirmed";
 };
 
-// Static method to update status of completed appointments
+// custom helper method to update status of confirmed appointments that have ended
 AppointmentSchema.statics.updateCompletedAppointments = async function (appointments) {
   const currentTime = new Date();
   const updatedAppointments = [];
@@ -66,8 +69,11 @@ AppointmentSchema.statics.checkForConflicts = async function (
       { startTime: { $lt: endTime }, endTime: { $gt: startTime } },
     ],
   };
-  // finds appts that overlap with proposed time slot
-  // the existing appointment starts before (lt) the new end time AND ends after (gt) the new start time
+  // finds existing appointments that overlap with proposed time slot
+  // find appointments where
+  // the existing appointment's start time is before (lt) the new appointment's end time
+  // AND
+  // the existing appointment's end time is after (gt) the new appointment's start time
 
   // this condition captures all possible overlap scenarios
   /* 

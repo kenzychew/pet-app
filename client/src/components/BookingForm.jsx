@@ -35,6 +35,7 @@ const BookingForm = ({ open, onClose, onSuccess, onError, isRescheduling = false
 
   // useEffect for initializing form data when form is open or if rescheduling mode is active
   useEffect(() => {
+    // prevents race conditions when intializing form data
     // only set form data when both the form is open AND the required data is loaded
     if (open && !dataLoading && pets.length > 0 && groomers.length > 0) {
       if (isRescheduling && appointmentToReschedule) {
