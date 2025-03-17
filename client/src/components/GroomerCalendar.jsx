@@ -9,11 +9,12 @@ import { Paper, Typography, Box } from '@mui/material';
 
 const GroomerCalendar = ({ appointments }) => {
     // state for pet details dialog
-    const [petDetailsOpen, setPetDetailsOpen] = useState(false);
-    const [selectedPet, setSelectedPet] = useState(null);
+    const [petDetailsOpen, setPetDetailsOpen] = useState(false); // control visibility of pet details dialog
+    const [selectedPet, setSelectedPet] = useState(null); // stores details of selected pet
     const [petLoading, setPetLoading] = useState(false);
     const [petError, setPetError] = useState(null);
 
+    // transform appointments data into calendar events
     const events = appointments.map(appointment => {
         const color = appointment.serviceType === 'basic' ? 'blue' : 'purple';
         return {
@@ -23,12 +24,13 @@ const GroomerCalendar = ({ appointments }) => {
             end: appointment.endTime,
             backgroundColor: color,
             borderColor: color,
-            extendedProps: {
+            extendedProps: { // store original appointment data in extendedProps for later access
                 appointment: appointment
             }
         };
     });
 
+    // handle user click on a calendar event
     const handleEventClick = async (clickInfo) => {
         try {
             setPetLoading(true);
@@ -36,7 +38,7 @@ const GroomerCalendar = ({ appointments }) => {
             
             const appointment = clickInfo.event.extendedProps.appointment;
             const petId = appointment.petId._id || appointment.petId;
-            
+            // fetches detailed pet info using petService
             const petDetails = await petService.getPetById(petId);
             
             setSelectedPet({
@@ -61,7 +63,7 @@ const GroomerCalendar = ({ appointments }) => {
         setPetDetailsOpen(false);
         setSelectedPet(null);
     };
-
+    // render FullCalendar component with configured options
     return (
         <Paper>
             <Box sx={{ height: '550px'}}>
