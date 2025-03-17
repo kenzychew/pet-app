@@ -65,7 +65,8 @@ AppointmentSchema.statics.checkForConflicts = async function (
     groomerId,
     status: "confirmed",
     $or: [
-      // new appointment starts during an existing appointment
+      // newStartTime < existingEndTime && newEndTime > existingStartTime
+      // true and true overlaps
       { startTime: { $lt: endTime }, endTime: { $gt: startTime } },
     ],
   };
@@ -78,17 +79,17 @@ AppointmentSchema.statics.checkForConflicts = async function (
   // this condition captures all possible overlap scenarios
   /* 
   S1: New appt starts during existing appt
-  Existing:  |------------|
-  New:              |------------|
+  Existing:  |------------| 10:00 - 11:00
+  New:              |------------| 10:30 - 11:30
   S2: New appt ends during existing appt
-  Existing:          |------------|
-  New:      |------------|
+  Existing:          |------------|  10:00 - 11:00
+  New:      |------------| 09:30 - 10:30
   S3: New appt completely inside existing appt
-  Existing:  |---------------|
-  New:          |-----|
+  Existing:  |---------------| 09:00 - 11:00
+  New:          |-----| 09:30 - 10:30
   S4: New appt completely contains existing appt
-  Existing:     |-----|
-  New:      |--------------|
+  Existing:     |-----| 09:30 - 10:30
+  New:      |--------------| 09:00 - 11:00
   */
 
   // exclude the current appointment if updating
@@ -113,7 +114,7 @@ AppointmentSchema.pre("save", function (next) {
 
 // added these static methods to simplify availability checks, controller will be a lot cleaner
 // get all confirmed appointments for a groomer on a given day
-AppointmentSchema.statics.getGroomerAvailability = async function (groomerId, date) {
+AppointmentSchema.statics.getGroomerConfirmedAppointments = async function (groomerId, date) {
   // convert date to start/end of day
   const startOfDay = new Date(date);
   startOfDay.setHours(0, 0, 0, 0);
@@ -138,7 +139,7 @@ AppointmentSchema.statics.getAvailableTimeSlots = async function (groomerId, dat
   const businessEnd = 17;
 
   // get all appointments for this day
-  const appointments = await this.getGroomerAvailability(groomerId, date);
+  const appointments = await this.getGroomerConfirmedAppointments(groomerId, date);
 
   // start with full day slots in 60-minute increments
   const dayDate = new Date(date); // 2024-03-16 => 2024-03-16T00:00:00
@@ -175,6 +176,7 @@ AppointmentSchema.statics.getAvailableTimeSlots = async function (groomerId, dat
     // loop through all possible slots
     for (const slot of slots) {
       // check if proposed slot overlaps with existing appointment
+      // similar to checkForConflicts method which is used for creation/update
       if (slot.start < appointmentEnd && slot.end > appointmentStart) {
         slot.available = false;
       }

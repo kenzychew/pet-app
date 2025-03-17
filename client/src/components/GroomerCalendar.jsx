@@ -35,8 +35,9 @@ const GroomerCalendar = ({ appointments }) => {
         try {
             setPetLoading(true);
             setPetError(null);
-            
+            // get appointment details from event extendedProps
             const appointment = clickInfo.event.extendedProps.appointment;
+            // get petId from appointment
             const petId = appointment.petId._id || appointment.petId;
             // fetches detailed pet info using petService
             const petDetails = await petService.getPetById(petId);
@@ -79,10 +80,10 @@ const GroomerCalendar = ({ appointments }) => {
                 eventClick={handleEventClick}
                 height="100%"
                 slotMinTime={"09:00:00"}
-                slotMaxTime={"18:00:00"}
+                slotMaxTime={"18:00:00"} // left this to make the calendar look nicer
                 allDaySlot={false}
                 businessHours={{
-                    daysOfWeek: [1, 2, 3, 4, 5, 6, 7], // Monday - Friday
+                    daysOfWeek: [1, 2, 3, 4, 5, 6, 7], // Monday - Sunday
                     startTime: '09:00',
                     endTime: '17:00',
                 }}
