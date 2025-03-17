@@ -2,7 +2,14 @@
 
 ## Overview
 
-A minimalist web application for pet grooming appointment bookings. This MVP enables pet owners to schedule grooming appointments and helps groomers manage their schedule and client base.
+A minimalist web application for pet grooming appointment bookings. This MVP enables pet owners to schedule grooming appointments and helps groomers manage their schedule and client base
+
+##
+
+In today's fast-paced world, everyone is busy doing something. Caring for a pet means having to send them for regular grooming appointments. However, most groomers require you to contact them via WhatsApp in order to book appointments. This creates unnecessary friction in what should be a straightforward process.
+Pet owners must interrupt their day to send messages, wait for responses, and negotiate available time slots through back-and-forth conversations. This outdated booking method wastes valuable time for both pet owners and groomers alike.
+Wouldn't it be great to be able to simply login and book an available time slot to send your pet for grooming? A digital solution that displays real-time availability, eliminating communication lag time and reduce scheduling errors would give owners the convenience of managing their appointments around their own schedule.
+This would also be a benefit to groomers looking to digitize and streamline their daily operations, by providing an overview of their daily, weekly and monthly appointments at a glance. Gain valuable business insights by identifying peak hours and available slots, reducing double booking and scheduling errors that lead to unsatisfied customers and lost sales. With a digital appointment scheduling system, your resource planning capabilities become more effective: allocate staff better, plan assistant coverage, maximize use of grooming stations, bathing areas and drying equipment.
 
 ## Features
 
@@ -12,7 +19,7 @@ A minimalist web application for pet grooming appointment bookings. This MVP ena
 - **Appointment Scheduling**: Book appointments based on groomer availability
 - **Appointment Management**: Cancel or update appointments with time restrictions
 - **Groomer Controls**: Groomers can view and manage their schedule
-- **Basic Notifications**: Email notifications for booking confirmations and cancellations
+- **Basic Notifications**: Toast notifications for booking confirmations and cancellations
 
 ## User Stories
 
@@ -37,39 +44,33 @@ A minimalist web application for pet grooming appointment bookings. This MVP ena
 - I want to add a new pet to my profile so I can book appointments for them
 - I want to view all my pets in one place for easy management
 - I want to see my pet's grooming history to track previous services
-
-### Services
-
-#### As a pet owner
-
-- I want to select either Basic Grooming (60 minutes) or Full Grooming (120 minutes) when booking
+- I want to be able to update notes for my pet so the groomer will be better prepared
 
 ### Appointment Management
 
 #### As a pet owner
 
+- I want to select either Basic (60 minutes) or Full (120 minutes) grooming options
 - I want to be able to add a pet so I can send it for grooming
-- I want to be able to update notes for the groomer so they know what to expect
 - I want to see a list of appointments to remember when to bring my pet
 - I want to see a list of past appointments to track my pet's grooming history
 - I want to be create an grooming appointment for a pet by selecting a specific groomer
 - I want to know what time slots are available for the groomer by selecting a date
 - I want to to be able to reschedule an appointment (more than 24 hours before the start time)
-- I want to to be able to cancel an appointment if I make an appointment with another groomer (more than 24 hours before the start time)
-- I want to receive a confirmation email when my booking is complete (stretch)
+- I want to to be able to cancel an appointment (more than 24 hours before the start time)
+- I want to be see notifications when I create, reschedule or cancel an appointment
 
 #### As a groomer
 
 - I want to see my daily schedule of appointments to prepare for my day
-- I want to view details of the pet for each upcoming appointment to better prepare for the session
 - I want to see my past and future appointments to track my work history
+- I want to view details of pets for upcoming appointments to better prepare for the session
 
 ### Availability
 
 #### As a groomer
 
-- I want to be able to manage my availability by setting my work hours (Stretch)
-- I want to receive notifications when a new appointment has been made
+- I want to be able to manage my availability by setting my work hours/days (Stretch)
 
 ## Technology Stack
 
@@ -107,9 +108,6 @@ A minimalist web application for pet grooming appointment bookings. This MVP ena
    ```
    MONGODB_URI=your_mongodb_connection_string
    JWT_SECRET=your_jwt_secret
-   EMAIL_SERVICE=your_email_service
-   EMAIL_USER=your_email_username
-   EMAIL_PASS=your_email_password
    ```
 
 4. Start the development server
@@ -123,16 +121,20 @@ A minimalist web application for pet grooming appointment bookings. This MVP ena
 ## Project Structure
 
 ```
-pet-grooming-service/
+pet-app/
 ├── client/               # Frontend React application
 │   ├── public/
 │   └── src/
 │       ├── components/   # UI components
+│       ├── config/       # Centralized API config
+│       ├── contexts/     # React context for state management
+│       ├── hooks/        # Custom Hooks
 │       ├── pages/        # Page components
-│       ├── context/      # React context for state management
 │       └── services/     # API service calls
+│       └── utils/        # Utility functions
 ├── server/               # Backend Express application
 │   ├── controllers/      # Request handlers
+│   ├── middleware/       # Express Middleware
 │   ├── models/           # Database models
 │   ├── routes/           # API routes
 │   └── utils/            # Utility functions
@@ -205,6 +207,96 @@ pet-grooming-service/
 - `createdAt`: Date
 - `updatedAt` : Date
 
+#### Appointment Methods
+
+- **Instance Methods**:
+
+  - `canModify()`: Checks if appointment can be modified (>24h before start)
+  - `shouldBeCompleted()`: Checks if appointment should be marked as completed
+
+- **Static Methods**:
+  - `updateCompletedAppointments(appointments)`: Updates status of confirmed appointments that have ended
+  - `checkForConflicts(groomerId, startTime, endTime, excludeAppointmentId)`: Checks for time conflicts with existing appointments
+  - `getGroomerAvailability(groomerId, date)`: Gets all confirmed appointments for a groomer on a given day
+  - `getAvailableTimeSlots(groomerId, date, duration)`: Generates available time slots based on business hours and existing appointments
+
+```
+// Time Slot Calculation
+// added these static methods to simplify availability checks, controller will be a lot cleaner
+// get all confirmed appointments for a groomer on a given day
+AppointmentSchema.statics.getGroomerAvailability = async function (groomerId, date) {
+  // convert date to start/end of day
+  const startOfDay = new Date(date);
+  startOfDay.setHours(0, 0, 0, 0);
+
+  const endOfDay = new Date(date);
+  endOfDay.setHours(23, 59, 59, 999);
+
+  // find all appointments with confirmed status for this groomer on this day
+  // sort by startTime
+  const appointments = await this.find({
+    groomerId,
+    status: "confirmed",
+    startTime: { $gte: startOfDay, $lte: endOfDay },
+  }).sort({ startTime: 1 });
+
+  return appointments;
+};
+
+AppointmentSchema.statics.getAvailableTimeSlots = async function (groomerId, date, duration) {
+  // biz hours (should be variable but lets hardcode this for now)
+  const businessStart = 9;
+  const businessEnd = 17;
+
+  // get all appointments for this day
+  const appointments = await this.getGroomerAvailability(groomerId, date);
+
+  // start with full day slots in 60-minute increments
+  const dayDate = new Date(date); // 2024-03-16 => 2024-03-16T00:00:00
+  const slots = [];
+
+  // generate all possible time slots during biz hours
+  for (let hour = businessStart; hour < businessEnd; hour++) {
+    for (let minute = 0; minute < 60; minute += 60) {
+      const slotStart = new Date(dayDate); // Date obj for start time
+      slotStart.setHours(hour, minute, 0, 0); // set seconds and ms to 0
+
+      const slotEnd = new Date(slotStart);
+      slotEnd.setMinutes(slotStart.getMinutes() + duration);
+
+      // do not add slots that extend beyond biz hrs
+      if (
+        slotEnd.getHours() < businessEnd || // if end time before 5pm
+        (slotEnd.getHours() === businessEnd && slotEnd.getMinutes() === 0) // if end time is exactly 5:00pm
+      ) {
+        slots.push({
+          start: new Date(slotStart),
+          end: new Date(slotEnd),
+          available: true,
+        }); // get array of slot objs
+      }
+    }
+  }
+
+  // mark slots as unavailable if they conflict with existing appointments
+  // loop through all existing (confirmed) appointments
+  for (const appointment of appointments) {
+    const appointmentStart = new Date(appointment.startTime);
+    const appointmentEnd = new Date(appointment.endTime);
+    // loop through all possible slots
+    for (const slot of slots) {
+      // check if proposed slot overlaps with existing appointment
+      if (slot.start < appointmentEnd && slot.end > appointmentStart) {
+        slot.available = false;
+      }
+    }
+  }
+
+  // filter and return only available slots
+  return slots.filter((slot) => slot.available);
+};
+```
+
 ## Service Structure
 
 - **Service Types as Appointment Properties**:
@@ -214,7 +306,7 @@ pet-grooming-service/
   - Selected at the time of booking as a property of the appointment
 
 - **Groomer Availability**:
-  - All groomers are available from 09:00 to 18:00 daily by default
+  - All groomers are available from 09:00 to 17:00 daily by default
   - All groomers provide both basic and full grooming services
 
 ## Appointment Rules
@@ -238,7 +330,6 @@ pet-grooming-service/
 
 - **Status Types**:
   - Confirmed
-  - Cancelled
   - Completed
 
 ## Future Enhancements (Post-MVP)
@@ -276,9 +367,19 @@ https://mui.com/material-ui/api/app-bar
 https://mui.com/material-ui/api/toolbar
 https://mui.com/material-ui/api/typography
 https://mui.com/material-ui/api/button
+https://mui.com/material-ui/api/text-field/
+https://mui.com/material-ui/api/card/
+https://mui.com/material-ui/api/dialog/
+https://mui.com/material-ui/api/grid/
 https://mui.com/material-ui/api/box
+https://mui.com/material-ui/api/select/
+https://mui.com/material-ui/api/tabs/
+https://mui.com/material-ui/api/snackbar/
+https://mui.com/material-ui/api/paper/
+https://mui.com/material-ui/api/list/
 https://mui.com/system/the-sx-prop
 https://mui.com/material-ui/migration/pickers-migration/
+https://mui.com/material-ui/customization/theming/
 
 ### Node.JS / MongoDB
 
