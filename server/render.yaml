@@ -20,6 +20,6 @@ services:
       - key: JWT_SECRET
         sync: false
       - key: CLIENT_URL
-        sync: false
+        value: https://pet-app-liart.vercel.app
     healthCheckPath: /health
     autoDeploy: true

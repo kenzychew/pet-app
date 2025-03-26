@@ -14,10 +14,15 @@ const appointmentRouter = require("./routes/appointmentRoutes");
 
 // CORS configuration
 const corsOptions = {
-  origin: process.env.CLIENT_URL || "http://localhost:5173", // Vite's default port
+  origin: [
+    process.env.CLIENT_URL, // Vercel production URL
+    "http://localhost:5173", // Local development URL
+  ],
   credentials: true,
   methods: ["GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS"],
   allowedHeaders: ["Content-Type", "Authorization"],
+  exposedHeaders: ["Authorization"],
+  maxAge: 86400, // 24 hours
 };
 
 app.use(cors(corsOptions));
