@@ -3,6 +3,9 @@ import { API_ENDPOINTS } from "../config/api";
 
 const API_URL = API_ENDPOINTS.AUTH;
 
+// Configure axios defaults
+axios.defaults.withCredentials = true;
+
 const setAuthToken = (token) => {
   if (token) {
     axios.defaults.headers.common["Authorization"] = `Bearer ${token}`;
@@ -36,7 +39,17 @@ const register = async (userData) => {
 
 const login = async (email, password) => {
   try {
-    const response = await axios.post(`${API_URL}/login`, { email, password });
+    const response = await axios.post(
+      `${API_URL}/login`,
+      { email, password },
+      {
+        headers: {
+          "Content-Type": "application/json",
+          Accept: "application/json",
+        },
+        withCredentials: true,
+      }
+    );
     if (response.data.token) {
       localStorage.setItem("authToken", response.data.token);
       localStorage.setItem("user", JSON.stringify(response.data.user));
@@ -44,6 +57,7 @@ const login = async (email, password) => {
     }
     return response.data;
   } catch (error) {
+    console.error("Login error:", error);
     throw error.response?.data || { error: "Login failed" };
   }
 };
