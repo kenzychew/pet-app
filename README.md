@@ -21,6 +21,60 @@ This would also be a benefit to groomers looking to digitize and streamline thei
 - **Groomer Controls**: Groomers can view and manage their schedule
 - **Basic Notifications**: Toast notifications for booking confirmations and cancellations
 
+## Live URL
+
+https://pet-app-liart.vercel.app/
+
+## Technology Stack
+
+- **Frontend**: React with Material UI components
+- **Backend**: Express.js with REST API
+- **Database**: MongoDB (hosted on MongoDB Atlas)
+- **Authentication**: JWT-based authentication
+- **Deployment**: Frontend (client) deployed on Vercel, Backend (server) deployed on Render
+
+## Screenshots
+
+### Authentication
+
+![Login Page](./assets/screenshots/login.png)
+_Login page with email and password authentication_
+
+![Register Page](./assets/screenshots/register.png)
+_Registration page for new users with role selection_
+
+### Pet Owner Dashboard
+
+![Dashboard](./assets/screenshots/dashboard.png)
+_Owner dashboard to manage appointments and registered pets_
+
+### Pet Management
+
+![Pet Management](./assets/screenshots/pets.png)
+_Pet management interface for adding and updating pet information_
+
+### Appointment Management and Booking
+
+![View/Manage Appointment](./assets/screenshots/view-manage-appointments.png)
+_View upcoming appointments, reschedule or cancel if more than 24 hours away_
+
+![Book Appointment](./assets/screenshots/book-appointment.png)
+_Appointment booking interface with available time slots_
+
+### Groomer Interface
+
+![Groomer Calendar](./assets/screenshots/groomer-calendar.png)
+_Monthly calendar view for groomers to manage appointments_
+
+![Groomer Calendar Pet Details](./assets/screenshots/groomer-calendar-pet-details.png)
+_Monthly calendar view for groomers to manage appointments_
+
+![Groomer Schedule](./assets/screenshots/groomer-schedule.png)
+_Daily schedule view showing detailed appointment information_
+
+![Groomer Schedule Pet Details](./assets/screenshots/groomer-schedule-pet-details.png)
+_Monthly calendar view for groomers to manage appointments_
+
 ## User Stories
 
 ### Authentication & User Management
@@ -71,14 +125,6 @@ This would also be a benefit to groomers looking to digitize and streamline thei
 #### As a groomer
 
 - I want to be able to manage my availability by setting my work hours/days (Stretch)
-
-## Technology Stack
-
-- **Frontend**: React with Material UI components
-- **Backend**: Express.js with REST API
-- **Database**: MongoDB (hosted on MongoDB Atlas)
-- **Authentication**: JWT-based authentication
-- **Deployment**: Vercel
 
 ## Getting Started
 
