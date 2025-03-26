@@ -6,28 +6,35 @@ const mongoose = require("mongoose");
 const cors = require("cors");
 const logger = require("morgan");
 
-// Import routers
-const authRouter = require("./routes/authRoutes");
-const petRouter = require("./routes/petRoutes");
-const groomerRouter = require("./routes/groomerRoutes");
-const appointmentRouter = require("./routes/appointmentRoutes");
-
-// CORS configuration
+// CORS configuration - Move this before route imports
 const corsOptions = {
-  origin: [
-    process.env.CLIENT_URL, // Vercel production URL
-    "http://localhost:5173", // Local development URL
-  ],
+  origin: ["https://pet-app-liart.vercel.app", "http://localhost:5173"],
   credentials: true,
   methods: ["GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS"],
-  allowedHeaders: ["Content-Type", "Authorization"],
+  allowedHeaders: ["Content-Type", "Authorization", "Origin", "Accept"],
   exposedHeaders: ["Authorization"],
-  maxAge: 86400, // 24 hours
+  preflightContinue: false,
+  optionsSuccessStatus: 204,
 };
 
+// Apply CORS before any routes
 app.use(cors(corsOptions));
+
+// Enable pre-flight requests for all routes
+app.options("*", cors(corsOptions));
+
 app.use(express.json());
 app.use(logger(process.env.NODE_ENV === "production" ? "combined" : "dev"));
+
+// Add this after your CORS configuration
+app.use((req, res, next) => {
+  console.log("CORS Headers:", {
+    origin: req.headers.origin,
+    method: req.method,
+    headers: req.headers,
+  });
+  next();
+});
 
 // MongoDB connection configuration
 const constructMongoURI = () => {
@@ -60,6 +67,11 @@ app.get("/health", (req, res) => {
 });
 
 // Routes
+const authRouter = require("./routes/authRoutes");
+const petRouter = require("./routes/petRoutes");
+const groomerRouter = require("./routes/groomerRoutes");
+const appointmentRouter = require("./routes/appointmentRoutes");
+
 app.use("/api/auth", authRouter);
 app.use("/api/pets", petRouter);
 app.use("/api/groomers", groomerRouter);
