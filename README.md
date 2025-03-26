@@ -1,4 +1,4 @@
-# Pet App
+# Furkids
 
 ## Overview
 
@@ -36,6 +36,9 @@ https://pet-app-liart.vercel.app/
 ## Screenshots
 
 ### Authentication
+
+![Landing Page](./assets/screenshots/home.png)
+_Landing Page_
 
 ![Login Page](./assets/screenshots/login.png)
 _Login page with email and password authentication_
