@@ -12,15 +12,47 @@ const petRouter = require("./routes/petRoutes");
 const groomerRouter = require("./routes/groomerRoutes");
 const appointmentRouter = require("./routes/appointmentRoutes");
 
-mongoose.connect(process.env.MONGODB_URI);
+// CORS configuration
+const corsOptions = {
+  origin: process.env.CLIENT_URL || "http://localhost:5173", // Vite's default port
+  credentials: true,
+  methods: ["GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS"],
+  allowedHeaders: ["Content-Type", "Authorization"],
+};
 
-mongoose.connection.on("connected", () => {
-  console.log(`Connected to MongoDB ${mongoose.connection.name}.`);
+app.use(cors(corsOptions));
+app.use(express.json());
+app.use(logger(process.env.NODE_ENV === "production" ? "combined" : "dev"));
+
+// MongoDB connection configuration
+const constructMongoURI = () => {
+  const username = encodeURIComponent(process.env.MONGODB_USERNAME);
+  const password = encodeURIComponent(process.env.MONGODB_PASSWORD);
+  const cluster = process.env.MONGODB_CLUSTER;
+  const database = process.env.MONGODB_DATABASE;
+
+  return `mongodb+srv://${username}:${password}@${cluster}.dys46.mongodb.net/${database}?retryWrites=true&w=majority`;
+};
+
+// MongoDB connection
+mongoose.connect(constructMongoURI(), {
+  // added options for better stability
+  serverSelectionTimeoutMS: 5000,
+  socketTimeoutMS: 45000,
 });
 
-app.use(cors());
-app.use(express.json());
-app.use(logger("dev"));
+mongoose.connection.on("connected", () => {
+  console.log(`Connected to MongoDB ${mongoose.connection.name}`);
+});
+
+mongoose.connection.on("error", (err) => {
+  console.error("MongoDB connection error:", err);
+});
+
+// Health check endpoint
+app.get("/health", (req, res) => {
+  res.status(200).json({ status: "ok" });
+});
 
 // Routes
 app.use("/api/auth", authRouter);
@@ -28,6 +60,13 @@ app.use("/api/pets", petRouter);
 app.use("/api/groomers", groomerRouter);
 app.use("/api/appointments", appointmentRouter);
 
-app.listen(process.env.PORT, () => {
-  console.log(`Express server is running on port ${process.env.PORT}`);
+// Error handling middleware
+app.use((err, req, res, next) => {
+  console.error(err.stack);
+  res.status(500).json({ error: "Something broke!" });
+});
+
+const PORT = process.env.PORT || 3000;
+app.listen(PORT, () => {
+  console.log(`Server is running on port ${PORT}`);
 });
