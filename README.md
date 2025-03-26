@@ -67,13 +67,13 @@ _Appointment booking interface with available time slots_
 _Monthly calendar view for groomers to manage appointments_
 
 ![Groomer Calendar Pet Details](./assets/screenshots/groomer-calendar-pet-details.png)
-_Monthly calendar view for groomers to manage appointments_
+_Groomers can click individual appointments to view appointment specific pet details_
 
 ![Groomer Schedule](./assets/screenshots/groomer-schedule.png)
 _Daily schedule view showing detailed appointment information_
 
 ![Groomer Schedule Pet Details](./assets/screenshots/groomer-schedule-pet-details.png)
-_Monthly calendar view for groomers to manage appointments_
+_Groomers can click specific appointments to view pet details_
 
 ## User Stories
 
