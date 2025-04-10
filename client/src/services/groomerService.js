@@ -28,16 +28,19 @@ console.log(formattedDate); Output: "2025-03-13"
 */
 const getGroomerAvailability = async (groomerId, date, duration = 60) => {
   try {
-    const formattedDate =
-      date instanceof Date ? date.toISOString().split("T")[0] : date;
+    const formattedDate = date instanceof Date ? date.toISOString().split("T")[0] : date;
     const response = await axios.get(
       `${API_URL}/${groomerId}/availability?date=${formattedDate}&duration=${duration}`
     );
-    return response.data;
+
+    // convert the dates to Date objects
+    return response.data.map((slot) => ({
+      ...slot,
+      start: new Date(slot.start),
+      end: new Date(slot.end),
+    }));
   } catch (error) {
-    throw (
-      error.response?.data || { error: "Failed to fetch groomer availability" }
-    );
+    throw error.response?.data || { error: "Failed to fetch groomer availability" };
   }
 };
 
