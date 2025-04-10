@@ -61,5 +61,16 @@ export const filterPastTimeSlots = (slots, selectedDate) => {
   });
 };
 
+// format time slot for display in SGT timezone
+export const formatTimeSlot = (dateString) => {
+  const date = new Date(dateString);
+  return date.toLocaleTimeString("en-SG", {
+    hour: "2-digit",
+    minute: "2-digit",
+    hour12: true,
+    timeZone: "Asia/Singapore",
+  });
+};
+
 // in js, jan is month 0, feb is month 1, ..., dec is month 11
 // https://www.w3schools.com/js/js_date_methods.asp
