@@ -134,9 +134,9 @@ AppointmentSchema.statics.getGroomerConfirmedAppointments = async function (groo
 };
 
 AppointmentSchema.statics.getAvailableTimeSlots = async function (groomerId, date, duration) {
-  // biz hours (should be variable but lets hardcode this for now)
-  const businessStart = 9;
-  const businessEnd = 17;
+  // biz hours in UTC (convert from SGT 9am-5pm)
+  const businessStart = 1; // 9am SGT = 1am UTC
+  const businessEnd = 9; // 5pm SGT = 9am UTC
 
   // get all appointments for this day
   const appointments = await this.getGroomerConfirmedAppointments(groomerId, date);
@@ -149,7 +149,7 @@ AppointmentSchema.statics.getAvailableTimeSlots = async function (groomerId, dat
   for (let hour = businessStart; hour < businessEnd; hour++) {
     for (let minute = 0; minute < 60; minute += 60) {
       const slotStart = new Date(dayDate); // Date obj for start time
-      slotStart.setHours(hour, minute, 0, 0); // set seconds and ms to 0
+      slotStart.setUTCHours(hour, minute, 0, 0); // set seconds and ms to 0
       // create new Date obj that is a copy of slotStart
       // impt bc Date objs are reference types, so this ensures we dont modify the og slotStart obj
       const slotEnd = new Date(slotStart);
@@ -160,12 +160,12 @@ AppointmentSchema.statics.getAvailableTimeSlots = async function (groomerId, dat
 
       // do not add slots that extend beyond biz hrs
       if (
-        slotEnd.getHours() < businessEnd || // if end time before 5pm
-        (slotEnd.getHours() === businessEnd && slotEnd.getMinutes() === 0) // if end time is exactly 5:00pm
+        slotEnd.getUTCHours() < businessEnd || // if end time before 5pm
+        (slotEnd.getUTCHours() === businessEnd && slotEnd.getUTCMinutes() === 0) // if end time is exactly 5:00pm
       ) {
         slots.push({
-          start: new Date(slotStart),
-          end: new Date(slotEnd),
+          start: slotStart,
+          end: slotEnd,
           available: true,
         }); // get array of slot objs
       }
