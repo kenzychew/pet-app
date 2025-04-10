@@ -4,7 +4,7 @@ import { Dialog, DialogTitle, DialogContent, DialogActions, Button, FormControl,
 import appointmentService from "../services/appointmentService";
 import useInitialData from "../hooks/useInitialData";
 import useAvailability from "../hooks/useAvailability";
-import { formatDateForInput, filterPastTimeSlots } from "../utils/dateUtils";
+import { formatDateForInput, filterPastTimeSlots, formatTimeSlot } from "../utils/dateUtils";
 
 const BookingForm = ({ open, onClose, onSuccess, onError, isRescheduling = false, appointmentToReschedule = null }) => {
   // uses useInitialData custom hook for fetching initial data required for the form
@@ -194,7 +194,6 @@ const BookingForm = ({ open, onClose, onSuccess, onError, isRescheduling = false
           />
           
           {/* Time slot selection */}
-          {/* Dynamic field availability */}
           {formData.groomerId && formData.date && (
             <FormControl fullWidth required>
               <InputLabel>Time Slot</InputLabel>
@@ -204,14 +203,11 @@ const BookingForm = ({ open, onClose, onSuccess, onError, isRescheduling = false
                 onChange={handleChange}
                 disabled={loading || validTimeSlots.length === 0}
               >
-                {validTimeSlots.map((slot) => {
-                  const time = new Date(slot.start);
-                  return (
-                    <MenuItem key={slot.start} value={slot.start}>
-                      {time.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
-                    </MenuItem>
-                  );
-                })}
+                {validTimeSlots.map((slot) => (
+                  <MenuItem key={slot.start} value={slot.start}>
+                    {formatTimeSlot(slot.start)}
+                  </MenuItem>
+                ))}
               </Select>
               {validTimeSlots.length === 0 && formData.groomerId && (
                 <FormHelperText error>No available slots left for this date</FormHelperText>
