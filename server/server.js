@@ -6,9 +6,24 @@ const mongoose = require("mongoose");
 const cors = require("cors");
 const logger = require("morgan");
 
-// CORS configuration - Move this before route imports
+// Set up allowed origins from environment variables
+const allowedOrigins = [
+  process.env.CLIENT_URL, // primary client URL
+  process.env.SECONDARY_URL, // optional secondary URL
+  "http://localhost:5173", // local development
+].filter(Boolean); // removes any undefined/null values
+
 const corsOptions = {
-  origin: ["https://pet-app-liart.vercel.app", "http://localhost:5173"],
+  origin: function (origin, callback) {
+    // allow requests with no origin - mobile apps
+    if (!origin) return callback(null, true);
+
+    if (allowedOrigins.indexOf(origin) !== -1 || !origin) {
+      callback(null, true);
+    } else {
+      callback(new Error("Not allowed by CORS"));
+    }
+  },
   credentials: true,
   methods: ["GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS"],
   allowedHeaders: ["Content-Type", "Authorization", "Origin", "Accept"],
