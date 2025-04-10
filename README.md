@@ -23,7 +23,10 @@ This would also be a benefit to groomers looking to digitize and streamline thei
 
 ## Live URL
 
-https://pet-app-liart.vercel.app/
+- **[furkids.vercel.app](https://furkids.vercel.app)** - Custom domain added for easier recognition and memorability
+- **[pet-app-liart.vercel.app](https://pet-app-liart.vercel.app)** - Original auto-generated Vercel domain
+
+Both URLs point to the same application. The backend API is hosted separately on Render.
 
 ## Technology Stack
 
