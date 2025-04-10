@@ -23,7 +23,7 @@ This would also be a benefit to groomers looking to digitize and streamline thei
 
 ## Live URL
 
-https://pet-app-liart.vercel.app/
+https://furkids.vercel.app/
 
 ## Technology Stack
 
