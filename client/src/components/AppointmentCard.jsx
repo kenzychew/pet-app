@@ -24,9 +24,9 @@ const AppointmentCard = ({ appointment, statusColors, onReschedule, onDelete }) 
     <Card sx={{ mb: 2 }}>
       <CardContent>
         <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start" }}>
-          <Box>
+          <Box sx={{ flex: 1 }}>
             <Typography variant="h6">
-              {formatDateWithDay(startTime)}, {startTime.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })} - 
+              {formatDateWithDay(startTime)}, {startTime.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}-
               {endTime.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
             </Typography>
             
@@ -44,39 +44,47 @@ const AppointmentCard = ({ appointment, statusColors, onReschedule, onDelete }) 
             </Typography>
             
             {isUpcoming && isConfirmed && (
-              <Box sx={{ mt: 2, display: "flex", gap: 2 }}>
-                <Button 
-                  variant="outlined" 
-                  color="primary" 
-                  size="small"
-                  onClick={() => onReschedule(appointment)}
-                  disabled={!canModify}
-                >
-                  Reschedule
-                </Button>
-                
-                <Button 
-                  variant="outlined" 
-                  color="error" 
-                  size="small"
-                  onClick={() => setIsCancelDialogOpen(true)}
-                  disabled={!canModify}
-                >
-                  Cancel
-                </Button>
-                
+              <>
+                <Box sx={{ mt: 2, display: "flex", gap: 2 }}>
+                  <Button 
+                    variant="outlined" 
+                    color="primary" 
+                    size="small"
+                    onClick={() => onReschedule(appointment)}
+                    disabled={!canModify}
+                  >
+                    Reschedule
+                  </Button>
+                  
+                  <Button 
+                    variant="outlined" 
+                    color="error" 
+                    size="small"
+                    onClick={() => setIsCancelDialogOpen(true)}
+                    disabled={!canModify}
+                  >
+                    Cancel
+                  </Button>
+                </Box>
                 {!canModify && hoursDifference <= 24 && (
-                  <Typography variant="caption" color="text.secondary" sx={{ mt: 0.5 }}>
-                    Cannot modify less than 24 hours before appointment
-                  </Typography>
+                  <Box sx={{ mt: 1 }}>
+                    <Typography
+                      variant="caption"
+                      color="text.secondary"
+                      sx={{ display: "block", maxWidth: 220, wordBreak: "break-word" }}
+                    >
+                      Cannot modify less than 24 hours before appointment
+                    </Typography>
+                  </Box>
                 )}
-              </Box>
+              </>
             )}
           </Box>
           
           <Chip 
             label={appointment.status} 
             color={statusColors[appointment.status] || "default"} 
+            sx={{ ml: 2, mt: 1 }}
           />
         </Box>
       </CardContent>

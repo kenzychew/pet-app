@@ -131,20 +131,47 @@ const PetPage = () => {
               {pets.map((pet, index) => (
                 <React.Fragment key={pet._id}>
                   <ListItem
+                    alignItems="flex-start"
+                    sx={{
+                      flexDirection: { xs: 'column', sm: 'row' },
+                      alignItems: { xs: 'flex-start', sm: 'center' },
+                      gap: 1,
+                    }}
                     secondaryAction={
-                      <>
-                        <IconButton onClick={() => setModal({ ...modal, form: true, pet })}>
-                          <EditIcon />
+                      <Box sx={{ display: 'flex', gap: 1, mt: { xs: 1, sm: 0 } }}>
+                        <IconButton onClick={() => setModal({ ...modal, form: true, pet })} size="small">
+                          <EditIcon fontSize="small" />
                         </IconButton>
-                        <IconButton onClick={() => handleOpenDeleteModal(pet)}>
-                          <DeleteIcon />
+                        <IconButton onClick={() => handleOpenDeleteModal(pet)} size="small">
+                          <DeleteIcon fontSize="small" />
                         </IconButton>
-                      </>
+                      </Box>
                     }
                   >
                     <ListItemText
-                      primary={<Typography variant="h6">{pet.name}</Typography>}
-                      secondary={`Species: ${pet.species} | Breed: ${pet.breed} | Age: ${pet.age} y/o ${pet.notes ? `| Notes: ${pet.notes}` : ''}`}
+                      primary={
+                        <Typography variant="h6" sx={{ wordBreak: 'break-word' }}>
+                          {pet.name}
+                        </Typography>
+                      }
+                      secondary={
+                        <Box component="div" sx={{ mt: 0.5 }}>
+                          <Typography variant="body2" color="text.secondary">
+                            <strong>Species:</strong> {pet.species}
+                          </Typography>
+                          <Typography variant="body2" color="text.secondary">
+                            <strong>Breed:</strong> {pet.breed}
+                          </Typography>
+                          <Typography variant="body2" color="text.secondary">
+                            <strong>Age:</strong> {pet.age} y/o
+                          </Typography>
+                          {pet.notes && (
+                            <Typography variant="body2" color="text.secondary">
+                              <strong>Notes:</strong> {pet.notes}
+                            </Typography>
+                          )}
+                        </Box>
+                      }
                     />
                   </ListItem>
                   {index < pets.length - 1 && <Divider />}

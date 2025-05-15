@@ -36,7 +36,7 @@ const GroomerCalendarPage = () => {
     if (appointments.length === 0) return <Alert severity="info">No appointments found</Alert>;
     
     return (
-        <Paper>
+        <Paper sx={{ p: { xs: 0.5, sm: 3 } }}>
             <Box>
                 <Typography variant="h5" gutterBottom>
                     Appointment Calendar

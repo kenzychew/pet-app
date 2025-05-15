@@ -49,20 +49,29 @@ const AppointmentPage = () => {
   
   return (
     <Paper elevation={3} sx={{ p: 3 }}>
-      <Box sx={{ mb: 3, display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+      <Box
+        sx={{
+          mb: 3,
+          display: "flex",
+          flexDirection: { xs: "column", sm: "row" },
+          justifyContent: { xs: "flex-start", sm: "space-between" },
+          alignItems: { xs: "stretch", sm: "center" },
+          gap: 2,
+        }}
+      >
         <div>
-          <Typography variant="h4" component="h1" gutterBottom>
+          <Typography variant="h4" component="h1" gutterBottom sx={{ wordBreak: "break-word" }}>
             My Appointments
           </Typography>
           <Typography variant="body1" color="text.secondary">
             View and manage your pet grooming appointments
           </Typography>
         </div>
-        
-        <Button 
-          variant="contained" 
-          color="primary" 
+        <Button
+          variant="contained"
+          color="primary"
           onClick={() => setBookingOpen(true)}
+          sx={{ alignSelf: { xs: "stretch", sm: "center" }, width: { xs: "100%", sm: "auto" } }}
         >
           Create Appointment
         </Button>

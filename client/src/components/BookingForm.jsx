@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { Dialog, DialogTitle, DialogContent, DialogActions, Button, FormControl, InputLabel, Select, MenuItem, 
-  TextField, Stack, FormHelperText, CircularProgress, Alert } from "@mui/material";
+  TextField, Stack, FormHelperText, CircularProgress, Alert, Grid, Typography, Box, Paper } from "@mui/material";
 import appointmentService from "../services/appointmentService";
 import useInitialData from "../hooks/useInitialData";
 import useAvailability from "../hooks/useAvailability";
@@ -38,8 +38,8 @@ const BookingForm = ({ open, onClose, onSuccess, onError, isRescheduling = false
     // prevents race conditions when intializing form data
     // only set form data when both the form is open AND the required data is loaded
     if (open && !dataLoading && pets.length > 0 && groomers.length > 0) {
-      if (isRescheduling && appointmentToReschedule) {
-        const appointmentDate = new Date(appointmentToReschedule.startTime);
+    if (isRescheduling && appointmentToReschedule) {
+      const appointmentDate = new Date(appointmentToReschedule.startTime);
         const petId = appointmentToReschedule.petId._id || appointmentToReschedule.petId;
         const groomerId = appointmentToReschedule.groomerId._id || appointmentToReschedule.groomerId;
         
@@ -47,25 +47,30 @@ const BookingForm = ({ open, onClose, onSuccess, onError, isRescheduling = false
         const petExists = pets.some(pet => pet._id === petId);
         const groomerExists = groomers.some(groomer => groomer._id === groomerId);
         
-        setFormData({
+      setFormData({
           petId: petExists ? petId : "",
           groomerId: groomerExists ? groomerId : "",
-          serviceType: appointmentToReschedule.serviceType,
+        serviceType: appointmentToReschedule.serviceType,
           date: formatDateForInput(appointmentDate),
-          startTime: ""
-        });
+        startTime: ""
+      });
       } else {
         // default values for new booking
-        setFormData({
+      setFormData({
           petId: pets.length > 0 ? pets[0]._id : "",
-          groomerId: "",
-          serviceType: "basic",
-          date: formatDateForInput(new Date()),
-          startTime: ""
-        });
-      }
+        groomerId: "",
+        serviceType: "basic",
+        date: formatDateForInput(new Date()),
+        startTime: ""
+      });
+    }
     }
   }, [isRescheduling, appointmentToReschedule, open, dataLoading, pets, groomers]);
+
+  // Handle selection of a time slot
+  const handleTimeSlotSelect = (slotTime) => {
+    setFormData(prev => ({ ...prev, startTime: slotTime }));
+  };
 
   // changes to input field updates formData state
   const handleChange = (e) => {
@@ -110,16 +115,20 @@ const BookingForm = ({ open, onClose, onSuccess, onError, isRescheduling = false
     }
   };
 
-  // filters out past time slots using the utility function in dateUtils.js
+  // Filter past time slots using the utility function
   const validTimeSlots = filterPastTimeSlots(slots, formData.date);
+  
+  // Sort time slots chronologically
+  const sortedTimeSlots = [...validTimeSlots].sort((a, b) => {
+    return new Date(a.start) - new Date(b.start);
+  });
 
   // form is valid if pet, groomer and startTime are selected
-  // ensures all required fields are filled
   const isFormValid = formData.petId && formData.groomerId && formData.startTime;
   const today = formatDateForInput(new Date()); // date fields restricted to dates not earlier than today via form input props below
 
   return (
-    <Dialog open={open} onClose={onClose} maxWidth="sm" fullWidth>
+    <Dialog open={open} onClose={onClose} maxWidth="md" fullWidth>
       <DialogTitle>
         {isRescheduling ? "Reschedule Appointment" : "Book an Appointment"}
       </DialogTitle>
@@ -193,26 +202,53 @@ const BookingForm = ({ open, onClose, onSuccess, onError, isRescheduling = false
             disabled={loading}
           />
           
-          {/* Time slot selection */}
+          {/* Time Slot Selection UI */}
           {formData.groomerId && formData.date && (
-            <FormControl fullWidth required>
-              <InputLabel>Time Slot</InputLabel>
-              <Select
-                name="startTime"
-                value={formData.startTime}
-                onChange={handleChange}
-                disabled={loading || validTimeSlots.length === 0}
-              >
-                {validTimeSlots.map((slot) => (
-                  <MenuItem key={slot.start} value={slot.start}>
-                    {formatTimeSlot(slot.start)}
-                  </MenuItem>
-                ))}
-              </Select>
-              {validTimeSlots.length === 0 && formData.groomerId && (
-                <FormHelperText error>No available slots left for this date</FormHelperText>
+            <Box sx={{ mt: 2 }}>
+              <Typography variant="subtitle1" fontWeight="bold" gutterBottom>
+                Select a Time
+              </Typography>
+              
+              {slotsLoading ? (
+                <Box display="flex" justifyContent="center" my={3}>
+                  <CircularProgress />
+                </Box>
+              ) : sortedTimeSlots.length === 0 ? (
+                <Alert severity="info">No available slots for this date</Alert>
+              ) : (
+                <Box mb={2}>
+                  <Grid container spacing={1}>
+                    {sortedTimeSlots.map((slot) => (
+                      <Grid item xs={6} sm={4} md={3} lg={2} key={slot.start}>
+                        <Paper 
+                          elevation={formData.startTime === slot.start ? 3 : 1}
+                          sx={{
+                            p: 1.5,
+                            textAlign: 'center',
+                            cursor: 'pointer',
+                            bgcolor: formData.startTime === slot.start ? 'primary.light' : 'background.paper',
+                            color: formData.startTime === slot.start ? 'white' : 'text.primary',
+                            '&:hover': {
+                              bgcolor: formData.startTime === slot.start ? 'primary.main' : 'grey.100',
+                            },
+                            transition: 'all 0.2s'
+                          }}
+                          onClick={() => handleTimeSlotSelect(slot.start)}
+                        >
+                          {formatTimeSlot(slot.start)}
+                        </Paper>
+                      </Grid>
+                    ))}
+                  </Grid>
+                </Box>
               )}
-            </FormControl>
+              
+              {formData.startTime && (
+                <Typography variant="body2" sx={{ mt: 2, color: 'primary.main' }}>
+                  Selected time: {formatTimeSlot(formData.startTime)}
+                </Typography>
+              )}
+            </Box>
           )}
         </Stack>
       </DialogContent>

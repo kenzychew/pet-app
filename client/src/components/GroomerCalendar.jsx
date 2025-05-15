@@ -6,6 +6,7 @@ import interactionPlugin from '@fullcalendar/interaction';
 import petService from '../services/petService';
 import AppointmentPetDetails from './AppointmentPetDetails';
 import { Paper, Typography, Box } from '@mui/material';
+import './GroomerCalendar.css';
 
 const GroomerCalendar = ({ appointments }) => {
     // state for pet details dialog
@@ -67,27 +68,36 @@ const GroomerCalendar = ({ appointments }) => {
     // render FullCalendar component with configured options
     return (
         <Paper>
-            <Box sx={{ height: '550px'}}>
-                <FullCalendar
-                    plugins={[dayGridPlugin, timeGridPlugin, interactionPlugin]}
-                initialView="timeGridDay"
-                headerToolbar={{
-                    left: 'prev today next',
-                    center: 'title',
-                    right: 'dayGridMonth,timeGridWeek,timeGridDay'
+            <Box
+                sx={{
+                    height: { xs: '70vh', sm: 550 },
+                    minHeight: 350,
+                    maxHeight: '80vh',
+                    overflow: 'hidden',
                 }}
-                events={events}
-                eventClick={handleEventClick}
-                height="100%"
-                slotMinTime={"09:00:00"}
-                slotMaxTime={"18:00:00"} // left this to make the calendar look nicer
-                allDaySlot={false}
-                businessHours={{
-                    daysOfWeek: [1, 2, 3, 4, 5, 6, 7], // Monday - Sunday
-                    startTime: '09:00',
-                    endTime: '17:00',
-                }}
-            />
+            >
+                <div className="responsive-calendar-wrapper" style={{ height: '100%' }}>
+                    <FullCalendar
+                        plugins={[dayGridPlugin, timeGridPlugin, interactionPlugin]}
+                        initialView="timeGridDay"
+                        headerToolbar={{
+                            left: 'prev today next',
+                            center: 'title',
+                            right: 'dayGridMonth,timeGridWeek,timeGridDay'
+                        }}
+                        events={events}
+                        eventClick={handleEventClick}
+                        height="100%"
+                        slotMinTime={"09:00:00"}
+                        slotMaxTime={"18:00:00"}
+                        allDaySlot={false}
+                        businessHours={{
+                            daysOfWeek: [1, 2, 3, 4, 5, 6, 7],
+                            startTime: '09:00',
+                            endTime: '17:00',
+                        }}
+                    />
+                </div>
             </Box>
 
             {/* Pet details dialog */}
