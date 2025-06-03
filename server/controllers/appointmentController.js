@@ -1,14 +1,13 @@
 const Appointment = require("../models/Appointment");
 const User = require("../models/User");
 const Pet = require("../models/Pet");
+const { sendBookingConfirmationEmail } = require("../services/emailService");
 
 exports.createAppointment = async (req, res) => {
   try {
     // only pet owners can book appts
     if (req.user.role !== "owner") {
-      return res
-        .status(403)
-        .json({ error: "Only pet owners can book appointments" });
+      return res.status(403).json({ error: "Only pet owners can book appointments" });
     }
     const { petId, groomerId, serviceType, startTime } = req.body;
     // set the duration based on service type
@@ -16,15 +15,11 @@ exports.createAppointment = async (req, res) => {
 
     // validate required fields - removed endTime as it leads to serviceType duration not being used
     if (!petId || !groomerId || !serviceType || !startTime) {
-      return res
-        .status(400)
-        .json({ error: "Missing required appointment information" });
+      return res.status(400).json({ error: "Missing required appointment information" });
     }
 
     if (serviceType !== "basic" && serviceType !== "full") {
-      return res
-        .status(400)
-        .json({ error: "Service type must be either 'basic' or 'full'" });
+      return res.status(400).json({ error: "Service type must be either 'basic' or 'full'" });
     }
     // parse date string to Date object
     const appointmentStart = new Date(startTime);
@@ -59,9 +54,7 @@ exports.createAppointment = async (req, res) => {
       return res.status(404).json({ error: "Pet not found" });
     }
     if (pet.ownerId.toString() !== req.user.id) {
-      return res
-        .status(403)
-        .json({ error: "You can only book appointments for your own pets" });
+      return res.status(403).json({ error: "You can only book appointments for your own pets" });
     }
 
     // verify groomer exists
@@ -73,16 +66,12 @@ exports.createAppointment = async (req, res) => {
     // check if appt is in the past
     const currentTime = new Date();
     if (appointmentStart < currentTime) {
-      return res
-        .status(400)
-        .json({ error: "Cannot book appointments in the past" });
+      return res.status(400).json({ error: "Cannot book appointments in the past" });
     }
 
     // verify start time is before end time
     if (appointmentStart >= appointmentEnd) {
-      return res
-        .status(400)
-        .json({ error: "Start time must be before end time" });
+      return res.status(400).json({ error: "Start time must be before end time" });
     }
 
     // check for time conflicts
@@ -94,8 +83,7 @@ exports.createAppointment = async (req, res) => {
 
     if (hasConflict) {
       return res.status(409).json({
-        error:
-          "This time slot is no longer available. Please choose another time.",
+        error: "This time slot is no longer available. Please choose another time.",
       });
     }
 
@@ -115,9 +103,41 @@ exports.createAppointment = async (req, res) => {
 
     await newAppointment.save();
 
+    // Populate the appointment with pet, owner, and groomer details for the email
+    const populatedAppointment = await Appointment.findById(newAppointment._id)
+      .populate("petId", "name species breed")
+      .populate("ownerId", "name email")
+      .populate("groomerId", "name email");
+
+    // Send booking confirmation email
+    try {
+      const appointmentDetails = {
+        bookingReference: populatedAppointment._id.toString().slice(-8).toUpperCase(),
+        petName: populatedAppointment.petId.name,
+        petBreed: populatedAppointment.petId.breed,
+        groomerName: populatedAppointment.groomerId.name,
+        serviceType: populatedAppointment.serviceType,
+        startTime: populatedAppointment.startTime,
+        endTime: populatedAppointment.endTime,
+        duration: populatedAppointment.duration,
+      };
+
+      await sendBookingConfirmationEmail(
+        populatedAppointment.ownerId.email,
+        populatedAppointment.ownerId.name,
+        appointmentDetails
+      );
+
+      console.log("Booking confirmation email sent for appointment:", populatedAppointment._id);
+    } catch (emailError) {
+      console.error("Failed to send booking confirmation email:", emailError);
+      // Don't fail the appointment creation if email fails
+      // The appointment is still created successfully
+    }
+
     res.status(201).json({
       message: "Appointment booked successfully",
-      appointment: newAppointment,
+      appointment: populatedAppointment,
     });
   } catch (error) {
     console.error("Error booking appointment:", error);
@@ -128,6 +148,8 @@ exports.createAppointment = async (req, res) => {
 // get all appts for current user (owner or groomer)
 exports.getUserAppointments = async (req, res) => {
   try {
+    console.log("Getting appointments for user:", req.user.id, "Role:", req.user.role);
+
     const userId = req.user.id;
     const { status } = req.query;
 
@@ -145,32 +167,38 @@ exports.getUserAppointments = async (req, res) => {
       query.status = status;
     }
 
+    console.log("Query:", query);
+
     // get appts with populated pet and groomer/owner details
     const appointments = await Appointment.find(query)
       .populate("petId", "name species breed")
       .populate("ownerId", "name email")
-      .populate("groomerId", "name email");
+      .populate("groomerId", "name email")
+      .lean(); // Add lean() for better performance
+
+    console.log("Found appointments:", appointments.length);
 
     // Automatically update status of appointments that have ended
     const currentTime = new Date();
     const updatedAppointments = [];
 
     for (const appointment of appointments) {
-      if (
-        appointment.status === "confirmed" &&
-        new Date(appointment.endTime) < currentTime
-      ) {
+      if (appointment.status === "confirmed" && new Date(appointment.endTime) < currentTime) {
+        // Update in database
+        await Appointment.findByIdAndUpdate(appointment._id, {
+          status: "completed",
+          updatedAt: currentTime,
+        });
+
+        // Update local object
         appointment.status = "completed";
         appointment.updatedAt = currentTime;
-        await appointment.save();
         updatedAppointments.push(appointment._id);
       }
     }
 
     if (updatedAppointments.length > 0) {
-      console.log(
-        `Automatically marked ${updatedAppointments.length} appointments as completed`
-      );
+      console.log(`Automatically marked ${updatedAppointments.length} appointments as completed`);
     }
 
     // Sort appointments by start time (newest first)
@@ -178,8 +206,12 @@ exports.getUserAppointments = async (req, res) => {
 
     res.status(200).json(appointments);
   } catch (error) {
-    console.error("Error fetching appointments:", error);
-    res.status(500).json({ error: "Server error fetching appointments" });
+    console.error("Detailed error fetching appointments:", error);
+    console.error("Error stack:", error.stack);
+    res.status(500).json({
+      error: "Server error fetching appointments",
+      details: process.env.NODE_ENV === "development" ? error.message : undefined,
+    });
   }
 };
 
@@ -199,35 +231,24 @@ exports.getAppointmentById = async (req, res) => {
 
     // Check if appointment should be marked as completed
     const currentTime = new Date();
-    if (
-      appointment.status === "confirmed" &&
-      new Date(appointment.endTime) < currentTime
-    ) {
+    if (appointment.status === "confirmed" && new Date(appointment.endTime) < currentTime) {
       appointment.status = "completed";
       appointment.updatedAt = currentTime;
       await appointment.save();
-      console.log(
-        `Automatically marked appointment ${appointment._id} as completed`
-      );
+      console.log(`Automatically marked appointment ${appointment._id} as completed`);
     }
 
     // checks if user authorized to view appt
     if (
-      (req.user.role === "owner" &&
-        appointment.ownerId._id.toString() !== req.user.id) ||
-      (req.user.role === "groomer" &&
-        appointment.groomerId._id.toString() !== req.user.id)
+      (req.user.role === "owner" && appointment.ownerId._id.toString() !== req.user.id) ||
+      (req.user.role === "groomer" && appointment.groomerId._id.toString() !== req.user.id)
     ) {
-      return res
-        .status(403)
-        .json({ error: "Not authorized to view this appointment" });
+      return res.status(403).json({ error: "Not authorized to view this appointment" });
     }
     res.status(200).json(appointment);
   } catch (error) {
     console.error("Error fetching appointment:", error);
-    res
-      .status(500)
-      .json({ error: "Server error fetching appointment details" });
+    res.status(500).json({ error: "Server error fetching appointment details" });
   }
 };
 
@@ -239,9 +260,7 @@ exports.updateAppointment = async (req, res) => {
 
     // validate required fields
     if (!petId || !groomerId || !serviceType || !startTime) {
-      return res
-        .status(400)
-        .json({ error: "Missing required appointment information" });
+      return res.status(400).json({ error: "Missing required appointment information" });
     }
 
     // find the appt
@@ -251,15 +270,12 @@ exports.updateAppointment = async (req, res) => {
     }
     // check if user is owner of this appt
     if (appointment.ownerId.toString() !== req.user.id) {
-      return res
-        .status(403)
-        .json({ error: "Not authorized to update this appointment" });
+      return res.status(403).json({ error: "Not authorized to update this appointment" });
     }
     // check if appt can be modified
     if (!appointment.canModify()) {
       return res.status(400).json({
-        error:
-          "Cannot modify appointments less than 24 hours before start time",
+        error: "Cannot modify appointments less than 24 hours before start time",
       });
     }
     // set duration based on svc type
@@ -270,9 +286,7 @@ exports.updateAppointment = async (req, res) => {
     // check if appointment is in the past
     const currentTime = new Date();
     if (appointmentStart < currentTime) {
-      return res
-        .status(400)
-        .json({ error: "Cannot reschedule to a time in the past" });
+      return res.status(400).json({ error: "Cannot reschedule to a time in the past" });
     }
 
     // calculate endTime based on startTime + duration
@@ -288,8 +302,7 @@ exports.updateAppointment = async (req, res) => {
 
     if (hasConflict) {
       return res.status(409).json({
-        error:
-          "This time slot is no longer available. Please choose another time.",
+        error: "This time slot is no longer available. Please choose another time.",
       });
     }
 
@@ -306,9 +319,44 @@ exports.updateAppointment = async (req, res) => {
 
     await appointment.save();
 
+    // Populate the appointment with pet, owner, and groomer details for the email
+    const populatedAppointment = await Appointment.findById(appointment._id)
+      .populate("petId", "name species breed")
+      .populate("ownerId", "name email")
+      .populate("groomerId", "name email");
+
+    // Send rescheduled appointment confirmation email
+    try {
+      const appointmentDetails = {
+        bookingReference: populatedAppointment._id.toString().slice(-8).toUpperCase(),
+        petName: populatedAppointment.petId.name,
+        petBreed: populatedAppointment.petId.breed,
+        groomerName: populatedAppointment.groomerId.name,
+        serviceType: populatedAppointment.serviceType,
+        startTime: populatedAppointment.startTime,
+        endTime: populatedAppointment.endTime,
+        duration: populatedAppointment.duration,
+      };
+
+      await sendBookingConfirmationEmail(
+        populatedAppointment.ownerId.email,
+        populatedAppointment.ownerId.name,
+        appointmentDetails,
+        true // isRescheduled = true
+      );
+
+      console.log(
+        "Rescheduled appointment confirmation email sent for appointment:",
+        populatedAppointment._id
+      );
+    } catch (emailError) {
+      console.error("Failed to send rescheduled appointment confirmation email:", emailError);
+      // Don't fail the appointment update if email fails
+    }
+
     res.status(200).json({
       message: "Appointment updated successfully",
-      appointment,
+      appointment: populatedAppointment,
     });
   } catch (error) {
     console.error("Error updating appointment:", error);
@@ -328,16 +376,13 @@ exports.deleteAppointment = async (req, res) => {
 
     // check user is owner of appt
     if (appointment.ownerId.toString() !== req.user.id) {
-      return res
-        .status(403)
-        .json({ error: "Not authorized to delete this appointment" });
+      return res.status(403).json({ error: "Not authorized to delete this appointment" });
     }
 
     // check if appt can be modified
     if (!appointment.canModify()) {
       return res.status(400).json({
-        error:
-          "Cannot delete appointments less than 24 hours before start time",
+        error: "Cannot delete appointments less than 24 hours before start time",
       });
     }
     // delete appt

@@ -6,21 +6,15 @@ const UserSchema = new Schema({
   password: { type: String, required: true },
   name: { type: String, required: true },
   role: { type: String, enum: ["owner", "groomer"], required: true },
+  resetPasswordToken: { type: String },
+  resetPasswordExpires: { type: Date },
   createdAt: { type: Date, default: Date.now },
   workingHours: {
     type: [
       {
         day: {
           type: String,
-          enum: [
-            "Monday",
-            "Tuesday",
-            "Wednesday",
-            "Thursday",
-            "Friday",
-            "Saturday",
-            "Sunday",
-          ],
+          enum: ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"],
         },
         isWorking: { type: Boolean, default: true },
         startTime: { type: String, default: "09:00" }, // 24h format

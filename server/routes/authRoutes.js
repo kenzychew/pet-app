@@ -6,6 +6,8 @@ const { verifyToken } = require("../utils/jwt");
 // Public routes
 router.post("/register", authController.register);
 router.post("/login", authController.login);
+router.post("/forgot-password", authController.forgotPassword);
+router.post("/reset-password/:token", authController.resetPassword);
 
 // Protected route - requires authentication
 router.get("/me", verifyToken, authController.getCurrentUser);

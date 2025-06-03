@@ -16,4 +16,7 @@ router.put("/:id", isOwner, petController.updatePet);
 
 router.delete("/:id", isOwner, petController.deletePet);
 
+// Add this route to get appointments for a specific pet
+router.get("/:id/appointments", isAuthenticated, petController.getPetAppointments);
+
 module.exports = router;

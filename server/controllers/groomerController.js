@@ -39,17 +39,13 @@ exports.getGroomerAvailability = async (req, res) => {
 
     // query params validation
     if (!date) {
-      return res
-        .status(400)
-        .json({ error: "Date parameter is required (YYYY-MM-DD)" });
+      return res.status(400).json({ error: "Date parameter is required (YYYY-MM-DD)" });
     }
 
     const appointmentDuration = parseInt(duration) || 60;
 
     if (appointmentDuration !== 60 && appointmentDuration !== 120) {
-      return res
-        .status(400)
-        .json({ error: "Duration must be either 60 or 120 minutes" });
+      return res.status(400).json({ error: "Duration must be either 60 or 120 minutes" });
     }
 
     const groomer = await User.findOne({ _id: groomerId, role: "groomer" });
@@ -60,17 +56,13 @@ exports.getGroomerAvailability = async (req, res) => {
     // parse date and check if valid
     const appointmentDate = new Date(date);
     if (isNaN(appointmentDate.getTime())) {
-      return res
-        .status(400)
-        .json({ error: "Invalid date format. Use YYYY-MM-DD" });
+      return res.status(400).json({ error: "Invalid date format. Use YYYY-MM-DD" });
     }
 
     const today = new Date();
     today.setHours(0, 0, 0, 0);
     if (appointmentDate < today) {
-      return res
-        .status(400)
-        .json({ error: "Cannot book appointments for past dates" });
+      return res.status(400).json({ error: "Cannot book appointments for past dates" });
     }
 
     const dayOfWeek = [
@@ -107,8 +99,6 @@ exports.getGroomerAvailability = async (req, res) => {
     res.status(200).json(availableSlots);
   } catch (error) {
     console.error("Error fetching groomer availability:", error);
-    res
-      .status(500)
-      .json({ error: "Server error fetching groomer availability" });
+    res.status(500).json({ error: "Server error fetching groomer availability" });
   }
 };

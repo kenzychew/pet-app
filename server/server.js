@@ -10,7 +10,9 @@ const logger = require("morgan");
 const allowedOrigins = [
   process.env.CLIENT_URL, // primary client URL
   process.env.SECONDARY_URL, // optional secondary URL
-  "http://localhost:5173", // local development
+  "http://localhost:5173", // local development (Vite default)
+  "http://localhost:3000", // if client runs on 3000
+  "http://localhost:4173", // Vite preview
 ].filter(Boolean); // removes any undefined/null values
 
 const corsOptions = {
@@ -47,6 +49,16 @@ app.use((req, res, next) => {
     origin: req.headers.origin,
     method: req.method,
     headers: req.headers,
+  });
+  next();
+});
+
+// Add this after your CORS configuration for debugging
+app.use((req, res, next) => {
+  console.log(`${req.method} ${req.path}`, {
+    origin: req.headers.origin,
+    authorization: req.headers.authorization,
+    body: req.body,
   });
   next();
 });

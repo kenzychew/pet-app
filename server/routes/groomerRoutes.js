@@ -11,10 +11,6 @@ router.get("/", isAuthenticated, groomerController.getAllGroomers);
 router.get("/:id", isAuthenticated, groomerController.getGroomerById);
 // get all available slots for groomer
 // eg: /api/groomers/:id/availability?date=2023-04-15&duration=60
-router.get(
-  "/:id/availability",
-  isAuthenticated,
-  groomerController.getGroomerAvailability
-);
+router.get("/:id/availability", isAuthenticated, groomerController.getGroomerAvailability);
 
 module.exports = router;

@@ -18,6 +18,29 @@ const AppointmentSchema = new Schema({
   updatedAt: { type: Date, default: Date.now },
 });
 
+// Business hours configuration
+const BUSINESS_HOURS = {
+  0: { start: 10, end: 19 }, // Sunday: 10am-7pm SGT
+  1: { start: 11, end: 20 }, // Monday: 11am-8pm SGT
+  2: { start: 11, end: 20 }, // Tuesday: 11am-8pm SGT
+  3: null, // Wednesday: Closed
+  4: { start: 11, end: 20 }, // Thursday: 11am-8pm SGT
+  5: { start: 11, end: 20 }, // Friday: 11am-8pm SGT
+  6: { start: 10, end: 19 }, // Saturday: 10am-7pm SGT
+};
+
+// Helper function to check if a day is a business day
+AppointmentSchema.statics.isBusinessDay = function (date) {
+  const dayOfWeek = new Date(date).getDay();
+  return BUSINESS_HOURS[dayOfWeek] !== null;
+};
+
+// Helper function to get business hours for a specific day
+AppointmentSchema.statics.getBusinessHours = function (date) {
+  const dayOfWeek = new Date(date).getDay();
+  return BUSINESS_HOURS[dayOfWeek];
+};
+
 // instance methods are useful when working with individual appointment instances
 // ie. one specific appt at a time
 // check if the appointment can be modified (>24h before start)
@@ -101,6 +124,7 @@ AppointmentSchema.statics.checkForConflicts = async function (
   // returns true if there are any conflicting appointments
   return conflictingAppointments.length > 0;
 };
+
 // middleware (pre-save validation)
 // ensure startTime always before endTime
 AppointmentSchema.pre("save", function (next) {
@@ -108,7 +132,29 @@ AppointmentSchema.pre("save", function (next) {
     const err = new Error("Start time must be before end time");
     return next(err);
   }
-  this.updatedAt = Date.now(); // updates updatedAt field
+
+  // Check if appointment is during business hours
+  const appointmentDate = new Date(this.startTime);
+  if (!this.constructor.isBusinessDay(appointmentDate)) {
+    const err = new Error("Appointments cannot be scheduled on days when we are closed");
+    return next(err);
+  }
+
+  const businessHours = this.constructor.getBusinessHours(appointmentDate);
+  const startHour = appointmentDate.getHours();
+  const endHour = new Date(this.endTime).getHours();
+  const endMinute = new Date(this.endTime).getMinutes();
+
+  if (
+    startHour < businessHours.start ||
+    endHour > businessHours.end ||
+    (endHour === businessHours.end && endMinute > 0)
+  ) {
+    const err = new Error("Appointment must be within business hours");
+    return next(err);
+  }
+
+  this.updatedAt = Date.now();
   next();
 });
 
@@ -134,71 +180,61 @@ AppointmentSchema.statics.getGroomerConfirmedAppointments = async function (groo
 };
 
 AppointmentSchema.statics.getAvailableTimeSlots = async function (groomerId, date, duration) {
-  // biz hours in UTC (convert from SGT 9am-5pm)
-  const businessStart = 1; // 9am SGT = 1am UTC
-  const businessEnd = 9; // 5pm SGT = 9am UTC
+  // Check if it's a business day
+  if (!this.isBusinessDay(date)) {
+    return []; // No slots available on closed days
+  }
 
-  // get all appointments for this day
+  // Get business hours for this specific day
+  const businessHours = this.getBusinessHours(date);
+  if (!businessHours) {
+    return [];
+  }
+
+  // Get all confirmed appointments for this day
   const appointments = await this.getGroomerConfirmedAppointments(groomerId, date);
 
-  // start with full day slots in 60-minute increments
-  const dayDate = new Date(date); // 2024-03-16 => 2024-03-16T00:00:00
+  const dayDate = new Date(date);
   const slots = [];
 
-  // generate all possible time slots during biz hours
-  for (let hour = businessStart; hour < businessEnd; hour++) {
+  // Generate time slots based on business hours for this day
+  for (let hour = businessHours.start; hour < businessHours.end; hour++) {
     for (let minute = 0; minute < 60; minute += 60) {
-      const slotStart = new Date(dayDate); // Date obj for start time
-      slotStart.setUTCHours(hour, minute, 0, 0); // set seconds and ms to 0
-      // create new Date obj that is a copy of slotStart
-      // impt bc Date objs are reference types, so this ensures we dont modify the og slotStart obj
+      const slotStart = new Date(dayDate);
+      slotStart.setHours(hour, minute, 0, 0);
+
       const slotEnd = new Date(slotStart);
-      // gets current mins from slotStart and adds duration
-      // 2:30PM + 45 = 3.15PM, sets slotEnd to 3:15PM
-      // handles minute overflow correctly
       slotEnd.setMinutes(slotStart.getMinutes() + duration);
 
-      // do not add slots that extend beyond biz hrs
-      if (
-        slotEnd.getUTCHours() < businessEnd || // if end time before 5pm
-        (slotEnd.getUTCHours() === businessEnd && slotEnd.getUTCMinutes() === 0) // if end time is exactly 5:00pm
-      ) {
+      // Check if slot end time is within business hours
+      const slotEndHour = slotEnd.getHours();
+      const slotEndMinute = slotEnd.getMinutes();
+      const endTimeInMinutes = slotEndHour * 60 + slotEndMinute;
+      const businessEndInMinutes = businessHours.end * 60;
+
+      if (endTimeInMinutes <= businessEndInMinutes) {
         slots.push({
           start: slotStart,
           end: slotEnd,
           available: true,
-        }); // get array of slot objs
+        });
       }
     }
   }
 
-  // mark slots as unavailable if they conflict with existing appointments
-  // loop through all existing (confirmed) appointments
+  // Mark slots as unavailable if they conflict with existing appointments
   for (const appointment of appointments) {
     const appointmentStart = new Date(appointment.startTime);
     const appointmentEnd = new Date(appointment.endTime);
-    // loop through all possible slots
+
     for (const slot of slots) {
-      // check if proposed slot overlaps with existing appointment
-      // similar to checkForConflicts method which is used for creation/update
       if (slot.start < appointmentEnd && slot.end > appointmentStart) {
         slot.available = false;
       }
     }
   }
 
-  // filter and return only available slots
   return slots.filter((slot) => slot.available);
-  // assuming all slots are available ie. no conflicts, output:
-  // [
-  //   { "start": "2025-03-15T09:00:00Z", "end": "2025-03-15T10:00:00Z", "available": true },
-  //   { "start": "2025-03-15T11:00:00Z", "end": "2025-03-15T12:00:00Z", "available": true },
-  //   { "start": "2025-03-15T12:00:00Z", "end": "2025-03-15T13:00:00Z", "available": true },
-  //   { "start": "2025-03-15T13:00:00Z", "end": "2025-03-15T14:00:00Z", "available": true },
-  //   { "start": "2025-03-15T14:00:00Z", "end": "2025-03-15T15:00:00Z", "available": true },
-  //   { "start": "2025-03-15T15:00:00Z", "end": "2025-03-15T16:00:00Z", "available": true },
-  //   { "start": "2025-03-15T16:00:00Z", "end": "2025-03-15T17:00:00Z", "available": true }
-  // ]
 };
 
 module.exports = mongoose.model("Appointment", AppointmentSchema);

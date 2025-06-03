@@ -36,9 +36,7 @@ exports.createPet = async (req, res) => {
     }
     const { name, species, breed, age, notes } = req.body;
     if (!name || !species || !breed || !age) {
-      return res
-        .status(400)
-        .json({ error: "Missing required pet information" });
+      return res.status(400).json({ error: "Missing required pet information" });
     }
 
     // create new pet with owner ID from authenticated user
@@ -74,9 +72,7 @@ exports.updatePet = async (req, res) => {
       return res.status(404).json({ error: "Pet not found" });
     }
     if (pet.ownerId.toString() !== req.user.id) {
-      return res
-        .status(403)
-        .json({ error: "Not authorized to update this pet" });
+      return res.status(403).json({ error: "Not authorized to update this pet" });
     }
 
     if (name) pet.name = name;
@@ -110,9 +106,7 @@ exports.deletePet = async (req, res) => {
     }
 
     if (pet.ownerId.toString() !== req.user.id) {
-      return res
-        .status(403)
-        .json({ error: "Not authorized to delete this pet" });
+      return res.status(403).json({ error: "Not authorized to delete this pet" });
     }
 
     // prevent pets with upcoming appointments from being deleted
@@ -141,5 +135,34 @@ exports.deletePet = async (req, res) => {
   } catch (error) {
     console.error("Error deleting pet:", error);
     res.status(500).json({ error: "Server error deleting pet" });
+  }
+};
+
+exports.getPetAppointments = async (req, res) => {
+  try {
+    const petId = req.params.id;
+    const userId = req.user.id;
+
+    // First verify the pet belongs to the user
+    const pet = await Pet.findById(petId);
+    if (!pet) {
+      return res.status(404).json({ error: "Pet not found" });
+    }
+
+    // Check if user owns this pet
+    if (pet.ownerId.toString() !== userId) {
+      return res.status(403).json({ error: "Not authorized to view this pet's appointments" });
+    }
+
+    // Get appointments for this specific pet
+    const Appointment = require("../models/Appointment");
+    const appointments = await Appointment.find({ petId })
+      .populate("groomerId", "name email")
+      .sort({ startTime: -1 }); // Sort by date, newest first
+
+    res.status(200).json(appointments);
+  } catch (error) {
+    console.error("Error fetching pet appointments:", error);
+    res.status(500).json({ error: "Server error fetching pet appointments" });
   }
 };
