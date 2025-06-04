@@ -16,6 +16,7 @@ import LoadingSpinner from '../ui/loading-spinner';
 import appointmentService from '../../services/appointmentService';
 import groomerService from '../../services/groomerService';
 import type { Pet, User, Appointment } from '../../types';
+import { toast } from "sonner"
 
 interface AppointmentBookingModalProps {
   pets: Pet[];
@@ -93,6 +94,19 @@ const AppointmentBookingModal: React.FC<AppointmentBookingModalProps> = ({
         
         setCurrentStep('confirmation');
         
+        // show success toast with email notification
+        toast.success(
+          isEditing ? "Appointment Rescheduled!" : "Booking Confirmed!", 
+          {
+            description: `A confirmation email with your ${isEditing ? 'updated ' : ''}booking reference has been sent to your email address.`,
+            duration: 10000, // 10s
+            action: {
+              label: "Got it",
+              onClick: () => console.log("Toast dismissed"),
+            }
+          }
+        );
+        
         // show success for 2 seconds then close
         setTimeout(() => {
           onSuccess(updatedAppointment);
@@ -104,7 +118,16 @@ const AppointmentBookingModal: React.FC<AppointmentBookingModalProps> = ({
           : error instanceof Error 
           ? error.message 
           : `Failed to ${isEditing ? 'update' : 'book'} appointment`;
-        alert(errorMessage || `Failed to ${isEditing ? 'update' : 'book'} appointment`);
+        
+        // show error toast
+        toast.error(
+          `${isEditing ? 'Rescheduling' : 'Booking'} Failed`, 
+          {
+            description: errorMessage || `Failed to ${isEditing ? 'update' : 'book'} appointment`,
+            duration: 8000 // 8 seconds for errors
+          }
+        );
+        
         setCurrentStep('summary');
       } finally {
         setLoading(false);
