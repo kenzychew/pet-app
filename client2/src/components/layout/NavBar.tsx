@@ -49,8 +49,8 @@ const NavBar: React.FC = () => {
     // groomer view
     return [
       { name: 'Dashboard', href: '/dashboard' },
-      { name: 'Schedule', href: '/groomer/schedule' },
-      { name: 'Calendar', href: '/groomer/calendar' },
+      { name: 'Schedule', href: '/schedule' },
+      { name: 'Calendar', href: '/calendar' },
       ...publicItems,
     ];
   };
