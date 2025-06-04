@@ -3,7 +3,6 @@ import { motion } from 'framer-motion';
 import { Link } from 'react-router-dom';
 import { 
   CalendarDaysIcon, 
-  UserIcon, 
   ClockIcon,
   HeartIcon,
   CheckCircleIcon,
@@ -39,7 +38,7 @@ const DashboardPage: React.FC = () => {
   const {
     pets,
     loading: petsLoading
-  } = usePetData(user?.role === 'owner');
+  } = usePetData(true); // Always load pets since this is owner dashboard
   
   const bookingModal = useModal();
 
@@ -64,10 +63,10 @@ const DashboardPage: React.FC = () => {
   };
 
   // Add this helper to check if owner has pets
-  const ownerHasPets = user?.role === 'owner' && pets.length > 0;
-  const ownerHasNoPets = user?.role === 'owner' && pets.length === 0 && !petsLoading;
+  const ownerHasPets = pets.length > 0;
+  const ownerHasNoPets = pets.length === 0 && !petsLoading;
 
-  const ownerQuickActions: QuickAction[] = [
+  const quickActions: QuickAction[] = [
     {
       title: 'Book Appointment',
       description: ownerHasPets 
@@ -95,32 +94,6 @@ const DashboardPage: React.FC = () => {
       color: 'bg-green-500 hover:bg-green-600'
     }
   ];
-
-  const groomerQuickActions: QuickAction[] = [
-    {
-      title: 'Today\'s Schedule',
-      description: 'View your appointments for today',
-      icon: ClockIcon,
-      link: '/schedule',
-      color: 'bg-blue-500 hover:bg-blue-600'
-    },
-    {
-      title: 'Calendar View',
-      description: 'See your weekly and monthly schedule',
-      icon: CalendarDaysIcon,
-      link: '/calendar',
-      color: 'bg-yellow-500 hover:bg-yellow-600'
-    },
-    {
-      title: 'Client Management',
-      description: 'Manage your client appointments',
-      icon: UserIcon,
-      link: '/schedule',
-      color: 'bg-green-500 hover:bg-green-600'
-    }
-  ];
-
-  const quickActions = user?.role === 'groomer' ? groomerQuickActions : ownerQuickActions;
 
   const getAppointmentStatus = (appointment: Appointment) => {
     const now = new Date();
@@ -285,10 +258,7 @@ const DashboardPage: React.FC = () => {
               Welcome back, {user?.name}!
             </h1>
             <p className="mt-2 text-gray-600">
-              {user?.role === 'groomer' 
-                ? 'Manage your grooming schedule and clients'
-                : 'Take care of your furry friends with ease'
-              }
+              Take care of your furry friends with ease
             </p>
           </motion.div>
 
@@ -373,7 +343,7 @@ const DashboardPage: React.FC = () => {
                         <action.icon className="h-6 w-6" />
                       </div>
                       <div className="ml-4">
-                        <h3 className="text-lg font-semibold text-gray-900">
+                        <h3 className="text-lg font-semibel text-gray-900">
                           {action.title}
                         </h3>
                       </div>
@@ -405,10 +375,7 @@ const DashboardPage: React.FC = () => {
                 <ClockIcon className="h-12 w-12 mx-auto mb-4 text-gray-300" />
                 <p>No recent activity to show</p>
                 <p className="text-sm mt-2">
-                  {user?.role === 'groomer' 
-                    ? 'Your recent appointments will appear here'
-                    : 'Your pet care activity will appear here'
-                  }
+                  Your pet care activity will appear here
                 </p>
               </div>
             ) : (
@@ -477,57 +444,55 @@ const DashboardPage: React.FC = () => {
                             </div>
                           </div>
                           
-                          {user?.role === 'owner' && (
-                            <div className="pt-3 border-t">
-                              {(() => {
-                                const now = new Date();
-                                const appointmentTime = new Date(appointment.startTime);
-                                const isUpcoming = appointmentTime > now;
-                                const hoursDifference = (appointmentTime.getTime() - now.getTime()) / (1000 * 60 * 60);
-                                const canModify = hoursDifference > 24;
+                          <div className="pt-3 border-t">
+                            {(() => {
+                              const now = new Date();
+                              const appointmentTime = new Date(appointment.startTime);
+                              const isUpcoming = appointmentTime > now;
+                              const hoursDifference = (appointmentTime.getTime() - now.getTime()) / (1000 * 60 * 60);
+                              const canModify = hoursDifference > 24;
 
-                                return (
-                                  <div className="space-y-3">
-                                    {appointment.status === 'confirmed' && isUpcoming && (
-                                      <div className="flex flex-wrap gap-2">
-                                        <Button 
-                                          size="sm" 
-                                          className={`${
-                                            canModify 
-                                              ? 'bg-blue-600 hover:bg-blue-700 text-white' 
-                                              : 'bg-gray-300 text-gray-500 cursor-not-allowed'
-                                          }`}
-                                          onClick={canModify ? () => handleReschedule(appointment) : undefined}
-                                          disabled={!canModify}
-                                        >
-                                          Reschedule
-                                        </Button>
-                                        
-                                        <Button 
-                                          size="sm" 
-                                          className={`${
-                                            canModify 
-                                              ? 'bg-red-600 hover:bg-red-700 text-white' 
-                                              : 'bg-gray-300 text-gray-500 cursor-not-allowed'
-                                          }`}
-                                          onClick={canModify ? () => handleCancelClick(appointment) : undefined}
-                                          disabled={!canModify}
-                                        >
-                                          Cancel
-                                        </Button>
-                                      </div>
-                                    )}
-                                    
-                                    {appointment.status === 'confirmed' && isUpcoming && !canModify && (
-                                      <p className="text-xs text-amber-600">
-                                        *Unable to reschedule/cancel as it is less than 24 hours before appointment time. Please call/whatsapp us if urgent*
-                                      </p>
-                                    )}
-                                  </div>
-                                );
-                              })()}
-                            </div>
-                          )}
+                              return (
+                                <div className="space-y-3">
+                                  {appointment.status === 'confirmed' && isUpcoming && (
+                                    <div className="flex flex-wrap gap-2">
+                                      <Button 
+                                        size="sm" 
+                                        className={`${
+                                          canModify 
+                                            ? 'bg-blue-600 hover:bg-blue-700 text-white' 
+                                            : 'bg-gray-300 text-gray-500 cursor-not-allowed'
+                                        }`}
+                                        onClick={canModify ? () => handleReschedule(appointment) : undefined}
+                                        disabled={!canModify}
+                                      >
+                                        Reschedule
+                                      </Button>
+                                      
+                                      <Button 
+                                        size="sm" 
+                                        className={`${
+                                          canModify 
+                                            ? 'bg-red-600 hover:bg-red-700 text-white' 
+                                            : 'bg-gray-300 text-gray-500 cursor-not-allowed'
+                                        }`}
+                                        onClick={canModify ? () => handleCancelClick(appointment) : undefined}
+                                        disabled={!canModify}
+                                      >
+                                        Cancel
+                                      </Button>
+                                    </div>
+                                  )}
+                                  
+                                  {appointment.status === 'confirmed' && isUpcoming && !canModify && (
+                                    <p className="text-xs text-amber-600">
+                                      *Unable to reschedule/cancel as it is less than 24 hours before appointment time. Please call/whatsapp us if urgent*
+                                    </p>
+                                  )}
+                                </div>
+                              );
+                            })()}
+                          </div>
                         </div>
                       </AccordionContent>
                     </AccordionItem>
@@ -550,7 +515,7 @@ const DashboardPage: React.FC = () => {
       </div>
 
       {/* Booking Modal - Updated to handle rescheduling */}
-      {bookingModal.isOpen && user?.role === 'owner' && ownerHasPets && (
+      {bookingModal.isOpen && ownerHasPets && (
         <AppointmentBookingModal
           pets={pets}
           editingAppointment={editingAppointment}
