@@ -11,14 +11,71 @@ const AppointmentSchema = new Schema({
   endTime: { type: Date, required: true }, // ISO 8601 format (e.g., 2025-03-15T14:30:00Z)
   status: {
     type: String,
-    enum: ["confirmed", "completed"],
+    enum: ["confirmed", "in_progress", "completed", "cancelled", "no_show"],
     default: "confirmed",
   },
+
+  // Groomer workflow fields
+  groomerAcknowledged: { type: Boolean, default: false },
+  appointmentSource: {
+    type: String,
+    enum: ["owner_booking", "groomer_created", "phone_booking"],
+    default: "owner_booking",
+  },
+
+  // pricing fields
+  pricingStatus: {
+    type: String,
+    enum: ["pending", "estimated", "confirmed"],
+    default: "pending",
+  },
+  totalCost: { type: Number, default: null },
+  priceHistory: [
+    {
+      amount: { type: Number, required: true },
+      setAt: { type: Date, default: Date.now },
+      reason: { type: String, required: true },
+      setBy: { type: Schema.Types.ObjectId, ref: "User" },
+    },
+  ],
+
+  // service tracking
+  actualStartTime: { type: Date },
+  actualEndTime: { type: Date },
+  actualDuration: { type: Number },
+
+  // additional fields
+  specialInstructions: { type: String },
+  groomerNotes: { type: String },
+  photos: [
+    {
+      url: { type: String, required: true },
+      uploadedAt: { type: Date, default: Date.now },
+      description: { type: String },
+    },
+  ],
+
+  // cancellation tracking
+  cancellationReason: { type: String },
+  cancellationFee: { type: Number },
+  noShowFee: { type: Number },
+
+  // payment tracking
+  paymentStatus: {
+    type: String,
+    enum: ["pending", "paid", "refunded"],
+    default: "pending",
+  },
+
+  // communication tracking
+  reminderSent: { type: Boolean, default: false },
+  confirmationSent: { type: Boolean, default: false },
+
   createdAt: { type: Date, default: Date.now },
   updatedAt: { type: Date, default: Date.now },
 });
 
-// Business hours configuration
+// Biz hours config
 const BUSINESS_HOURS = {
   0: { start: 10, end: 19 }, // Sunday: 10am-7pm SGT
   1: { start: 11, end: 20 }, // Monday: 11am-8pm SGT
@@ -29,13 +86,13 @@ const BUSINESS_HOURS = {
   6: { start: 10, end: 19 }, // Saturday: 10am-7pm SGT
 };
 
-// Helper function to check if a day is a business day
+// helper function to check if a day is a business day
 AppointmentSchema.statics.isBusinessDay = function (date) {
   const dayOfWeek = new Date(date).getDay();
   return BUSINESS_HOURS[dayOfWeek] !== null;
 };
 
-// Helper function to get business hours for a specific day
+// helper function to get business hours for a specific day
 AppointmentSchema.statics.getBusinessHours = function (date) {
   const dayOfWeek = new Date(date).getDay();
   return BUSINESS_HOURS[dayOfWeek];
@@ -66,9 +123,20 @@ AppointmentSchema.statics.updateCompletedAppointments = async function (appointm
   const updatedAppointments = [];
 
   for (const appointment of appointments) {
-    if (appointment.status === "confirmed" && new Date(appointment.endTime) < currentTime) {
+    if (
+      (appointment.status === "confirmed" || appointment.status === "in_progress") &&
+      new Date(appointment.endTime) < currentTime
+    ) {
       appointment.status = "completed";
       appointment.updatedAt = currentTime;
+      // Set actual end time if it was in progress
+      if (appointment.status === "in_progress" && !appointment.actualEndTime) {
+        appointment.actualEndTime = currentTime;
+        appointment.actualDuration = Math.round(
+          (currentTime - new Date(appointment.actualStartTime || appointment.startTime)) /
+            (1000 * 60)
+        );
+      }
       await appointment.save();
       updatedAppointments.push(appointment._id);
     }
@@ -86,7 +154,7 @@ AppointmentSchema.statics.checkForConflicts = async function (
 ) {
   const query = {
     groomerId,
-    status: "confirmed",
+    status: { $in: ["confirmed", "in_progress"] }, // Include both confirmed and in_progress appointments
     $or: [
       // newStartTime < existingEndTime && newEndTime > existingStartTime
       // true and true overlaps
