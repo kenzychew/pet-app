@@ -30,7 +30,48 @@ export interface User {
     duration: 60 | 120;
     startTime: string;
     endTime: string;
-    status: 'confirmed' | 'completed';
+    status: 'confirmed' | 'in_progress' | 'completed' | 'cancelled' | 'no_show';
+    
+    // groomer workflow fields
+    groomerAcknowledged?: boolean;
+    appointmentSource?: 'owner_booking' | 'groomer_created' | 'phone_booking';
+    
+    // pricing fields
+    pricingStatus?: 'pending' | 'estimated' | 'confirmed';
+    totalCost?: number | null;
+    priceHistory?: Array<{
+      amount: number;
+      setAt: string;
+      reason: string;
+      setBy?: string;
+    }>;
+    
+    // service tracking
+    actualStartTime?: string;
+    actualEndTime?: string;
+    actualDuration?: number;
+    
+    // additional fields
+    specialInstructions?: string;
+    groomerNotes?: string;
+    photos?: Array<{
+      url: string;
+      uploadedAt: string;
+      description?: string;
+    }>;
+    
+    // cancellation tracking
+    cancellationReason?: string;
+    cancellationFee?: number;
+    noShowFee?: number;
+    
+    // payment tracking
+    paymentStatus?: 'pending' | 'paid' | 'refunded';
+    
+    // communication tracking
+    reminderSent?: boolean;
+    confirmationSent?: boolean;
+    
     createdAt: string;
     updatedAt: string;
   }
@@ -42,7 +83,7 @@ export interface User {
     specialties?: string[];
   }
 
-  // Add missing auth-related interfaces
+  // add missing auth-related interfaces
   export interface RegisterData {
     name: string;
     email: string;
@@ -60,7 +101,7 @@ export interface User {
     message?: string;
   }
 
-  // Service data interfaces
+  // service data interfaces
   export interface CreatePetData {
     name: string;
     species: 'dog' | 'cat';
@@ -91,7 +132,7 @@ export interface User {
     available: boolean;
   }
 
-  export type AppointmentStatus = 'confirmed' | 'completed';
+  export type AppointmentStatus = 'confirmed' | 'in_progress' | 'completed' | 'cancelled' | 'no_show';
 
   // add interface for quick actions
   export interface QuickAction {
@@ -101,4 +142,37 @@ export interface User {
     link?: string;
     action?: () => void;
     color: string;
+  }
+
+  // Workflow action interfaces
+  export interface SetPricingData {
+    totalCost: number;
+    pricingStatus?: 'pending' | 'estimated' | 'confirmed';
+    reason: string;
+  }
+
+  export interface CompleteServiceData {
+    groomerNotes?: string;
+    photos?: Array<{
+      url: string;
+      description?: string;
+    }>;
+  }
+
+  // Time block interface for groomer schedule management
+  export interface TimeBlock {
+    _id: string;
+    groomerId: string;
+    startTime: string;
+    endTime: string;
+    blockType: 'unavailable' | 'break' | 'lunch' | 'personal' | 'maintenance';
+    reason?: string;
+    isRecurring: boolean;
+    recurringPattern?: {
+      frequency: 'daily' | 'weekly' | 'monthly';
+      daysOfWeek: number[];
+      endDate?: string;
+    };
+    createdAt: string;
+    updatedAt: string;
   }
