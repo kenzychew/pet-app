@@ -15,7 +15,7 @@ const AppointmentSchema = new Schema({
     default: "confirmed",
   },
 
-  // Groomer workflow fields
+  // groomer workflow fields
   groomerAcknowledged: { type: Boolean, default: false },
   appointmentSource: {
     type: String,
@@ -129,7 +129,7 @@ AppointmentSchema.statics.updateCompletedAppointments = async function (appointm
     ) {
       appointment.status = "completed";
       appointment.updatedAt = currentTime;
-      // Set actual end time if it was in progress
+      // set actual end time if it was in progress
       if (appointment.status === "in_progress" && !appointment.actualEndTime) {
         appointment.actualEndTime = currentTime;
         appointment.actualDuration = Math.round(
@@ -154,7 +154,7 @@ AppointmentSchema.statics.checkForConflicts = async function (
 ) {
   const query = {
     groomerId,
-    status: { $in: ["confirmed", "in_progress"] }, // Include both confirmed and in_progress appointments
+    status: { $in: ["confirmed", "in_progress"] }, // include both confirmed and in_progress appointments
     $or: [
       // newStartTime < existingEndTime && newEndTime > existingStartTime
       // true and true overlaps
@@ -201,7 +201,7 @@ AppointmentSchema.pre("save", function (next) {
     return next(err);
   }
 
-  // Check if appointment is during business hours
+  // check if appointment is during business hours
   const appointmentDate = new Date(this.startTime);
   if (!this.constructor.isBusinessDay(appointmentDate)) {
     const err = new Error("Appointments cannot be scheduled on days when we are closed");
@@ -248,24 +248,30 @@ AppointmentSchema.statics.getGroomerConfirmedAppointments = async function (groo
 };
 
 AppointmentSchema.statics.getAvailableTimeSlots = async function (groomerId, date, duration) {
-  // Check if it's a business day
+  // check if it's a business day
   if (!this.isBusinessDay(date)) {
-    return []; // No slots available on closed days
+    return []; // no slots available on closed days
   }
 
-  // Get business hours for this specific day
+  // get business hours for this specific day
   const businessHours = this.getBusinessHours(date);
   if (!businessHours) {
     return [];
   }
 
-  // Get all confirmed appointments for this day
+  // get all confirmed appointments for this day
   const appointments = await this.getGroomerConfirmedAppointments(groomerId, date);
+
+  // get TimeBlock model from the exports
+  const TimeBlock = require("./Appointment").TimeBlock;
+
+  // get all time blocks for this day
+  const timeBlocks = await TimeBlock.getGroomerTimeBlocks(groomerId, date);
 
   const dayDate = new Date(date);
   const slots = [];
 
-  // Generate time slots based on business hours for this day
+  // generate time slots based on business hours for this day
   for (let hour = businessHours.start; hour < businessHours.end; hour++) {
     for (let minute = 0; minute < 60; minute += 60) {
       const slotStart = new Date(dayDate);
@@ -274,7 +280,7 @@ AppointmentSchema.statics.getAvailableTimeSlots = async function (groomerId, dat
       const slotEnd = new Date(slotStart);
       slotEnd.setMinutes(slotStart.getMinutes() + duration);
 
-      // Check if slot end time is within business hours
+      // check if slot end time is within business hours
       const slotEndHour = slotEnd.getHours();
       const slotEndMinute = slotEnd.getMinutes();
       const endTimeInMinutes = slotEndHour * 60 + slotEndMinute;
@@ -290,7 +296,7 @@ AppointmentSchema.statics.getAvailableTimeSlots = async function (groomerId, dat
     }
   }
 
-  // Mark slots as unavailable if they conflict with existing appointments
+  // mark slots as unavailable if they conflict with existing appointments
   for (const appointment of appointments) {
     const appointmentStart = new Date(appointment.startTime);
     const appointmentEnd = new Date(appointment.endTime);
@@ -302,7 +308,92 @@ AppointmentSchema.statics.getAvailableTimeSlots = async function (groomerId, dat
     }
   }
 
+  // mark slots as unavailable if they conflict with time blocks
+  for (const timeBlock of timeBlocks) {
+    const blockStart = new Date(timeBlock.startTime);
+    const blockEnd = new Date(timeBlock.endTime);
+
+    for (const slot of slots) {
+      if (slot.start < blockEnd && slot.end > blockStart) {
+        slot.available = false;
+      }
+    }
+  }
+
   return slots.filter((slot) => slot.available);
 };
 
 module.exports = mongoose.model("Appointment", AppointmentSchema);
+
+// Timeblock model for groomer availability management
+const TimeBlockSchema = new Schema({
+  groomerId: { type: Schema.Types.ObjectId, ref: "User", required: true },
+  startTime: { type: Date, required: true },
+  endTime: { type: Date, required: true },
+  blockType: {
+    type: String,
+    enum: ["unavailable", "break", "lunch", "personal", "maintenance"],
+    default: "unavailable",
+  },
+  reason: { type: String },
+  isRecurring: { type: Boolean, default: false },
+  recurringPattern: {
+    frequency: { type: String, enum: ["daily", "weekly", "monthly"] },
+    daysOfWeek: [{ type: Number, min: 0, max: 6 }], // 0 = Sunday, 6 = Saturday
+    endDate: { type: Date },
+  },
+  createdAt: { type: Date, default: Date.now },
+  updatedAt: { type: Date, default: Date.now },
+});
+
+// validation to ensure startTime is before endTime
+TimeBlockSchema.pre("save", function (next) {
+  if (this.startTime >= this.endTime) {
+    const err = new Error("Start time must be before end time");
+    return next(err);
+  }
+  this.updatedAt = Date.now();
+  next();
+});
+
+// static method to get all time blocks for a groomer on a specific date
+TimeBlockSchema.statics.getGroomerTimeBlocks = async function (groomerId, date) {
+  const startOfDay = new Date(date);
+  startOfDay.setHours(0, 0, 0, 0);
+
+  const endOfDay = new Date(date);
+  endOfDay.setHours(23, 59, 59, 999);
+
+  return await this.find({
+    groomerId,
+    startTime: { $lt: endOfDay },
+    endTime: { $gt: startOfDay },
+  }).sort({ startTime: 1 });
+};
+
+// static method to check for conflicts with existing time blocks
+TimeBlockSchema.statics.checkForTimeBlockConflicts = async function (
+  groomerId,
+  startTime,
+  endTime,
+  excludeBlockId = null
+) {
+  const query = {
+    groomerId,
+    $or: [{ startTime: { $lt: endTime }, endTime: { $gt: startTime } }],
+  };
+
+  if (excludeBlockId) {
+    query._id = { $ne: excludeBlockId };
+  }
+
+  const conflictingBlocks = await this.find(query);
+  return conflictingBlocks.length > 0;
+};
+
+const TimeBlock = mongoose.model("TimeBlock", TimeBlockSchema);
+
+module.exports = {
+  Appointment: mongoose.model("Appointment", AppointmentSchema),
+  TimeBlock: TimeBlock,
+};
