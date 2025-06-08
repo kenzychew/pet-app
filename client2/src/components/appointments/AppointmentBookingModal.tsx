@@ -5,7 +5,6 @@ import * as Yup from 'yup';
 import {
   XMarkIcon,
   CalendarDaysIcon,
-  ClockIcon,
   ArrowLeftIcon,
   ExclamationTriangleIcon,
   CheckCircleIcon
@@ -15,6 +14,7 @@ import { DatePicker } from '../ui/date-picker';
 import LoadingSpinner from '../ui/loading-spinner';
 import appointmentService from '../../services/appointmentService';
 import groomerService from '../../services/groomerService';
+import { petService } from '../../services/petService';
 import type { Pet, User, Appointment } from '../../types';
 import { toast } from "sonner"
 
@@ -55,7 +55,8 @@ const AppointmentBookingModal: React.FC<AppointmentBookingModalProps> = ({
     groomerId: Yup.string().required('Please select a groomer'),
     serviceType: Yup.string().oneOf(['basic', 'full']).required('Please select a service type'),
     selectedDate: Yup.date().required('Please select a date'),
-    selectedTimeSlot: Yup.string().required('Please select a time slot')
+    selectedTimeSlot: Yup.string().required('Please select a time slot'),
+    specialInstructions: Yup.string().max(500, 'Special instructions cannot exceed 500 characters')
   });
 
   const formik = useFormik({
@@ -70,7 +71,10 @@ const AppointmentBookingModal: React.FC<AppointmentBookingModalProps> = ({
       selectedDate: editingAppointment ? 
         new Date(editingAppointment.startTime).toISOString().split('T')[0] : 
         '',
-      selectedTimeSlot: editingAppointment?.startTime || ''
+      selectedTimeSlot: editingAppointment?.startTime || '',
+      specialInstructions: editingAppointment && typeof editingAppointment.petId === 'object' ? 
+        editingAppointment.petId.notes || '' : 
+        ''
     },
     validationSchema,
     onSubmit: async (values) => {
@@ -83,6 +87,19 @@ const AppointmentBookingModal: React.FC<AppointmentBookingModalProps> = ({
           serviceType: values.serviceType as 'basic' | 'full',
           startTime: values.selectedTimeSlot
         };
+
+        // Update pet's notes if special instructions have changed
+        const currentPet = pets.find(pet => pet._id === values.petId);
+        if (currentPet && values.specialInstructions !== currentPet.notes) {
+          try {
+            await petService.updatePet(values.petId, {
+              notes: values.specialInstructions.trim()
+            });
+          } catch (error) {
+            console.error('Error updating pet notes:', error);
+            // Continue with appointment booking even if notes update fails
+          }
+        }
 
         let updatedAppointment: Appointment;
         
@@ -177,11 +194,20 @@ const AppointmentBookingModal: React.FC<AppointmentBookingModalProps> = ({
     loadTimeSlots();
   }, [formik.values.groomerId, formik.values.selectedDate, formik.values.serviceType]);
 
+  // Update special instructions when pet is selected
+  useEffect(() => {
+    if (formik.values.petId && !isEditing) {
+      const selectedPet = pets.find(pet => pet._id === formik.values.petId);
+      if (selectedPet && selectedPet.notes !== formik.values.specialInstructions) {
+        formik.setFieldValue('specialInstructions', selectedPet.notes || '');
+      }
+    }
+  }, [formik.values.petId, pets, isEditing]);
+
   // Helper functionsssss
   const getMinDate = () => {
-    const tomorrow = new Date();
-    tomorrow.setDate(tomorrow.getDate() + 1);
-    return tomorrow.toISOString().split('T')[0];
+    const today = new Date();
+    return today.toISOString().split('T')[0];
   };
 
   const getMaxDate = () => {
@@ -471,6 +497,36 @@ const AppointmentBookingModal: React.FC<AppointmentBookingModalProps> = ({
                     )}
                   </div>
 
+                  {/* Special instructions */}
+                  {formik.values.petId && (
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-2">
+                        Special Instructions for Groomer
+                      </label>
+                      <textarea
+                        name="specialInstructions"
+                        value={formik.values.specialInstructions}
+                        onChange={formik.handleChange}
+                        onBlur={formik.handleBlur}
+                        placeholder="Add any special instructions for the groomer (e.g., sensitive areas, behavioral notes, specific styling preferences...)"
+                        className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 resize-none"
+                        rows={3}
+                        maxLength={500}
+                      />
+                      <div className="flex justify-between items-center mt-1">
+                        <p className="text-xs text-gray-500">
+                          These notes will be visible to the groomer and saved to your pet's profile.
+                        </p>
+                        <span className="text-xs text-gray-400">
+                          {formik.values.specialInstructions.length}/500
+                        </span>
+                      </div>
+                      {formik.touched.specialInstructions && formik.errors.specialInstructions && (
+                        <p className="mt-1 text-sm text-red-600">{formik.errors.specialInstructions}</p>
+                      )}
+                    </div>
+                  )}
+
                   {/* Time slot selection */}
                   {formik.values.groomerId && formik.values.selectedDate && formik.values.serviceType && (
                     <div>
@@ -503,7 +559,6 @@ const AppointmentBookingModal: React.FC<AppointmentBookingModalProps> = ({
                                     : 'border-gray-200 hover:border-gray-300 text-gray-700'
                                 }`}
                               >
-                                <ClockIcon className="h-4 w-4 mx-auto mb-1" />
                                 {formatTimeSlot(slot)}
                               </motion.button>
                             );
@@ -583,12 +638,34 @@ const AppointmentBookingModal: React.FC<AppointmentBookingModalProps> = ({
                     </div>
 
                     {/* Pet special instructions */}
-                    {getSelectedPet()?.notes && (
-                      <div className="mt-6 pt-4 border-t border-gray-200">
-                        <p className="text-sm font-medium text-gray-500 mb-2">Special instructions for groomer</p>
-                        <p className="text-gray-900 bg-white p-3 rounded border">{getSelectedPet()?.notes}</p>
+                    <div className="mt-6 pt-4 border-t border-gray-200">
+                      <div className="flex items-center justify-between mb-2">
+                        <p className="text-sm font-medium text-gray-500">Special instructions for groomer</p>
+                        <button
+                          type="button"
+                          onClick={handleBackToSelection}
+                          className="text-sm text-blue-600 hover:text-blue-800 underline"
+                        >
+                          Edit
+                        </button>
                       </div>
-                    )}
+                      {formik.values.specialInstructions ? (
+                        <div className="bg-white p-3 rounded border">
+                          <p className="text-gray-900 whitespace-pre-wrap">{formik.values.specialInstructions}</p>
+                        </div>
+                      ) : (
+                        <div className="bg-gray-50 p-3 rounded border border-dashed border-gray-300">
+                          <p className="text-gray-500 italic">No special instructions provided.</p>
+                          <button
+                            type="button"
+                            onClick={handleBackToSelection}
+                            className="text-sm text-blue-600 hover:text-blue-800 underline mt-1"
+                          >
+                            Add instructions
+                          </button>
+                        </div>
+                      )}
+                    </div>
                   </div>
 
                   {/* Important policy warning */}
