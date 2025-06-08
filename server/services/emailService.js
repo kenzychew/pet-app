@@ -1,6 +1,6 @@
 const nodemailer = require("nodemailer");
 
-// Create transporter (using Gmail as example - you can configure for other providers)
+// create transporter (using Gmail as example - can be configured for other email providers )
 const createTransporter = () => {
   return nodemailer.createTransport({
     service: "gmail",
@@ -11,7 +11,7 @@ const createTransporter = () => {
   });
 };
 
-// Send password reset email
+// send password reset email
 const sendPasswordResetEmail = async (email, resetToken, userName) => {
   try {
     const transporter = createTransporter();
@@ -58,7 +58,7 @@ const sendPasswordResetEmail = async (email, resetToken, userName) => {
   }
 };
 
-// Send booking confirmation email
+// send booking confirmation
 const sendBookingConfirmationEmail = async (
   userEmail,
   userName,
@@ -79,7 +79,7 @@ const sendBookingConfirmationEmail = async (
       duration,
     } = appointmentDetails;
 
-    // Format the date and time
+    // format the date and time
     const appointmentDate = new Date(startTime);
     const formattedDate = appointmentDate.toLocaleDateString("en-US", {
       weekday: "long",
@@ -101,7 +101,7 @@ const sendBookingConfirmationEmail = async (
 
     const serviceDisplayName = serviceType === "basic" ? "Basic Grooming" : "Full Service Grooming";
 
-    // Customize content based on whether it's a reschedule or new booking
+    // customize content based on whether it's a reschedule or new booking
     const headerTitle = isRescheduled ? "🙌 Appointment Rescheduled!" : "🎉 Booking Confirmed!";
     const headerSubtitle = isRescheduled
       ? "Your pet grooming appointment has been successfully rescheduled"
@@ -245,7 +245,171 @@ const sendBookingConfirmationEmail = async (
   }
 };
 
+// send groomer notification email when a new appointment is booked
+const sendGroomerNotificationEmail = async (groomerEmail, groomerName, appointmentDetails) => {
+  try {
+    const transporter = createTransporter();
+
+    const {
+      bookingReference,
+      petName,
+      petBreed,
+      ownerName,
+      serviceType,
+      startTime,
+      endTime,
+      duration,
+    } = appointmentDetails;
+
+    // format date and time
+    const appointmentDate = new Date(startTime);
+    const formattedDate = appointmentDate.toLocaleDateString("en-US", {
+      weekday: "long",
+      year: "numeric",
+      month: "long",
+      day: "numeric",
+    });
+    const formattedTime = appointmentDate.toLocaleTimeString("en-US", {
+      hour: "2-digit",
+      minute: "2-digit",
+      hour12: true,
+    });
+    const endDateTime = new Date(endTime);
+    const formattedEndTime = endDateTime.toLocaleTimeString("en-US", {
+      hour: "2-digit",
+      minute: "2-digit",
+      hour12: true,
+    });
+
+    const serviceDisplayName = serviceType === "basic" ? "Basic Grooming" : "Full Service Grooming";
+
+    // check if it's same-day appointment
+    const today = new Date();
+    const isToday = appointmentDate.toDateString() === today.toDateString();
+    const urgencyNote = isToday ? "⚡ This is a same-day appointment!" : "";
+
+    const mailOptions = {
+      from: process.env.EMAIL_USER || "your-email@gmail.com",
+      to: groomerEmail,
+      subject: `New Appointment Booked - ${formattedDate} at ${formattedTime}`,
+      html: `
+        <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; background-color: #f9fafb;">
+          <!-- Header -->
+          <div style="background-color: #2563eb; color: white; padding: 30px 20px; text-align: center;">
+            <h1 style="margin: 0; font-size: 28px;">📅 New Appointment Scheduled</h1>
+            <p style="margin: 10px 0 0 0; font-size: 16px; opacity: 0.9;">
+              A client has booked an appointment with you
+            </p>
+            ${
+              urgencyNote
+                ? `<div style="background-color: rgba(255, 255, 255, 0.1); border-radius: 6px; padding: 10px; margin-top: 15px; font-weight: bold;">${urgencyNote}</div>`
+                : ""
+            }
+          </div>
+
+          <!-- Main Content -->
+          <div style="background-color: white; padding: 30px 20px;">
+            <p style="font-size: 16px; color: #374151; margin-bottom: 20px;">
+              Hello ${groomerName},
+            </p>
+            <p style="font-size: 16px; color: #374151; margin-bottom: 30px;">
+              A new appointment has been scheduled for you. Please review the details below:
+            </p>
+
+            <!-- Booking Reference -->
+            <div style="background-color: #f3f4f6; border-left: 4px solid #2563eb; padding: 15px; margin: 20px 0;">
+              <h3 style="margin: 0 0 5px 0; color: #111827; font-size: 14px; text-transform: uppercase; letter-spacing: 1px;">
+                Booking Reference
+              </h3>
+              <p style="margin: 0; font-size: 20px; font-weight: bold; color: #2563eb; font-family: monospace;">
+                #${bookingReference}
+              </p>
+            </div>
+
+            <!-- Appointment Details -->
+            <div style="border: 1px solid #e5e7eb; border-radius: 8px; padding: 20px; margin: 20px 0;">
+              <h3 style="margin: 0 0 15px 0; color: #111827; font-size: 18px;">
+                📋 Appointment Details
+              </h3>
+              
+              <table style="width: 100%; border-collapse: collapse;">
+                <tr>
+                  <td style="padding: 8px 0; color: #6b7280; font-weight: 500; width: 30%;">Date:</td>
+                  <td style="padding: 8px 0; color: #111827; font-weight: 600;">${formattedDate}</td>
+                </tr>
+                <tr>
+                  <td style="padding: 8px 0; color: #6b7280; font-weight: 500;">Time:</td>
+                  <td style="padding: 8px 0; color: #111827; font-weight: 600;">${formattedTime} - ${formattedEndTime}</td>
+                </tr>
+                <tr>
+                  <td style="padding: 8px 0; color: #6b7280; font-weight: 500;">Duration:</td>
+                  <td style="padding: 8px 0; color: #111827; font-weight: 600;">${duration} minutes</td>
+                </tr>
+                <tr>
+                  <td style="padding: 8px 0; color: #6b7280; font-weight: 500;">Service:</td>
+                  <td style="padding: 8px 0; color: #111827; font-weight: 600;">${serviceDisplayName}</td>
+                </tr>
+                <tr>
+                  <td style="padding: 8px 0; color: #6b7280; font-weight: 500;">Pet:</td>
+                  <td style="padding: 8px 0; color: #111827; font-weight: 600;">${petName} (${petBreed})</td>
+                </tr>
+                <tr>
+                  <td style="padding: 8px 0; color: #6b7280; font-weight: 500;">Owner:</td>
+                  <td style="padding: 8px 0; color: #111827; font-weight: 600;">${ownerName}</td>
+                </tr>
+              </table>
+            </div>
+
+            <!-- Action Items -->
+            <div style="background-color: #f0f9ff; border: 1px solid #0ea5e9; border-radius: 8px; padding: 15px; margin: 20px 0;">
+              <h4 style="margin: 0 0 10px 0; color: #0c4a6e; font-size: 16px;">
+                📝 Next Steps
+              </h4>
+              <ul style="margin: 0; padding-left: 20px; color: #0c4a6e;">
+                <li>Please acknowledge this appointment in your dashboard</li>
+                <li>Review any special pet care instructions</li>
+                <li>Prepare the necessary grooming supplies for the service type</li>
+                <li>Contact the owner if you have any questions or need to reschedule</li>
+              </ul>
+            </div>
+
+            <!-- Quick Actions -->
+            <div style="text-align: center; margin: 30px 0;">
+              <p style="color: #6b7280; margin-bottom: 15px;">
+                Access your dashboard to manage this appointment
+              </p>
+              <a href="${process.env.CLIENT_URL || "http://localhost:5173"}/dashboard" 
+                 style="background-color: #2563eb; color: white; padding: 12px 24px; 
+                        text-decoration: none; border-radius: 6px; display: inline-block; font-weight: 600;">
+                View Details
+              </a>
+            </div>
+          </div>
+
+          <!-- Footer -->
+          <div style="background-color: #f9fafb; padding: 20px; text-align: center; border-top: 1px solid #e5e7eb;">
+            <p style="color: #6b7280; font-size: 14px; margin: 0 0 10px 0;">
+              Questions? Contact us at furkidshome1@gmail.com or call +65 9123 4567
+            </p>
+            <p style="color: #9ca3af; font-size: 12px; margin: 0;">
+              This is an automated notification from Furkids. Please do not reply to this email.
+            </p>
+          </div>
+        </div>
+      `,
+    };
+
+    await transporter.sendMail(mailOptions);
+    console.log("Groomer notification email sent successfully to:", groomerEmail);
+    return true;
+  } catch (error) {
+    console.error("Error sending groomer notification email:", error);
+    throw new Error("Failed to send groomer notification email");
+  }
+};
+
 module.exports = {
   sendPasswordResetEmail,
   sendBookingConfirmationEmail,
+  sendGroomerNotificationEmail,
 };
