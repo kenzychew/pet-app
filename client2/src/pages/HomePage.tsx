@@ -121,10 +121,8 @@ const HomePage: React.FC = () => {
                   Professional pet grooming services in the heart of Bedok. We treat your furry family members with the love and care they deserve.
                 </p>
                 <div className="flex flex-col sm:flex-row gap-4">
-                  <Button asChild size="lg" className="bg-blue-600 hover:bg-blue-700">
-                    <Link to="/book">
-                      Book Appointment
-                    </Link>
+                  <Button size="lg" className="bg-blue-600 hover:bg-blue-700" onClick={handleBookAppointment}>
+                    Book Appointment
                   </Button>
                   <Button asChild variant="outline" size="lg">
                     <Link to="/service-rates">
