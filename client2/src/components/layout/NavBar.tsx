@@ -137,10 +137,10 @@ const NavBar: React.FC = () => {
                 <Button
                   variant="outline"
                   size="sm"
-                  onClick={handleLogout}
+                  asChild
                   className="text-gray-700 border-gray-300 hover:bg-gray-50"
                 >
-                  Logout
+                  <button onClick={handleLogout}>Logout</button>
                 </Button>
               </div>
             ) : (
@@ -225,14 +225,12 @@ const NavBar: React.FC = () => {
               <div className="border-t border-gray-700 pt-4">
                 {user ? (
                   <div className="space-y-2">
-                    <Button
-                      variant="outline"
-                      size="sm"
+                    <button
                       onClick={handleLogout}
-                      className="ml-3 text-gray-300 border-gray-600 hover:bg-gray-700 hover:text-white"
+                      className="block px-3 py-2 text-gray-300 hover:text-white hover:bg-gray-700 rounded-md transition-colors duration-200"
                     >
                       Logout
-                    </Button>
+                    </button>
                   </div>
                 ) : (
                   <div className="space-y-2">
