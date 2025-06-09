@@ -83,12 +83,12 @@ export function RegisterForm({
     }
   };
 
-  const handleSocialSignUp = () => {
-    if (nameInputRef.current) {
-      nameInputRef.current.focus();
-      nameInputRef.current.reportValidity();
-    }
-  };
+  // const handleSocialSignUp = () => {
+  //   if (nameInputRef.current) {
+  //     nameInputRef.current.focus();
+  //     nameInputRef.current.reportValidity();
+  //   }
+  // };
 
   return (
     <div className={cn("flex flex-col gap-6", className)} {...props}>
@@ -114,7 +114,7 @@ export function RegisterForm({
             {({ errors, touched, isSubmitting, status, values, setFieldValue }) => (
               <Form>
                 <div className="grid gap-6">
-                  <div className="flex flex-col gap-4">
+                  {/* <div className="flex flex-col gap-4">
                     <Button variant="outline" className="w-full" type="button" onClick={handleSocialSignUp}>
                       <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" className="mr-2 h-4 w-4">
                         <path
@@ -133,12 +133,12 @@ export function RegisterForm({
                       </svg>
                       Sign up with Google
                     </Button>
-                  </div>
-                  <div className="after:border-border relative text-center text-sm after:absolute after:inset-0 after:top-1/2 after:z-0 after:flex after:items-center after:border-t">
+                  </div> */}
+                  {/* <div className="after:border-border relative text-center text-sm after:absolute after:inset-0 after:top-1/2 after:z-0 after:flex after:items-center after:border-t">
                     <span className="bg-card text-muted-foreground relative z-10 px-2">
                       Or continue with
                     </span>
-                  </div>
+                  </div> */}
 
                   {status && (
                     <motion.div
