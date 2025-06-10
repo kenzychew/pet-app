@@ -12,6 +12,9 @@ const PetSchema = new Schema({
     required: true,
   },
   notes: { type: String },
+  // soft delete fields
+  isDeleted: { type: Boolean, default: false },
+  deletedAt: { type: Date, default: null },
   createdAt: { type: Date, default: Date.now },
   updatedAt: { type: Date, default: Date.now },
 });

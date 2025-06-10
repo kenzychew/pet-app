@@ -4,7 +4,7 @@ const { Appointment } = require("../models/Appointment");
 exports.getUserPets = async (req, res) => {
   try {
     const ownerId = req.user.id;
-    const pets = await Pet.find({ ownerId });
+    const pets = await Pet.find({ ownerId, isDeleted: false });
     res.status(200).json(pets);
   } catch (error) {
     console.error("Error fetching pets:", error);
@@ -15,6 +15,7 @@ exports.getUserPets = async (req, res) => {
 exports.getPetById = async (req, res) => {
   try {
     const petId = req.params.id;
+    // find pet regardless of deletion status (for appointment history)
     const pet = await Pet.findById(petId);
     if (!pet) {
       return res.status(404).json({ error: "Pet not found" });
@@ -110,6 +111,11 @@ exports.deletePet = async (req, res) => {
       return res.status(403).json({ error: "Not authorized to delete this pet" });
     }
 
+    // check if pet is already deleted
+    if (pet.isDeleted) {
+      return res.status(400).json({ error: "Pet is already deleted" });
+    }
+
     // prevent pets with upcoming appointments from being deleted
     const currentDate = new Date();
 
@@ -127,7 +133,11 @@ exports.deletePet = async (req, res) => {
       });
     }
 
-    await Pet.deleteOne({ _id: petId });
+    // soft delete: mark as deleted instead of removing
+    pet.isDeleted = true;
+    pet.deletedAt = new Date();
+    pet.updatedAt = new Date();
+    await pet.save();
 
     res.status(200).json({
       message: "Pet deleted successfully",
@@ -143,21 +153,21 @@ exports.getPetAppointments = async (req, res) => {
     const petId = req.params.id;
     const userId = req.user.id;
 
-    // First verify the pet belongs to the user
+    // first verify the pet belongs to the user (allow both deleted and non-deleted pets for appointment history)
     const pet = await Pet.findById(petId);
     if (!pet) {
       return res.status(404).json({ error: "Pet not found" });
     }
 
-    // Check if user owns this pet
+    // check if user owns this pet
     if (pet.ownerId.toString() !== userId) {
       return res.status(403).json({ error: "Not authorized to view this pet's appointments" });
     }
 
-    // Get appointments for this specific pet
+    // get appointments for this specific pet (regardless of pet deletion status)
     const appointments = await Appointment.find({ petId })
       .populate("groomerId", "name email")
-      .sort({ startTime: -1 }); // Sort by date, newest first
+      .sort({ startTime: -1 }); // sort by date, newest first
 
     res.status(200).json(appointments);
   } catch (error) {
@@ -165,3 +175,72 @@ exports.getPetAppointments = async (req, res) => {
     res.status(500).json({ error: "Server error fetching pet appointments" });
   }
 };
+
+// get deleted pets (for potential restoration)
+exports.getDeletedPets = async (req, res) => {
+  try {
+    const ownerId = req.user.id;
+    const deletedPets = await Pet.find({ ownerId, isDeleted: true }).sort({ deletedAt: -1 });
+    res.status(200).json(deletedPets);
+  } catch (error) {
+    console.error("Error fetching deleted pets:", error);
+    res.status(500).json({ error: "Server error fetching deleted pets" });
+  }
+};
+
+// restore a soft-deleted pet
+exports.restorePet = async (req, res) => {
+  try {
+    const petId = req.params.id;
+    const pet = await Pet.findById(petId);
+
+    if (!pet) {
+      return res.status(404).json({ error: "Pet not found" });
+    }
+
+    if (pet.ownerId.toString() !== req.user.id) {
+      return res.status(403).json({ error: "Not authorized to restore this pet" });
+    }
+
+    if (!pet.isDeleted) {
+      return res.status(400).json({ error: "Pet is not deleted" });
+    }
+
+    // restore pet
+    pet.isDeleted = false;
+    pet.deletedAt = null;
+    pet.updatedAt = new Date();
+    await pet.save();
+
+    res.status(200).json({
+      message: "Pet restored successfully",
+      pet,
+    });
+  } catch (error) {
+    console.error("Error restoring pet:", error);
+    res.status(500).json({ error: "Server error restoring pet" });
+  }
+};
+
+// // temporary migration endpoint
+// exports.migratePets = async (req, res) => {
+//   try {
+//     // update all pets that don't have the isDeleted field
+//     const result = await Pet.updateMany(
+//       { isDeleted: { $exists: false } },
+//       {
+//         $set: {
+//           isDeleted: false,
+//           deletedAt: null,
+//         },
+//       }
+//     );
+//     res.status(200).json({
+//       message: "Migration completed",
+//       modifiedCount: result.modifiedCount,
+//     });
+//   } catch (error) {
+//     console.error("Error migrating pets:", error);
+//     res.status(500).json({ error: "Migration failed" });
+//   }
+// };

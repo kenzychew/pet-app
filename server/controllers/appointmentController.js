@@ -124,10 +124,10 @@ exports.createAppointment = async (req, res) => {
     try {
       const appointmentDetails = {
         bookingReference: populatedAppointment._id.toString().slice(-8).toUpperCase(),
-        petName: populatedAppointment.petId.name,
-        petBreed: populatedAppointment.petId.breed,
-        groomerName: populatedAppointment.groomerId.name,
-        ownerName: populatedAppointment.ownerId.name,
+        petName: populatedAppointment.petId?.name || "Pet",
+        petBreed: populatedAppointment.petId?.breed || "Unknown breed",
+        groomerName: populatedAppointment.groomerId?.name || "Groomer",
+        ownerName: populatedAppointment.ownerId?.name || "Pet Owner",
         serviceType: populatedAppointment.serviceType,
         startTime: populatedAppointment.startTime,
         endTime: populatedAppointment.endTime,
@@ -383,10 +383,10 @@ exports.updateAppointment = async (req, res) => {
     try {
       const appointmentDetails = {
         bookingReference: populatedAppointment._id.toString().slice(-8).toUpperCase(),
-        petName: populatedAppointment.petId.name,
-        petBreed: populatedAppointment.petId.breed,
-        groomerName: populatedAppointment.groomerId.name,
-        ownerName: populatedAppointment.ownerId.name,
+        petName: populatedAppointment.petId?.name || "Pet",
+        petBreed: populatedAppointment.petId?.breed || "Unknown breed",
+        groomerName: populatedAppointment.groomerId?.name || "Groomer",
+        ownerName: populatedAppointment.ownerId?.name || "Pet Owner",
         serviceType: populatedAppointment.serviceType,
         startTime: populatedAppointment.startTime,
         endTime: populatedAppointment.endTime,

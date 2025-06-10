@@ -72,7 +72,7 @@ const AppointmentBookingModal = ({
         new Date(editingAppointment.startTime).toISOString().split('T')[0] : 
         '',
       selectedTimeSlot: editingAppointment?.startTime || '',
-      specialInstructions: editingAppointment && typeof editingAppointment.petId === 'object' ? 
+      specialInstructions: editingAppointment && typeof editingAppointment.petId === 'object' && editingAppointment.petId !== null ? 
         editingAppointment.petId.notes || '' : 
         ''
     },

@@ -51,6 +51,9 @@ export const usePetData = (autoLoad: boolean = true) => {
   const removePet = useCallback((petId: string) => {
     setPets(prev => prev.filter(pet => pet._id !== petId));
     setAppointments(prev => prev.filter(appointment => {
+      if (!appointment.petId) {
+        return true;
+      }
       if (typeof appointment.petId === 'string') {
         return appointment.petId !== petId;
       }

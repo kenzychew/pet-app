@@ -8,7 +8,8 @@ import {
   UserIcon,
   HeartIcon,
   CheckCircleIcon,
-  ExclamationCircleIcon
+  ExclamationCircleIcon,
+  BellAlertIcon
 } from '@heroicons/react/24/outline';
 import { useAuthStore } from '../store/authStore';
 import { Button } from '../components/ui/button';
@@ -134,7 +135,7 @@ const AppointmentDetailPage = () => {
     } else if (isUpcoming) {
       return { 
         badge: <Badge className="text-blue-700 bg-blue-100">Upcoming</Badge>,
-        icon: <ClockIcon className="h-5 w-5 text-blue-500" />,
+        icon: <BellAlertIcon className="h-5 w-5 text-blue-500" />,
         text: 'This appointment is scheduled for the future'
       };
     } else {
@@ -282,7 +283,7 @@ const AppointmentDetailPage = () => {
               {/* Date time */}
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div className="flex items-start space-x-4">
-                  <CalendarDaysIcon className="h-6 w-6 text-blue-500 mt-1" />
+                  <CalendarDaysIcon className="h-6 w-6 text-red-500 mt-1" />
                   <div>
                     <h3 className="font-semibold text-gray-900">Date</h3>
                     <p className="text-gray-600">{formatDate(appointment.startTime)}</p>
@@ -302,7 +303,7 @@ const AppointmentDetailPage = () => {
               {/* Pet and groomer */}
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div className="flex items-start space-x-4">
-                  <HeartIcon className="h-6 w-6 text-pink-500 mt-1" />
+                  <HeartIcon className="h-6 w-6 text-amber-500 mt-1" />
                   <div>
                     <h3 className="font-semibold text-gray-900">Pet</h3>
                     <p className="text-gray-600">{getPetName(appointment.petId)}</p>

@@ -247,7 +247,6 @@ const GroomerDashboardPage = () => {
             <Card className="bg-gradient-to-br from-green-50 via-emerald-50 to-teal-50 border-2 border-green-200 shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-[1.005]">
               <CardHeader>
                 <CardTitle className="flex items-center gap-2 text-teal-900 font-bold">
-                  <CalendarDaysIcon className="h-5 w-5 drop-shadow-sm" />
                   Today's Appointments
                 </CardTitle>
                 <CardDescription className="text-emerald-700 font-medium">
@@ -257,7 +256,6 @@ const GroomerDashboardPage = () => {
               <CardContent>
                 {todaysAppointments.length === 0 ? (
                   <div className="text-center py-12 text-gray-500">
-                    <CalendarDaysIcon className="h-12 w-12 mx-auto mb-4 text-gray-300" />
                     <p className="text-lg font-medium">No appointments today</p>
                     <p className="text-sm mt-1">Enjoy your day off!</p>
                   </div>

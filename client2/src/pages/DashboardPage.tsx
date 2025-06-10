@@ -272,7 +272,6 @@ const DashboardPage = () => {
             >
               <div className="flex items-start">
                 <div className="flex-shrink-0">
-                  <HeartIcon className="h-8 w-8 text-blue-600" />
                 </div>
                 <div className="ml-4 flex-1">
                   <h3 className="text-lg font-semibold text-blue-900 mb-2">
