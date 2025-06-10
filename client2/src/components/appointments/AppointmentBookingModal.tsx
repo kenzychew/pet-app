@@ -217,15 +217,17 @@ const AppointmentBookingModal = ({
   };
 
   const formatTimeSlot = (slot: TimeSlot) => {
-    const startTime = slot.start.toLocaleTimeString('en-US', {
+    const startTime = slot.start.toLocaleTimeString('en-SG', {
       hour: 'numeric',
       minute: '2-digit',
-      hour12: true
+      hour12: true,
+      timeZone: 'Asia/Singapore'
     });
-    const endTime = slot.end.toLocaleTimeString('en-US', {
+    const endTime = slot.end.toLocaleTimeString('en-SG', {
       hour: 'numeric',
       minute: '2-digit',
-      hour12: true
+      hour12: true,
+      timeZone: 'Asia/Singapore'
     });
     return `${startTime} - ${endTime}`;
   };
@@ -243,10 +245,11 @@ const AppointmentBookingModal = ({
     
     // fallback if slot not found
     const date = new Date(formik.values.selectedTimeSlot);
-    return date.toLocaleTimeString('en-US', {
+    return date.toLocaleTimeString('en-SG', {
       hour: 'numeric',
       minute: '2-digit',
-      hour12: true
+      hour12: true,
+      timeZone: 'Asia/Singapore'
     });
   };
 
