@@ -217,17 +217,16 @@ const AppointmentBookingModal = ({
   };
 
   const formatTimeSlot = (slot: TimeSlot) => {
+    // server sends UTC times that automatically convert to SGT
     const startTime = slot.start.toLocaleTimeString('en-SG', {
       hour: 'numeric',
       minute: '2-digit',
-      hour12: true,
-      timeZone: 'Asia/Singapore'
+      hour12: true
     });
     const endTime = slot.end.toLocaleTimeString('en-SG', {
       hour: 'numeric',
       minute: '2-digit',
-      hour12: true,
-      timeZone: 'Asia/Singapore'
+      hour12: true
     });
     return `${startTime} - ${endTime}`;
   };
@@ -248,8 +247,7 @@ const AppointmentBookingModal = ({
     return date.toLocaleTimeString('en-SG', {
       hour: 'numeric',
       minute: '2-digit',
-      hour12: true,
-      timeZone: 'Asia/Singapore'
+      hour12: true
     });
   };
 
