@@ -248,14 +248,37 @@
             },
             "description": "Get available time slots for a groomer on a specific date"
           }
-        }
-      ]
-    },
-    {
-      "name": "Appointments",
-      "item": [
+        },
         {
-          "name": "Create Appointment",
+          "name": "Get Groomer Schedule",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{authToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/groomers/{{groomerId}}/schedule?startDate=2025-03-10&endDate=2025-03-16",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "groomers", "{{groomerId}}", "schedule"],
+              "query": [
+                {
+                  "key": "startDate",
+                  "value": "2025-03-10"
+                },
+                {
+                  "key": "endDate",
+                  "value": "2025-03-16"
+                }
+              ]
+            },
+            "description": "Get groomer's schedule including appointments and time blocks for a date range"
+          }
+        },
+        {
+          "name": "Create Time Block",
           "request": {
             "method": "POST",
             "header": [
@@ -270,18 +293,155 @@
             ],
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"petId\": \"{{petId}}\",\n  \"groomerId\": \"{{groomerId}}\",\n  \"serviceType\": \"basic\",\n  \"startTime\": \"2025-03-15T10:00:00Z\"\n}"
+              "raw": "{\n  \"startTime\": \"2025-03-15T12:00:00Z\",\n  \"endTime\": \"2025-03-15T13:00:00Z\",\n  \"blockType\": \"lunch\",\n  \"reason\": \"Lunch break\"\n}"
             },
             "url": {
-              "raw": "{{baseUrl}}/api/appointments",
+              "raw": "{{baseUrl}}/api/groomers/time-blocks",
               "host": ["{{baseUrl}}"],
-              "path": ["api", "appointments"]
+              "path": ["api", "groomers", "time-blocks"]
             },
-            "description": "Book a new appointment (owner only)"
+            "description": "Create a time block to make groomer unavailable during specific times"
           }
         },
         {
-          "name": "Get User Appointments",
+          "name": "Update Time Block",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{authToken}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"startTime\": \"2025-03-15T12:00:00Z\",\n  \"endTime\": \"2025-03-15T14:00:00Z\",\n  \"blockType\": \"personal\",\n  \"reason\": \"Doctor appointment\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/groomers/time-blocks/{{timeBlockId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "groomers", "time-blocks", "{{timeBlockId}}"]
+            },
+            "description": "Update an existing time block"
+          }
+        },
+        {
+          "name": "Delete Time Block",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{authToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/groomers/time-blocks/{{timeBlockId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "groomers", "time-blocks", "{{timeBlockId}}"]
+            },
+            "description": "Delete a time block"
+          }
+        },
+        {
+          "name": "Acknowledge Appointment (Groomer)",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{authToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/appointments/{{appointmentId}}/acknowledge",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "appointments", "{{appointmentId}}", "acknowledge"]
+            },
+            "description": "Groomer acknowledges a new appointment booking"
+          }
+        },
+        {
+          "name": "Set Pricing (Groomer)",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{authToken}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"totalCost\": 75.00,\n  \"pricingStatus\": \"estimated\",\n  \"reason\": \"Standard grooming for medium-sized dog\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/appointments/{{appointmentId}}/pricing",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "appointments", "{{appointmentId}}", "pricing"]
+            },
+            "description": "Groomer sets pricing for an appointment"
+          }
+        },
+        {
+          "name": "Start Service (Groomer)",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{authToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/appointments/{{appointmentId}}/start",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "appointments", "{{appointmentId}}", "start"]
+            },
+            "description": "Groomer starts the service (changes status to in_progress)"
+          }
+        },
+        {
+          "name": "Complete Service (Groomer)",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{authToken}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"groomerNotes\": \"Dog was well-behaved, coat in good condition\",\n  \"photos\": [\n    {\n      \"url\": \"https://example.com/before.jpg\",\n      \"description\": \"Before grooming\"\n    },\n    {\n      \"url\": \"https://example.com/after.jpg\",\n      \"description\": \"After grooming\"\n    }\n  ]\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/appointments/{{appointmentId}}/complete",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "appointments", "{{appointmentId}}", "complete"]
+            },
+            "description": "Groomer completes the service (changes status to completed)"
+          }
+        }
+      ]
+    },
+    {
+      "name": "Appointments",
+      "item": [
+        {
+          "name": "Get All Appointments",
           "request": {
             "method": "GET",
             "header": [
@@ -293,16 +453,9 @@
             "url": {
               "raw": "{{baseUrl}}/api/appointments",
               "host": ["{{baseUrl}}"],
-              "path": ["api", "appointments"],
-              "query": [
-                {
-                  "key": "status",
-                  "value": "confirmed",
-                  "disabled": true
-                }
-              ]
+              "path": ["api", "appointments"]
             },
-            "description": "Get all appointments for current user (owner sees their appointments, groomer sees appointments assigned to them)"
+            "description": "Get all appointments for current owner"
           }
         },
         {
@@ -324,9 +477,9 @@
           }
         },
         {
-          "name": "Update Appointment Status",
+          "name": "Create Appointment",
           "request": {
-            "method": "PATCH",
+            "method": "POST",
             "header": [
               {
                 "key": "Content-Type",
@@ -339,18 +492,18 @@
             ],
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"status\": \"cancelled\"\n}"
+              "raw": "{\n  \"petId\": \"{{petId}}\",\n  \"groomerId\": \"{{groomerId}}\",\n  \"appointmentDate\": \"2025-03-15T12:00:00Z\",\n  \"notes\": \"Regular grooming\"\n}"
             },
             "url": {
-              "raw": "{{baseUrl}}/api/appointments/{{appointmentId}}/status",
+              "raw": "{{baseUrl}}/api/appointments",
               "host": ["{{baseUrl}}"],
-              "path": ["api", "appointments", "{{appointmentId}}", "status"]
+              "path": ["api", "appointments"]
             },
-            "description": "Update appointment status (cancel or complete)"
+            "description": "Create a new appointment (owner only)"
           }
         },
         {
-          "name": "Update Appointment (Reschedule)",
+          "name": "Update Appointment",
           "request": {
             "method": "PUT",
             "header": [
@@ -365,14 +518,14 @@
             ],
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"petId\": \"{{petId}}\",\n  \"groomerId\": \"{{groomerId}}\",\n  \"serviceType\": \"basic\",\n  \"startTime\": \"2025-03-16T14:00:00Z\"\n}"
+              "raw": "{\n  \"petId\": \"{{petId}}\",\n  \"groomerId\": \"{{groomerId}}\",\n  \"appointmentDate\": \"2025-03-15T12:00:00Z\",\n  \"notes\": \"Regular grooming\"\n}"
             },
             "url": {
               "raw": "{{baseUrl}}/api/appointments/{{appointmentId}}",
               "host": ["{{baseUrl}}"],
               "path": ["api", "appointments", "{{appointmentId}}"]
             },
-            "description": "Update appointment details (reschedule) - owners only, must be >24h before start time"
+            "description": "Update an appointment's information (owner only)"
           }
         },
         {

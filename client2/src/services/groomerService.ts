@@ -1,19 +1,51 @@
 import { api } from '../config/api';
 import type { User, ApiError, TimeSlot, Appointment } from '../types';
 
-// Define slot response interface for API responses
+// define slot response interface for API responses
 interface SlotResponse {
   start: string;
   end: string;
   available: boolean;
 }
 
-// Define groomer schedule interface
+// define groomer schedule interface
 interface GroomerSchedule {
   groomerId: string;
-  date: string;
-  availability: TimeSlot[];
+  startDate: string;
+  endDate: string;
   appointments: Appointment[];
+  timeBlocks: TimeBlock[];
+}
+
+// define time block interface
+interface TimeBlock {
+  _id: string;
+  groomerId: string;
+  startTime: string;
+  endTime: string;
+  blockType: 'unavailable' | 'break' | 'lunch' | 'personal' | 'maintenance';
+  reason?: string;
+  isRecurring: boolean;
+  recurringPattern?: {
+    frequency: 'daily' | 'weekly' | 'monthly';
+    daysOfWeek: number[];
+    endDate?: string;
+  };
+  createdAt: string;
+  updatedAt: string;
+}
+
+interface CreateTimeBlockData {
+  startTime: string;
+  endTime: string;
+  blockType?: 'unavailable' | 'break' | 'lunch' | 'personal' | 'maintenance';
+  reason?: string;
+  isRecurring?: boolean;
+  recurringPattern?: {
+    frequency: 'daily' | 'weekly' | 'monthly';
+    daysOfWeek: number[];
+    endDate?: string;
+  };
 }
 
 const getAllGroomers = async (): Promise<User[]> => {
@@ -26,13 +58,13 @@ const getAllGroomers = async (): Promise<User[]> => {
   }
 };
 
-const getGroomerById = async (groomerId: string): Promise<User> => {
+const getGroomerById = async (id: string): Promise<User> => {
   try {
-    const response = await api.get(`/groomers/${groomerId}`);
+    const response = await api.get(`/groomers/${id}`);
     return response.data;
   } catch (error: unknown) {
     const apiError = error as { response?: { data?: ApiError } };
-    throw apiError.response?.data || { error: "Failed to fetch groomer details" };
+    throw apiError.response?.data || { error: "Failed to fetch groomer" };
   }
 };
 
@@ -64,10 +96,14 @@ const getGroomerAvailability = async (
   }
 };
 
-const getGroomerSchedule = async (groomerId: string, date: string): Promise<GroomerSchedule> => {
+const getGroomerSchedule = async (
+  groomerId: string, 
+  startDate: string, 
+  endDate: string
+): Promise<GroomerSchedule> => {
   try {
     const response = await api.get(`/groomers/${groomerId}/schedule`, {
-      params: { date }
+      params: { startDate, endDate }
     });
     return response.data;
   } catch (error: unknown) {
@@ -76,11 +112,48 @@ const getGroomerSchedule = async (groomerId: string, date: string): Promise<Groo
   }
 };
 
+const createTimeBlock = async (timeBlockData: CreateTimeBlockData): Promise<TimeBlock> => {
+  try {
+    const response = await api.post('/groomers/time-blocks', timeBlockData);
+    return response.data.timeBlock;
+  } catch (error: unknown) {
+    const apiError = error as { response?: { data?: ApiError } };
+    throw apiError.response?.data || { error: "Failed to create time block" };
+  }
+};
+
+const updateTimeBlock = async (
+  timeBlockId: string, 
+  timeBlockData: Partial<CreateTimeBlockData>
+): Promise<TimeBlock> => {
+  try {
+    const response = await api.put(`/groomers/time-blocks/${timeBlockId}`, timeBlockData);
+    return response.data.timeBlock;
+  } catch (error: unknown) {
+    const apiError = error as { response?: { data?: ApiError } };
+    throw apiError.response?.data || { error: "Failed to update time block" };
+  }
+};
+
+const deleteTimeBlock = async (timeBlockId: string): Promise<{ success: boolean }> => {
+  try {
+    const response = await api.delete(`/groomers/time-blocks/${timeBlockId}`);
+    return response.data;
+  } catch (error: unknown) {
+    const apiError = error as { response?: { data?: ApiError } };
+    throw apiError.response?.data || { error: "Failed to delete time block" };
+  }
+};
+
 const groomerService = {
   getAllGroomers,
   getGroomerById,
   getGroomerAvailability,
   getGroomerSchedule,
+  createTimeBlock,
+  updateTimeBlock,
+  deleteTimeBlock,
 };
 
 export default groomerService;
+export type { GroomerSchedule, TimeBlock, CreateTimeBlockData };
