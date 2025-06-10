@@ -119,7 +119,7 @@ const AppointmentBookingModal = ({
             duration: 10000, // 10s
             action: {
               label: "Got it",
-              onClick: () => console.log("Toast dismissed"),
+              onClick: () => {},
             }
           }
         );

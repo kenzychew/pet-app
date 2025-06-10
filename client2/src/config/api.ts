@@ -31,14 +31,11 @@ const createApiInstance = (): AxiosInstance => {
       if (token) {
         config.headers = config.headers || {};
         config.headers.Authorization = `Bearer ${token}`;
-        console.log('✅ Request with token:', config.url);
-      } else {
-        console.warn('⚠️ No token found for request:', config.url);
       }
       return config;
     },
     (error) => {
-      console.error('❌ Request interceptor error:', error);
+      console.error('Request interceptor error:', error);
       return Promise.reject(error);
     }
   );
@@ -47,7 +44,7 @@ const createApiInstance = (): AxiosInstance => {
   instance.interceptors.response.use(
     (response) => response,
     (error) => {
-      console.error('❌ API Error:', error.response?.data || error.message);
+      console.error('API Error:', error.response?.data || error.message);
       
       if (error.response?.status === 401) {
         // clear token and redirect to login on 401

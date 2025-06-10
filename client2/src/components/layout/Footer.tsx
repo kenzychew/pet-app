@@ -15,14 +15,14 @@ const Footer = () => {
     { day: 'Sun', hours: '10:00 am – 07:00 pm' },
   ];
 
-  // Encoded address for Google Maps
+  // encoded address for Google Maps
   const mapAddress = encodeURIComponent('Furkids Home Pet Grooming & Spa');
 
   return (
     <footer id="footer" className="bg-gray-900 text-white py-12">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-          {/* Contact Info - Left Column */}
+          {/* Contact info - Left column */}
           <div>
             <h3 className="text-lg font-semibold mb-4">Contact Us</h3>
             <div className="text-gray-400 space-y-3">
@@ -55,7 +55,7 @@ const Footer = () => {
             </div>
           </div>
 
-          {/* Google Map - Mid column */}
+          {/* Google Map - mid column */}
           <div>
             <h4 className="text-lg font-semibold mb-4">Find Us</h4>
             <div className="relative">

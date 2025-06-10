@@ -210,7 +210,6 @@ const AppointmentPage = () => {
   };
 
   const handlePetFilterChange = (value: string) => {
-    console.log('Pet filter changed to:', value);
     setSelectedPetFilter(value);
   };
 

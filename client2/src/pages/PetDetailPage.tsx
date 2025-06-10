@@ -83,15 +83,12 @@ const PetDetailPage = () => {
       setSaveLoading(true);
       
       // update pet with new notes
-      const updatedPet = await petService.updatePet(petId, {
-        notes: editedNotes.trim()
-      });
+      const updatedPet = await petService.updatePet(pet._id, { notes: editedNotes.trim() });
       
       // ensure we have valid pet data before updating state
       if (updatedPet && updatedPet._id) {
         setPet(updatedPet);
         setIsEditingNotes(false);
-        console.log('Pet notes updated successfully:', updatedPet);
       } else {
         throw new Error('Invalid pet data received from server');
       }

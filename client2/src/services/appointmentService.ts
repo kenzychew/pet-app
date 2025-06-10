@@ -17,9 +17,7 @@ interface TimeSlot {
 
 const getUserAppointments = async (): Promise<Appointment[]> => {
   try {
-    console.log('Fetching user appointments...');
     const response = await api.get('/appointments');
-    console.log('Appointments response:', response.data);
     return response.data;
   } catch (error: unknown) {
     console.error('Error fetching appointments:', error);

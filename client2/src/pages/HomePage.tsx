@@ -15,7 +15,7 @@ import PageTransition from '../components/layout/PageTransition';
 import petGroomingImage from '../assets/pet_grooming.webp';
 import AppointmentBookingModal from '../components/appointments/AppointmentBookingModal';
 import { petService } from '../services/petService';
-import type { Pet, Appointment } from '../types';
+import type { Pet } from '../types';
 
 const HomePage = () => {
   const { isAuthenticated, user } = useAuthStore();
@@ -38,10 +38,9 @@ const HomePage = () => {
     loadUserPets();
   }, [isAuthenticated, user]);
 
-  const handleBookingSuccess = (appointment: Appointment) => {
-    setShowBookingModal(false);
-    console.log('Appointment booked successfully:', appointment);
-  };
+      const handleBookingSuccess = () => {
+      setShowBookingModal(false);
+    };
 
   const handleBookAppointment = () => {
     if (!isAuthenticated) {
