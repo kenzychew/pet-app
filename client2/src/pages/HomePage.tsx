@@ -39,8 +39,8 @@ const HomePage = () => {
   }, [isAuthenticated, user]);
 
       const handleBookingSuccess = () => {
-      setShowBookingModal(false);
-    };
+    setShowBookingModal(false);
+  };
 
   const handleBookAppointment = () => {
     if (!isAuthenticated) {

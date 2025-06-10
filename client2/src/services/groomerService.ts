@@ -69,9 +69,10 @@ const getGroomerById = async (id: string): Promise<User> => {
 };
 
 /*
+Example usage:
 const date = new Date('2025-03-13T09:01:30Z');
 const formattedDate = date instanceof Date ? date.toISOString().split("T")[0] : date;
-console.log(formattedDate); Output: "2025-03-13"
+// Output: "2025-03-13"
 */
 const getGroomerAvailability = async (
   groomerId: string, 

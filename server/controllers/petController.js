@@ -1,4 +1,5 @@
 const Pet = require("../models/Pet");
+const { Appointment } = require("../models/Appointment");
 
 exports.getUserPets = async (req, res) => {
   try {
@@ -110,7 +111,6 @@ exports.deletePet = async (req, res) => {
     }
 
     // prevent pets with upcoming appointments from being deleted
-    const Appointment = require("../models/Appointment");
     const currentDate = new Date();
 
     const upcomingAppointments = await Appointment.find({
@@ -155,7 +155,6 @@ exports.getPetAppointments = async (req, res) => {
     }
 
     // Get appointments for this specific pet
-    const Appointment = require("../models/Appointment");
     const appointments = await Appointment.find({ petId })
       .populate("groomerId", "name email")
       .sort({ startTime: -1 }); // Sort by date, newest first
