@@ -75,7 +75,7 @@ const AppointmentSchema = new Schema({
   updatedAt: { type: Date, default: Date.now },
 });
 
-// Biz hours config
+// biz hours config
 const BUSINESS_HOURS = {
   0: { start: 10, end: 19 }, // Sunday: 10am-7pm SGT
   1: { start: 11, end: 20 }, // Monday: 11am-8pm SGT
@@ -320,12 +320,19 @@ AppointmentSchema.statics.getAvailableTimeSlots = async function (groomerId, dat
     }
   }
 
-  return slots.filter((slot) => slot.available);
+  // filter out past time slots for the current day
+  const now = new Date();
+  const currentTime = now.getTime();
+
+  return slots.filter((slot) => {
+    // keep the slot if it's available and not in the past
+    return slot.available && slot.start.getTime() > currentTime;
+  });
 };
 
 module.exports = mongoose.model("Appointment", AppointmentSchema);
 
-// Timeblock model for groomer availability management
+// timeblock model for groomer availability management
 const TimeBlockSchema = new Schema({
   groomerId: { type: Schema.Types.ObjectId, ref: "User", required: true },
   startTime: { type: Date, required: true },

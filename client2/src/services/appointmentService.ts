@@ -1,4 +1,12 @@
-import type { Appointment, CreateAppointmentData, UpdateAppointmentData, AppointmentStatus, ApiError } from "../types";
+import type { 
+  Appointment, 
+  CreateAppointmentData, 
+  UpdateAppointmentData, 
+  AppointmentStatus, 
+  ApiError,
+  SetPricingData,
+  CompleteServiceData
+} from "../types";
 import { api } from '../config/api';
 
 interface TimeSlot {
@@ -17,7 +25,7 @@ const getUserAppointments = async (): Promise<Appointment[]> => {
     console.error('Error fetching appointments:', error);
     const apiError = error as { response?: { data?: ApiError; status?: number } };
     
-    // Log more details for debugging
+    // log details for debug
     if (apiError.response) {
       console.error('Response status:', apiError.response.status);
       console.error('Response data:', apiError.response.data);
@@ -41,7 +49,7 @@ const createAppointment = async (appointmentData: CreateAppointmentData): Promis
     throw apiError.response?.data || { error: "Failed to create appointment" };
   }
 };
-
+// update appt status (for future use)
 const updateAppointmentStatus = async (appointmentId: string, status: AppointmentStatus): Promise<Appointment> => {
   try {
     const response = await api.patch(`/appointments/${appointmentId}/status`, {
@@ -81,6 +89,48 @@ const getAvailableTimeSlots = async (groomerId: string, date: string, duration: 
   return response.data;
 };
 
+// workflow actions for groomers
+// appt acknowledgement
+const acknowledgeAppointment = async (appointmentId: string): Promise<Appointment> => {
+  try {
+    const response = await api.patch(`/appointments/${appointmentId}/acknowledge`);
+    return response.data.appointment || response.data;
+  } catch (error: unknown) {
+    const apiError = error as { response?: { data?: ApiError } };
+    throw apiError.response?.data || { error: "Failed to acknowledge appointment" };
+  }
+};
+// set pricing for appt
+const setPricing = async (appointmentId: string, pricingData: SetPricingData): Promise<Appointment> => {
+  try {
+    const response = await api.patch(`/appointments/${appointmentId}/pricing`, pricingData);
+    return response.data.appointment || response.data;
+  } catch (error: unknown) {
+    const apiError = error as { response?: { data?: ApiError } };
+    throw apiError.response?.data || { error: "Failed to set pricing" };
+  }
+};
+// start svc (actual)
+const startService = async (appointmentId: string): Promise<Appointment> => {
+  try {
+    const response = await api.patch(`/appointments/${appointmentId}/start`);
+    return response.data.appointment || response.data;
+  } catch (error: unknown) {
+    const apiError = error as { response?: { data?: ApiError } };
+    throw apiError.response?.data || { error: "Failed to start service" };
+  }
+};
+// complete svc (actual)
+const completeService = async (appointmentId: string, completionData?: CompleteServiceData): Promise<Appointment> => {
+  try {
+    const response = await api.patch(`/appointments/${appointmentId}/complete`, completionData || {});
+    return response.data.appointment || response.data;
+  } catch (error: unknown) {
+    const apiError = error as { response?: { data?: ApiError } };
+    throw apiError.response?.data || { error: "Failed to complete service" };
+  }
+};
+
 const appointmentService = {
   getUserAppointments,
   getAppointmentById,
@@ -89,6 +139,11 @@ const appointmentService = {
   updateAppointment,
   deleteAppointment,
   getAvailableTimeSlots,
+  // added workflow actions for future use
+  acknowledgeAppointment,
+  setPricing,
+  startService,
+  completeService,
 };
 
 export default appointmentService;

@@ -1,11 +1,10 @@
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
-import React, { useEffect } from 'react';
+import { useEffect } from 'react';
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { useAuthStore } from './store/authStore';
 import { Toaster } from "@/components/ui/sonner"
 
-// Layout Components
+// Layout components
 import Layout from './components/layout/Layout';
 import ProtectedRoute from './components/auth/ProtectedRoute';
 
@@ -20,7 +19,7 @@ import GroomerDashboardPage from './pages/GroomerDashboardPage';
 import PetPage from './pages/PetPage';
 import AppointmentPage from './pages/AppointmentPage';
 import AppointmentDetailPage from './pages/AppointmentDetailPage';
-import GroomerSchedulePage from './pages/GroomerSchedulePage';
+import GroomerClientPage from './pages/GroomerClientPage';
 import GroomerCalendarPage from './pages/GroomerCalendarPage';
 import PetDetailPage from './pages/PetDetailPage';
 import ServiceRatesPage from './pages/ServiceRatesPage';
@@ -36,7 +35,7 @@ const queryClient = new QueryClient({
   },
 });
 
-// Dashboard Route Component to handle role-based rendering
+// Dashboard route component to handle role-based rendering
 const Dashboard = () => {
   const { user } = useAuthStore();
   return user?.role === 'groomer' ? <GroomerDashboardPage /> : <DashboardPage />;
@@ -79,7 +78,7 @@ function App() {
               
               {/* Protected routes for groomers only */}
               <Route element={<ProtectedRoute allowedRoles={["groomer"]} />}>
-                <Route path="/schedule" element={<GroomerSchedulePage />} />
+                <Route path="/clients" element={<GroomerClientPage />} />
                 <Route path="/calendar" element={<GroomerCalendarPage />} />
               </Route>
               

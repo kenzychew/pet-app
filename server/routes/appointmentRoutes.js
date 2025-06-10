@@ -10,17 +10,25 @@ router.use(verifyToken);
 router.post("/", isOwner, appointmentController.createAppointment);
 // get all appts for current user
 router.get("/", isAuthenticated, appointmentController.getUserAppointments);
-// get available slots for groomer (alternative route)
+// get available slots for groomer (alt route)
 router.get(
   "/available-slots/:groomerId",
   isAuthenticated,
   groomerController.getGroomerAvailability
 );
-// get a specific appt by ID
+
+// //! commented out for now
+// // workflow routes for groomers (must come before /:id routes to avoid conflicts)
+// router.patch("/:id/acknowledge", isGroomer, appointmentController.acknowledgeAppointment);
+// router.patch("/:id/pricing", isGroomer, appointmentController.setPricing);
+// router.patch("/:id/start", isGroomer, appointmentController.startService);
+// router.patch("/:id/complete", isGroomer, appointmentController.completeService);
+
+// get a specific appt by id
 router.get("/:id", isAuthenticated, appointmentController.getAppointmentById);
-// update appt
+// update appt (owner)
 router.put("/:id", isOwner, appointmentController.updateAppointment);
-// delete appt
+// delete appt (owner)
 router.delete("/:id", isOwner, appointmentController.deleteAppointment);
 
 module.exports = router;

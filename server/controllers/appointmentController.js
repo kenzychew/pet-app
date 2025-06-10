@@ -1,7 +1,10 @@
-const Appointment = require("../models/Appointment");
+const { Appointment } = require("../models/Appointment");
 const User = require("../models/User");
 const Pet = require("../models/Pet");
-const { sendBookingConfirmationEmail } = require("../services/emailService");
+const {
+  sendBookingConfirmationEmail,
+  sendGroomerNotificationEmail,
+} = require("../services/emailService");
 
 exports.createAppointment = async (req, res) => {
   try {
@@ -97,31 +100,41 @@ exports.createAppointment = async (req, res) => {
       startTime: appointmentStart,
       endTime: appointmentEnd,
       status: "confirmed",
+      // workflow fields with defaults
+      groomerAcknowledged: false,
+      appointmentSource: "owner_booking",
+      pricingStatus: "pending",
+      totalCost: null,
+      paymentStatus: "pending",
+      reminderSent: false,
+      confirmationSent: false,
       createdAt: new Date(),
       updatedAt: new Date(),
     });
 
     await newAppointment.save();
 
-    // Populate the appointment with pet, owner, and groomer details for the email
+    // populate the appt with pet, owner, and groomer details for the email
     const populatedAppointment = await Appointment.findById(newAppointment._id)
       .populate("petId", "name species breed")
       .populate("ownerId", "name email")
       .populate("groomerId", "name email");
 
-    // Send booking confirmation email
+    // send booking confirmation email and groomer notification
     try {
       const appointmentDetails = {
         bookingReference: populatedAppointment._id.toString().slice(-8).toUpperCase(),
         petName: populatedAppointment.petId.name,
         petBreed: populatedAppointment.petId.breed,
         groomerName: populatedAppointment.groomerId.name,
+        ownerName: populatedAppointment.ownerId.name,
         serviceType: populatedAppointment.serviceType,
         startTime: populatedAppointment.startTime,
         endTime: populatedAppointment.endTime,
         duration: populatedAppointment.duration,
       };
 
+      // send confirmation email to pet owner
       await sendBookingConfirmationEmail(
         populatedAppointment.ownerId.email,
         populatedAppointment.ownerId.name,
@@ -129,10 +142,19 @@ exports.createAppointment = async (req, res) => {
       );
 
       console.log("Booking confirmation email sent for appointment:", populatedAppointment._id);
+
+      // send notification email to groomer
+      await sendGroomerNotificationEmail(
+        populatedAppointment.groomerId.email,
+        populatedAppointment.groomerId.name,
+        appointmentDetails
+      );
+
+      console.log("Groomer notification email sent for appointment:", populatedAppointment._id);
     } catch (emailError) {
-      console.error("Failed to send booking confirmation email:", emailError);
-      // Don't fail the appointment creation if email fails
-      // The appointment is still created successfully
+      console.error("Failed to send emails:", emailError);
+      // appt creation doesnt fail if email fails
+      // still created successfully
     }
 
     res.status(201).json({
@@ -163,7 +185,10 @@ exports.getUserAppointments = async (req, res) => {
     }
 
     // filter by status if provided
-    if (status && ["confirmed", "completed"].includes(status)) {
+    if (
+      status &&
+      ["confirmed", "in_progress", "completed", "cancelled", "no_show"].includes(status)
+    ) {
       query.status = status;
     }
 
@@ -171,26 +196,41 @@ exports.getUserAppointments = async (req, res) => {
 
     // get appts with populated pet and groomer/owner details
     const appointments = await Appointment.find(query)
-      .populate("petId", "name species breed")
-      .populate("ownerId", "name email")
+      .populate("petId", "name species breed age notes")
+      .populate("ownerId", "name email phone")
       .populate("groomerId", "name email")
-      .lean(); // Add lean() for better performance
+      .lean(); // add lean() for better perf
 
     console.log("Found appointments:", appointments.length);
 
-    // Automatically update status of appointments that have ended
+    // automatically update status of appointments that have ended
     const currentTime = new Date();
     const updatedAppointments = [];
 
     for (const appointment of appointments) {
-      if (appointment.status === "confirmed" && new Date(appointment.endTime) < currentTime) {
-        // Update in database
-        await Appointment.findByIdAndUpdate(appointment._id, {
+      if (
+        (appointment.status === "confirmed" || appointment.status === "in_progress") &&
+        new Date(appointment.endTime) < currentTime
+      ) {
+        // update db
+        const updateData = {
           status: "completed",
           updatedAt: currentTime,
-        });
+        };
 
-        // Update local object
+        // set actual end time if it was in progress
+        if (appointment.status === "in_progress" && !appointment.actualEndTime) {
+          updateData.actualEndTime = currentTime;
+          if (appointment.actualStartTime) {
+            updateData.actualDuration = Math.round(
+              (currentTime - new Date(appointment.actualStartTime)) / (1000 * 60)
+            );
+          }
+        }
+
+        await Appointment.findByIdAndUpdate(appointment._id, updateData);
+
+        // update local object
         appointment.status = "completed";
         appointment.updatedAt = currentTime;
         updatedAppointments.push(appointment._id);
@@ -201,7 +241,7 @@ exports.getUserAppointments = async (req, res) => {
       console.log(`Automatically marked ${updatedAppointments.length} appointments as completed`);
     }
 
-    // Sort appointments by start time (newest first)
+    // sort appointments by start time (newest first)
     appointments.sort((a, b) => new Date(b.startTime) - new Date(a.startTime));
 
     res.status(200).json(appointments);
@@ -221,18 +261,32 @@ exports.getAppointmentById = async (req, res) => {
     const appointmentId = req.params.id;
 
     const appointment = await Appointment.findById(appointmentId)
-      .populate("petId", "name species breed")
-      .populate("ownerId", "name email")
+      .populate("petId", "name species breed age notes")
+      .populate("ownerId", "name email phone")
       .populate("groomerId", "name email");
 
     if (!appointment) {
       return res.status(404).json({ error: "Appointment not found" });
     }
 
-    // Check if appointment should be marked as completed
+    // check if appt shld be marked as completed
     const currentTime = new Date();
-    if (appointment.status === "confirmed" && new Date(appointment.endTime) < currentTime) {
+    if (
+      (appointment.status === "confirmed" || appointment.status === "in_progress") &&
+      new Date(appointment.endTime) < currentTime
+    ) {
       appointment.status = "completed";
+
+      // set actual end time if it was in progress
+      if (appointment.status === "in_progress" && !appointment.actualEndTime) {
+        appointment.actualEndTime = currentTime;
+        if (appointment.actualStartTime) {
+          appointment.actualDuration = Math.round(
+            (currentTime - new Date(appointment.actualStartTime)) / (1000 * 60)
+          );
+        }
+      }
+
       appointment.updatedAt = currentTime;
       await appointment.save();
       console.log(`Automatically marked appointment ${appointment._id} as completed`);
@@ -314,30 +368,32 @@ exports.updateAppointment = async (req, res) => {
     appointment.startTime = appointmentStart;
     appointment.endTime = appointmentEnd;
     appointment.updatedAt = new Date();
-    // Reset status to confirmed if it was previously completed
+    // reset status to confirmed if it was previously completed
     appointment.status = "confirmed";
 
     await appointment.save();
 
-    // Populate the appointment with pet, owner, and groomer details for the email
+    // populate the appointment with pet, owner, and groomer details for the email
     const populatedAppointment = await Appointment.findById(appointment._id)
       .populate("petId", "name species breed")
       .populate("ownerId", "name email")
       .populate("groomerId", "name email");
 
-    // Send rescheduled appointment confirmation email
+    // send rescheduled appointment confirmation email and groomer notification
     try {
       const appointmentDetails = {
         bookingReference: populatedAppointment._id.toString().slice(-8).toUpperCase(),
         petName: populatedAppointment.petId.name,
         petBreed: populatedAppointment.petId.breed,
         groomerName: populatedAppointment.groomerId.name,
+        ownerName: populatedAppointment.ownerId.name,
         serviceType: populatedAppointment.serviceType,
         startTime: populatedAppointment.startTime,
         endTime: populatedAppointment.endTime,
         duration: populatedAppointment.duration,
       };
 
+      // send confirmation email to pet owner
       await sendBookingConfirmationEmail(
         populatedAppointment.ownerId.email,
         populatedAppointment.ownerId.name,
@@ -349,8 +405,20 @@ exports.updateAppointment = async (req, res) => {
         "Rescheduled appointment confirmation email sent for appointment:",
         populatedAppointment._id
       );
+
+      // Send notification email to groomer about rescheduled appointment
+      await sendGroomerNotificationEmail(
+        populatedAppointment.groomerId.email,
+        populatedAppointment.groomerId.name,
+        appointmentDetails
+      );
+
+      console.log(
+        "Groomer notification email sent for rescheduled appointment:",
+        populatedAppointment._id
+      );
     } catch (emailError) {
-      console.error("Failed to send rescheduled appointment confirmation email:", emailError);
+      console.error("Failed to send rescheduled appointment emails:", emailError);
       // Don't fail the appointment update if email fails
     }
 
@@ -392,5 +460,234 @@ exports.deleteAppointment = async (req, res) => {
   } catch (error) {
     console.error("Error deleting appointment:", error);
     res.status(500).json({ error: "Server error deleting appointment" });
+  }
+};
+
+// Workflow Actions for Groomers
+
+// acknowledge appointment (groomers only)
+exports.acknowledgeAppointment = async (req, res) => {
+  try {
+    // only groomers can acknowledge appointments
+    if (req.user.role !== "groomer") {
+      return res.status(403).json({ error: "Only groomers can acknowledge appointments" });
+    }
+
+    const appointmentId = req.params.id;
+    const appointment = await Appointment.findById(appointmentId);
+
+    if (!appointment) {
+      return res.status(404).json({ error: "Appointment not found" });
+    }
+
+    // check if groomer is assigned to this appointment
+    if (appointment.groomerId.toString() !== req.user.id) {
+      return res.status(403).json({ error: "Not authorized to acknowledge this appointment" });
+    }
+
+    // update groomer acknowledged flag
+    appointment.groomerAcknowledged = true;
+    appointment.updatedAt = new Date();
+    await appointment.save();
+
+    // populate appointment for response
+    const populatedAppointment = await Appointment.findById(appointment._id)
+      .populate("petId", "name species breed")
+      .populate("ownerId", "name email")
+      .populate("groomerId", "name email");
+
+    res.status(200).json({
+      message: "Appointment acknowledged successfully",
+      appointment: populatedAppointment,
+    });
+  } catch (error) {
+    console.error("Error acknowledging appointment:", error);
+    res.status(500).json({ error: "Server error acknowledging appointment" });
+  }
+};
+
+// set pricing for appointment (groomers only)
+exports.setPricing = async (req, res) => {
+  try {
+    // only groomers can set pricing
+    if (req.user.role !== "groomer") {
+      return res.status(403).json({ error: "Only groomers can set pricing" });
+    }
+
+    const appointmentId = req.params.id;
+    const { totalCost, pricingStatus = "estimated", reason } = req.body;
+
+    if (!totalCost || totalCost <= 0) {
+      return res.status(400).json({ error: "Valid total cost is required" });
+    }
+
+    if (!reason) {
+      return res.status(400).json({ error: "Reason for pricing is required" });
+    }
+
+    const appointment = await Appointment.findById(appointmentId);
+
+    if (!appointment) {
+      return res.status(404).json({ error: "Appointment not found" });
+    }
+
+    // check if groomer is assigned to this appointment
+    if (appointment.groomerId.toString() !== req.user.id) {
+      return res.status(403).json({ error: "Not authorized to set pricing for this appointment" });
+    }
+
+    // add to price history
+    appointment.priceHistory.push({
+      amount: totalCost,
+      setAt: new Date(),
+      reason: reason,
+      setBy: req.user.id,
+    });
+
+    // update current pricing
+    appointment.totalCost = totalCost;
+    appointment.pricingStatus = pricingStatus;
+    appointment.updatedAt = new Date();
+    await appointment.save();
+
+    // populate appointment for response
+    const populatedAppointment = await Appointment.findById(appointment._id)
+      .populate("petId", "name species breed")
+      .populate("ownerId", "name email")
+      .populate("groomerId", "name email")
+      .populate("priceHistory.setBy", "name");
+
+    res.status(200).json({
+      message: "Pricing set successfully",
+      appointment: populatedAppointment,
+    });
+  } catch (error) {
+    console.error("Error setting pricing:", error);
+    res.status(500).json({ error: "Server error setting pricing" });
+  }
+};
+
+// start service (groomers only)
+exports.startService = async (req, res) => {
+  try {
+    // only groomers can start service
+    if (req.user.role !== "groomer") {
+      return res.status(403).json({ error: "Only groomers can start service" });
+    }
+
+    const appointmentId = req.params.id;
+    const appointment = await Appointment.findById(appointmentId);
+
+    if (!appointment) {
+      return res.status(404).json({ error: "Appointment not found" });
+    }
+
+    // check if groomer is assigned to this appointment
+    if (appointment.groomerId.toString() !== req.user.id) {
+      return res.status(403).json({ error: "Not authorized to start this service" });
+    }
+
+    // check if appointment is in correct status
+    if (appointment.status !== "confirmed") {
+      return res.status(400).json({ error: "Can only start confirmed appointments" });
+    }
+
+    // check if appointment has been acknowledged
+    if (!appointment.groomerAcknowledged) {
+      return res
+        .status(400)
+        .json({ error: "Appointment must be acknowledged before starting service" });
+    }
+
+    // update status and set actual start time
+    appointment.status = "in_progress";
+    appointment.actualStartTime = new Date();
+    appointment.updatedAt = new Date();
+    await appointment.save();
+
+    // populate appointment for response
+    const populatedAppointment = await Appointment.findById(appointment._id)
+      .populate("petId", "name species breed age notes")
+      .populate("ownerId", "name email phone")
+      .populate("groomerId", "name email");
+
+    res.status(200).json({
+      message: "Service started successfully",
+      appointment: populatedAppointment,
+    });
+  } catch (error) {
+    console.error("Error starting service:", error);
+    res.status(500).json({ error: "Server error starting service" });
+  }
+};
+
+// complete service (groomers only)
+exports.completeService = async (req, res) => {
+  try {
+    // only groomers can complete service
+    if (req.user.role !== "groomer") {
+      return res.status(403).json({ error: "Only groomers can complete service" });
+    }
+
+    const appointmentId = req.params.id;
+    const { groomerNotes, photos } = req.body;
+
+    const appointment = await Appointment.findById(appointmentId);
+
+    if (!appointment) {
+      return res.status(404).json({ error: "Appointment not found" });
+    }
+
+    // check if groomer is assigned to this appointment
+    if (appointment.groomerId.toString() !== req.user.id) {
+      return res.status(403).json({ error: "Not authorized to complete this service" });
+    }
+
+    // check if appointment is in correct status
+    if (appointment.status !== "in_progress") {
+      return res.status(400).json({ error: "Can only complete appointments that are in progress" });
+    }
+
+    // update status and set completion details
+    appointment.status = "completed";
+    appointment.actualEndTime = new Date();
+
+    // calculate actual duration if we have actual start time
+    if (appointment.actualStartTime) {
+      appointment.actualDuration = Math.round(
+        (appointment.actualEndTime - appointment.actualStartTime) / (1000 * 60)
+      );
+    }
+
+    // add groomer notes if provided
+    if (groomerNotes) {
+      appointment.groomerNotes = groomerNotes;
+    }
+
+    // add photos if provided
+    if (photos && Array.isArray(photos)) {
+      appointment.photos = photos.map((photo) => ({
+        url: photo.url,
+        uploadedAt: new Date(),
+        description: photo.description || "",
+      }));
+    }
+
+    appointment.updatedAt = new Date();
+    await appointment.save();
+
+    // populate appointment for response
+    const populatedAppointment = await Appointment.findById(appointment._id)
+      .populate("petId", "name species breed age notes")
+      .populate("ownerId", "name email phone")
+      .populate("groomerId", "name email");
+
+    res.status(200).json({
+      message: "Service completed successfully",
+      appointment: populatedAppointment,
+    });
+  } catch (error) {
+    console.error("Error completing service:", error);
+    res.status(500).json({ error: "Server error completing service" });
   }
 };
