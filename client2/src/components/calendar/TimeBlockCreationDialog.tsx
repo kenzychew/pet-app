@@ -41,14 +41,14 @@ interface TimeBlockCreationDialogProps {
   selectedEndTime?: Date | null;
 }
 
-const TimeBlockCreationDialog: React.FC<TimeBlockCreationDialogProps> = ({
+const TimeBlockCreationDialog = ({
   isOpen,
   onClose,
   onSuccess,
   selectedDate,
   selectedStartTime,
   selectedEndTime
-}) => {
+}: TimeBlockCreationDialogProps) => {
   const [loading, setLoading] = useState(false);
   const [formData, setFormData] = useState({
     date: selectedDate || undefined,

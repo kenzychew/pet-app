@@ -18,7 +18,7 @@ import PageTransition from '../components/layout/PageTransition';
 import appointmentService from '../services/appointmentService';
 import type { Appointment } from '../types';
 
-const AppointmentDetailPage: React.FC = () => {
+const AppointmentDetailPage = () => {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
   const { user, isAuthenticated, loading: authLoading } = useAuthStore();

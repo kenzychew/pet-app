@@ -17,7 +17,7 @@ import AppointmentBookingModal from '../components/appointments/AppointmentBooki
 import { petService } from '../services/petService';
 import type { Pet, Appointment } from '../types';
 
-const HomePage: React.FC = () => {
+const HomePage = () => {
   const { isAuthenticated, user } = useAuthStore();
   const [showBookingModal, setShowBookingModal] = useState(false);
   const [userPets, setUserPets] = useState<Pet[]>([]);

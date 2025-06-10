@@ -6,7 +6,7 @@ import LoadingSpinner from '../../components/ui/loading-spinner';
 import PageTransition from '../../components/layout/PageTransition';
 import { RegisterForm } from '../../components/auth/RegisterForm';
 
-const RegisterPage: React.FC = () => {
+const RegisterPage = () => {
   const navigate = useNavigate();
   const { isAuthenticated, loading } = useAuthStore();
 

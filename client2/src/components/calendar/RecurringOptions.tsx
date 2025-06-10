@@ -1,4 +1,3 @@
-import React from 'react';
 import { ArrowPathIcon, CalendarIcon } from '@heroicons/react/24/outline';
 import { format } from 'date-fns';
 import { Card, CardContent, CardHeader, CardTitle } from '../ui/card';
@@ -22,7 +21,7 @@ interface RecurringOptionsProps {
   minEndDate: Date | undefined;
 }
 
-const RecurringOptions: React.FC<RecurringOptionsProps> = ({
+const RecurringOptions = ({
   isRecurring,
   onRecurringChange,
   recurringDays,
@@ -30,7 +29,7 @@ const RecurringOptions: React.FC<RecurringOptionsProps> = ({
   recurringEndDate,
   onEndDateChange,
   minEndDate
-}) => {
+}: RecurringOptionsProps) => {
   const daysOfWeek = [
     { value: 0, label: 'Sunday' },
     { value: 1, label: 'Monday' },

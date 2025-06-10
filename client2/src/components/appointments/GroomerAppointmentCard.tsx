@@ -1,4 +1,4 @@
-import React from 'react';
+
 import { 
   ClockIcon,
   UserIcon,
@@ -21,13 +21,13 @@ interface GroomerAppointmentCardProps {
   currentTime?: Date;
 }
 
-const GroomerAppointmentCard: React.FC<GroomerAppointmentCardProps> = ({ 
+const GroomerAppointmentCard = ({ 
   appointment, 
   onClick, 
-  className = "",
+  className = '',
   showViewDetails = true,
   currentTime = new Date()
-}) => {
+}: GroomerAppointmentCardProps) => {
   // get visual status based on time (same logic as calendar)
   const getVisualStatus = (appointment: Appointment) => {
     const now = currentTime;

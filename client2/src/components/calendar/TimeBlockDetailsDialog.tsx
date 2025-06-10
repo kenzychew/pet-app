@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
   XMarkIcon,
@@ -41,12 +41,12 @@ interface TimeBlockDetailsDialogProps {
   timeBlock: TimeBlock | null;
 }
 
-const TimeBlockDetailsDialog: React.FC<TimeBlockDetailsDialogProps> = ({
+const TimeBlockDetailsDialog = ({
   isOpen,
   onClose,
   onSuccess,
   timeBlock
-}) => {
+}: TimeBlockDetailsDialogProps) => {
   const [isEditing, setIsEditing] = useState(false);
   const [loading, setLoading] = useState(false);
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);

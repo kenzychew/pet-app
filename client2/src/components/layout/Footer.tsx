@@ -2,7 +2,7 @@ import React from 'react';
 // import { Link } from 'react-router-dom';
 // import { useAuthStore } from '../../store/authStore';
 
-const Footer: React.FC = () => {
+const Footer = () => {
   // const { isAuthenticated } = useAuthStore();
 
   const operatingHours = [

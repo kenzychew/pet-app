@@ -21,14 +21,14 @@ interface DeleteConfirmationDialogProps {
   isDeleting: boolean;
 }
 
-const DeleteConfirmationDialog: React.FC<DeleteConfirmationDialogProps> = ({
+const DeleteConfirmationDialog = ({
   pet,
   hasUpcomingAppointments,
   upcomingCount = 0,
   onConfirm,
   onCancel,
   isDeleting
-}) => {
+}: DeleteConfirmationDialogProps) => {
   return (
     <div className="fixed inset-0 z-50 overflow-y-auto">
       <div className="flex min-h-screen items-center justify-center p-4">
@@ -138,7 +138,7 @@ const DeleteConfirmationDialog: React.FC<DeleteConfirmationDialogProps> = ({
   );
 };
 
-const PetPage: React.FC = () => {
+const PetPage = () => {
   const { isAuthenticated, loading: authLoading } = useAuthStore();
   const navigate = useNavigate();
   

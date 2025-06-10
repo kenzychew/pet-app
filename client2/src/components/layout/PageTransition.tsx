@@ -26,7 +26,7 @@ const pageTransition = {
   duration: 0.4,
 };
 
-const PageTransition: React.FC<PageTransitionProps> = ({ children }) => {
+const PageTransition = ({ children }: PageTransitionProps) => {
   return (
     <motion.div
       initial="initial"

@@ -37,7 +37,7 @@ import type { Appointment, Pet } from '../types';
 import { useAppointmentData, usePetData, useModal } from '../hooks';
 import appointmentService from '../services/appointmentService';
 
-const AppointmentPage: React.FC = () => {
+const AppointmentPage = () => {
   const { user } = useAuthStore();
   const navigate = useNavigate();
   
@@ -265,7 +265,7 @@ const AppointmentPage: React.FC = () => {
     }
   };
 
-  const AppointmentTableRow: React.FC<{ appointment: Appointment }> = ({ appointment }) => {
+  const AppointmentTableRow = ({ appointment }: { appointment: Appointment }) => {
     const now = new Date();
     const appointmentTime = new Date(appointment.startTime);
     const isUpcoming = appointmentTime > now;
@@ -359,11 +359,11 @@ const AppointmentPage: React.FC = () => {
     );
   };
 
-  const EmptyState: React.FC<{ message: string; description: string | React.ReactNode; selectedPetName?: string }> = ({ 
+  const EmptyState = ({ 
     message, 
     description, 
     selectedPetName 
-  }) => (
+  }: { message: string; description: string | React.ReactNode; selectedPetName?: string }) => (
     <div className="text-center py-12">
       <CalendarDaysIcon className="h-12 w-12 mx-auto text-gray-300 mb-4" />
       <h3 className="text-lg font-medium text-gray-900 mb-2">{message}</h3>

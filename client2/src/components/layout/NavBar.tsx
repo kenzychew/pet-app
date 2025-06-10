@@ -6,7 +6,7 @@ import { useAuthStore } from '../../store/authStore';
 import { Button } from '../ui/button';
 import furkidsLogo from '../../assets/furkids.webp';
 
-const NavBar: React.FC = () => {
+const NavBar = () => {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const { user, logout } = useAuthStore();
   const location = useLocation();

@@ -1,4 +1,3 @@
-import React from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
   XMarkIcon,
@@ -24,11 +23,11 @@ interface AppointmentDetailsDialogProps {
   appointment: Appointment;
 }
 
-const AppointmentDetailsDialog: React.FC<AppointmentDetailsDialogProps> = ({
+const AppointmentDetailsDialog = ({
   isOpen,
   onClose,
   appointment
-}) => {
+}: AppointmentDetailsDialogProps) => {
   // safely extract pet and owner data - now correctly handles both string and object cases
   const pet = typeof appointment.petId === 'object' && appointment.petId !== null 
     ? appointment.petId as ExtendedPet 

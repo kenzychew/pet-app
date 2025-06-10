@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useFormik } from 'formik';
 import * as Yup from 'yup';
@@ -35,13 +35,13 @@ interface TimeSlot {
 // Define booking steps
 type BookingStep = 'selection' | 'summary' | 'confirmation';
 
-const AppointmentBookingModal: React.FC<AppointmentBookingModalProps> = ({
+const AppointmentBookingModal = ({
   pets,
   selectedPetId,
   editingAppointment,
   onClose,
   onSuccess
-}) => {
+}: AppointmentBookingModalProps) => {
   const [groomers, setGroomers] = useState<User[]>([]);
   const [availableSlots, setAvailableSlots] = useState<TimeSlot[]>([]);
   const [loading, setLoading] = useState(false);

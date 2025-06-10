@@ -24,7 +24,7 @@ import AppointmentBookingModal from '../components/appointments/AppointmentBooki
 import { useAppointmentData, usePetData, useModal } from '../hooks';
 import appointmentService from '../services/appointmentService';
 
-const DashboardPage: React.FC = () => {
+const DashboardPage = () => {
   const { user } = useAuthStore();
   
   // Custom hooks for data management
@@ -343,7 +343,7 @@ const DashboardPage: React.FC = () => {
                         <action.icon className="h-6 w-6" />
                       </div>
                       <div className="ml-4">
-                        <h3 className="text-lg font-semibel text-gray-900">
+                        <h3 className="text-lg font-semibold text-gray-900">
                           {action.title}
                         </h3>
                       </div>

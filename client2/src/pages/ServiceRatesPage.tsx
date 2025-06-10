@@ -9,7 +9,7 @@ import {
 import PageTransition from '../components/layout/PageTransition';
 import serviceRatesImage from '../assets/service_rates.webp';
 
-const ServiceRatesPage: React.FC = () => {
+const ServiceRatesPage = () => {
   const containerVariants = {
     hidden: { opacity: 0 },
     visible: {

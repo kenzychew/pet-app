@@ -15,7 +15,7 @@ import TimeBlockCreationDialog from '../components/calendar/TimeBlockCreationDia
 import groomerService, { type GroomerSchedule } from '../services/groomerService';
 import { toast } from "sonner";
 
-const GroomerCalendarPage: React.FC = () => {
+const GroomerCalendarPage = () => {
   const { user } = useAuthStore();
   const [schedule, setSchedule] = useState<GroomerSchedule | null>(null);
   const [loading, setLoading] = useState(true);

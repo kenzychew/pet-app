@@ -6,7 +6,7 @@ import LoadingSpinner from '../../components/ui/loading-spinner';
 import PageTransition from '../../components/layout/PageTransition';
 import { ForgotPasswordForm } from '../../components/auth/ForgotPasswordForm';
 
-const ForgotPasswordPage: React.FC = () => {
+const ForgotPasswordPage = () => {
   const navigate = useNavigate();
   const { isAuthenticated, loading } = useAuthStore();
 

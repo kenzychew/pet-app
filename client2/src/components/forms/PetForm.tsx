@@ -35,7 +35,7 @@ const PetSchema = Yup.object().shape({
     .max(500, 'Notes must be less than 500 characters')
 });
 
-const PetForm: React.FC<PetFormProps> = ({ pet, onSubmit, onCancel, isLoading = false }) => {
+const PetForm = ({ pet, onSubmit, onCancel, isLoading = false }: PetFormProps) => {
   const isEditing = !!pet;
 
   const initialValues: CreatePetData = {

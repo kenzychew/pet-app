@@ -15,7 +15,7 @@ interface PetCardProps {
   onDelete: (pet: Pet) => void;
 }
 
-const PetCard: React.FC<PetCardProps> = ({ pet, onView, onEdit, onDelete }) => {
+const PetCard = ({ pet, onView, onEdit, onDelete }: PetCardProps) => {
   const getSpeciesEmoji = (species: string) => {
     return species === 'dog' ? '🐶' : '😸';
   };

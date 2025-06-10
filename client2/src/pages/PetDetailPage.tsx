@@ -19,7 +19,7 @@ import AppointmentBookingModal from '../components/appointments/AppointmentBooki
 import { useAuthStore } from '../store/authStore';
 import type { Pet, Appointment, User } from '../types';
 
-const PetDetailPage: React.FC = () => {
+const PetDetailPage = () => {
   const { petId } = useParams<{ petId: string }>();
   const navigate = useNavigate();
   const { user } = useAuthStore();

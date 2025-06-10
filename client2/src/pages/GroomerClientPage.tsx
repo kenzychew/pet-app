@@ -6,7 +6,7 @@ import {
 import PageTransition from '../components/layout/PageTransition';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '../components/ui/card';
 
-const GroomerClientPage: React.FC = () => {
+const GroomerClientPage = () => {
   return (
     <PageTransition>
       <div className="min-h-screen bg-gray-50 py-8">

@@ -211,7 +211,7 @@ const GroomerDashboardPage = () => {
               </Card>
           </motion.div>
 
-          {/* Next  - if there's a next appointment */}
+          {/* Next  - if got next appointment */}
           {nextAppointment && (
             <motion.div
               initial={{ opacity: 0, y: 20 }}
