@@ -28,7 +28,7 @@ const GroomerAppointmentCard: React.FC<GroomerAppointmentCardProps> = ({
   showViewDetails = true,
   currentTime = new Date()
 }) => {
-  // Get visual status based on time (same logic as calendar)
+  // get visual status based on time (same logic as calendar)
   const getVisualStatus = (appointment: Appointment) => {
     const now = currentTime;
     const start = new Date(appointment.startTime);
@@ -187,4 +187,4 @@ const GroomerAppointmentCard: React.FC<GroomerAppointmentCardProps> = ({
   );
 };
 
-export default GroomerAppointmentCard; 
+export default GroomerAppointmentCard;

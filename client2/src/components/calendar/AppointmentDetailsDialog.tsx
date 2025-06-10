@@ -29,7 +29,7 @@ const AppointmentDetailsDialog: React.FC<AppointmentDetailsDialogProps> = ({
   onClose,
   appointment
 }) => {
-  // Safely extract pet and owner data - handle both string and object cases
+  // safely extract pet and owner data - now correctly handles both string and object cases
   const pet = typeof appointment.petId === 'object' && appointment.petId !== null 
     ? appointment.petId as ExtendedPet 
     : null;
@@ -121,7 +121,7 @@ const AppointmentDetailsDialog: React.FC<AppointmentDetailsDialogProps> = ({
 
             {/* Content */}
             <div className="p-6 space-y-6">
-              {/* Appointment Details */}
+              {/* Appointment details */}
               <Card>
                 <CardHeader>
                   <CardTitle>Appointment Details</CardTitle>
@@ -148,14 +148,14 @@ const AppointmentDetailsDialog: React.FC<AppointmentDetailsDialogProps> = ({
                 </CardContent>
               </Card>
 
-              {/* Pet Information */}
+              {/* Pet information */}
               <Card>
                 <CardHeader>
                   <CardTitle>Pet Information</CardTitle>
                 </CardHeader>
                 <CardContent>
                   <div className="flex flex-col md:flex-row gap-6">
-                    {/* Pet Image Placeholder */}
+                    {/* Pet image placeholder */}
                     <div className="flex-shrink-0">
                       <div className="w-32 h-32 bg-gray-200 rounded-lg flex items-center justify-center">
                         <div className="text-center text-gray-500">
@@ -165,7 +165,7 @@ const AppointmentDetailsDialog: React.FC<AppointmentDetailsDialogProps> = ({
                       </div>
                     </div>
                     
-                    {/* Pet Details */}
+                    {/* Pet details */}
                     <div className="flex-1 space-y-4">
                       {pet ? (
                         <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
@@ -186,7 +186,7 @@ const AppointmentDetailsDialog: React.FC<AppointmentDetailsDialogProps> = ({
                             <p className="text-gray-900">{pet.age ? `${pet.age} years` : 'N/A'}</p>
                           </div>
                           
-                          {/* Special Instructions - spans full width */}
+                          {/* Special instructions - spans full width */}
                           {pet.notes && (
                             <div className="col-span-2 md:col-span-4">
                               <p className="font-medium text-gray-500 mb-2">Special Instructions</p>
@@ -216,7 +216,7 @@ const AppointmentDetailsDialog: React.FC<AppointmentDetailsDialogProps> = ({
                 </CardContent>
               </Card>
 
-              {/* Owner Contact */}
+              {/* Owner contact */}
               <Card>
                 <CardHeader>
                   <CardTitle>Owner Contact</CardTitle>
