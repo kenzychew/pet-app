@@ -91,7 +91,7 @@ const GroomerCalendar = forwardRef<FullCalendar, GroomerCalendarProps>(({
 
     // add appointments
     schedule.appointments.forEach(appointment => {
-      const petName = typeof appointment.petId === 'object' ? appointment.petId.name : 'Pet';
+      const petName = typeof appointment.petId === 'object' && appointment.petId !== null ? appointment.petId.name : 'Pet';
       
       // format pet name with possessive and capitalize
       const formattedPetName = petName.charAt(0).toUpperCase() + petName.slice(1);
