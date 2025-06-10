@@ -274,8 +274,10 @@ AppointmentSchema.statics.getAvailableTimeSlots = async function (groomerId, dat
   // generate time slots based on business hours for this day
   for (let hour = businessHours.start; hour < businessHours.end; hour++) {
     for (let minute = 0; minute < 60; minute += 60) {
+      // create date in Singapore timezone (UTC+8)
+      // convert Singapore time to UTC for storage
       const slotStart = new Date(dayDate);
-      slotStart.setHours(hour, minute, 0, 0);
+      slotStart.setUTCHours(hour - 8, minute, 0, 0); // minus 8 hours to convert SGT to UTC
 
       const slotEnd = new Date(slotStart);
       slotEnd.setMinutes(slotStart.getMinutes() + duration);

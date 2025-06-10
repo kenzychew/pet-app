@@ -217,20 +217,17 @@ const AppointmentBookingModal = ({
   };
 
   const formatTimeSlot = (slot: TimeSlot) => {
-    // debug to see what timezone the slots are actually in
-    console.log('Debug - Slot start:', slot.start.toISOString(), 'Local:', slot.start.toString());
-    
-    // The issue is that server creates slots in UTC but intends them to be local Singapore time
-    // So we need to treat the UTC time as if it's already Singapore time
     const startTime = slot.start.toLocaleTimeString('en-SG', {
       hour: 'numeric',
       minute: '2-digit',
-      hour12: true
+      hour12: true,
+      timeZone: 'Asia/Singapore'
     });
     const endTime = slot.end.toLocaleTimeString('en-SG', {
       hour: 'numeric',
       minute: '2-digit',
-      hour12: true
+      hour12: true,
+      timeZone: 'Asia/Singapore'
     });
     return `${startTime} - ${endTime}`;
   };
@@ -251,7 +248,8 @@ const AppointmentBookingModal = ({
     return date.toLocaleTimeString('en-SG', {
       hour: 'numeric',
       minute: '2-digit',
-      hour12: true
+      hour12: true,
+      timeZone: 'Asia/Singapore'
     });
   };
 
