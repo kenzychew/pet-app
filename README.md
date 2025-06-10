@@ -17,16 +17,16 @@ This would also be a benefit to groomers looking to digitize and streamline thei
 - **Pet Profiles**: Create and manage basic pet information
 - **Fixed Service Options**: Two service types with preset durations
 - **Appointment Scheduling**: Book appointments based on groomer availability
-- **Appointment Management**: Cancel or update appointments with time restrictions
-- **Groomer Controls**: Groomers can view and manage their schedule
-- **Basic Notifications**: Toast notifications for booking confirmations and cancellations
+- **Appointment Management**: Cancel or reschedule appointments with time restrictions
+- **Groomer Controls**: Groomers can view appointments and manage their schedule by blocking time off
+- **Basic Notifications**: Toast notifications for booking confirmations and rescheduling
+- **Email Notifications**: Email notifications for both owners and groomers
 
 ## Live URL
 
-- **[furkids.vercel.app](https://furkids.vercel.app)** - Custom domain added for easier recognition and memorability
-- **[pet-app-liart.vercel.app](https://pet-app-liart.vercel.app)** - Original auto-generated Vercel domain
+- **[furkids.vercel.app](https://furkids.vercel.app)** - features a revamped ui using ts + shadcn [client2]
 
-Both URLs point to the same application. The backend API is hosted separately on Render.
+Frontend deployed on vercel. Backend is hosted separately on Render.
 
 ## Technology Stack
 
@@ -36,50 +36,10 @@ Both URLs point to the same application. The backend API is hosted separately on
 - **Authentication**: JWT-based authentication
 - **Deployment**: Frontend (client) deployed on Vercel, Backend (server) deployed on Render
 
-## Screenshots
+## Screenshot
 
-### Authentication
-
-![Landing Page](./assets/screenshots/home.png)
+![Landing Page](./assets/screenshots/v2-home.png)
 _Landing Page_
-
-![Login Page](./assets/screenshots/login.png)
-_Login page with email and password authentication_
-
-![Register Page](./assets/screenshots/register.png)
-_Registration page for new users with role selection_
-
-### Pet Owner Dashboard
-
-![Dashboard](./assets/screenshots/dashboard.png)
-_Owner dashboard to manage appointments and registered pets_
-
-### Pet Management
-
-![Pet Management](./assets/screenshots/pets.png)
-_Pet management interface for adding and updating pet information_
-
-### Appointment Management and Booking
-
-![View/Manage Appointment](./assets/screenshots/view-manage-appointments.png)
-_View upcoming appointments, reschedule or cancel if more than 24 hours away_
-
-![Book Appointment](./assets/screenshots/book-appointment.png)
-_Appointment booking interface with available time slots_
-
-### Groomer Interface
-
-![Groomer Calendar](./assets/screenshots/groomer-calendar.png)
-_Monthly calendar view for groomers to manage appointments_
-
-![Groomer Calendar Pet Details](./assets/screenshots/groomer-calendar-pet-details.png)
-_Groomers can click individual appointments to view appointment specific pet details_
-
-![Groomer Schedule](./assets/screenshots/groomer-schedule.png)
-_Daily schedule view showing detailed appointment information_
-
-![Groomer Schedule Pet Details](./assets/screenshots/groomer-schedule-pet-details.png)
-_Groomers can click specific appointments to view pet details_
 
 ## User Stories
 
