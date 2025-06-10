@@ -46,7 +46,7 @@ const GroomerDashboardPage = () => {
     });
   }, [appointments, today.toDateString()]);
 
-  // Get next upcoming appointment
+  // get next upcoming appointment
   const nextAppointment = useMemo(() => {
     const now = currentTime;
     const upcomingAppointments = todaysAppointments
@@ -59,7 +59,7 @@ const GroomerDashboardPage = () => {
     return upcomingAppointments[0] || null;
   }, [todaysAppointments, currentTime]);
 
-  // Calculate daily stats
+  // calculate daily stats
   const dailyStats = useMemo(() => {
     const completed = todaysAppointments.filter(apt => apt.status === 'completed').length;
     const inProgress = todaysAppointments.filter(apt => {
@@ -143,14 +143,13 @@ const GroomerDashboardPage = () => {
             </div>
           </motion.div>
 
-          {/* Stats and Calendar Cards */}
+          {/* Stats card */}
             <motion.div
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6, delay: 0.05 }}
             className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6"
           >
-                        {/* Combined Stats Card */}
             <Card className="bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50 border-2 border-blue-200 shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-[1.01]">
               <CardHeader>
                 <CardTitle className="flex items-center gap-2 text-purple-900 font-bold">
@@ -194,7 +193,7 @@ const GroomerDashboardPage = () => {
                 </CardContent>
               </Card>
             
-            {/* Calendar Management Card */}
+            {/* Calendar card */}
             <Card className="border-2 border-orange-200 bg-gradient-to-br from-yellow-50 via-orange-50 to-red-50 hover:from-yellow-100 hover:via-orange-100 hover:to-red-100 shadow-lg hover:shadow-xl transition-all duration-300 cursor-pointer transform hover:scale-[1.02]" onClick={handleViewCalendar}>
               <CardHeader className="text-center pb-2">
                 <CalendarDaysIcon className="h-12 w-12 text-red-600 mx-auto mb-2 drop-shadow-sm" />
@@ -212,7 +211,7 @@ const GroomerDashboardPage = () => {
               </Card>
           </motion.div>
 
-          {/* Next Up - if there's a next appointment */}
+          {/* Next  - if there's a next appointment */}
           {nextAppointment && (
             <motion.div
               initial={{ opacity: 0, y: 20 }}
@@ -239,7 +238,7 @@ const GroomerDashboardPage = () => {
             </motion.div>
           )}
 
-          {/* Today's Appointments */}
+          {/* Today's appointments */}
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
@@ -282,7 +281,7 @@ const GroomerDashboardPage = () => {
         </div>
       </div>
 
-      {/* Appointment Details Dialog */}
+      {/* Appointment details dialog */}
       {selectedAppointment && (
         <AppointmentDetailsDialog
           isOpen={isDialogOpen}
@@ -294,4 +293,4 @@ const GroomerDashboardPage = () => {
   );
 };
 
-export default GroomerDashboardPage; 
+export default GroomerDashboardPage;
