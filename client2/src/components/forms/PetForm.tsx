@@ -1,4 +1,3 @@
-import React from 'react';
 import { motion } from 'framer-motion';
 import { Formik, Form, Field } from 'formik';
 import type { FormikHelpers } from 'formik';
