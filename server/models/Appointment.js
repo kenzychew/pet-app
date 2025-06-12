@@ -209,15 +209,40 @@ AppointmentSchema.pre("save", function (next) {
   }
 
   const businessHours = this.constructor.getBusinessHours(appointmentDate);
-  const startHour = appointmentDate.getHours();
-  const endHour = new Date(this.endTime).getHours();
-  const endMinute = new Date(this.endTime).getMinutes();
+
+  // convert UTC times to Singapore time (UTC+8) for business hours validation
+  const startTimeInSGT = new Date(this.startTime.getTime() + 8 * 60 * 60 * 1000);
+  const endTimeInSGT = new Date(this.endTime.getTime() + 8 * 60 * 60 * 1000);
+
+  const startHour = startTimeInSGT.getHours();
+  const endHour = endTimeInSGT.getHours();
+  const endMinute = endTimeInSGT.getMinutes();
+
+  // debug logging for timezone conversion
+  console.log("Business Hours Validation Debug:", {
+    originalStartTimeUTC: this.startTime.toISOString(),
+    originalEndTimeUTC: this.endTime.toISOString(),
+    startTimeInSGT: startTimeInSGT.toISOString(),
+    endTimeInSGT: endTimeInSGT.toISOString(),
+    startHour,
+    endHour,
+    endMinute,
+    businessHours,
+    dayOfWeek: appointmentDate.getDay(),
+  });
 
   if (
     startHour < businessHours.start ||
     endHour > businessHours.end ||
     (endHour === businessHours.end && endMinute > 0)
   ) {
+    console.log("Business hours validation FAILED:", {
+      startHour,
+      businessStart: businessHours.start,
+      endHour,
+      businessEnd: businessHours.end,
+      endMinute,
+    });
     const err = new Error("Appointment must be within business hours");
     return next(err);
   }
