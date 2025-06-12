@@ -3,8 +3,6 @@ import { useParams, useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { 
   ArrowLeftIcon,
-  PencilIcon,
-  CalendarDaysIcon,
   ClockIcon,
   CheckCircleIcon,
   XCircleIcon,
@@ -245,21 +243,29 @@ const PetDetailPage = () => {
     <PageTransition>
       <div className="min-h-screen bg-gray-50 py-8">
         <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
+          {/* Back button */}
+          <motion.div
+            initial={{ opacity: 0, y: -20 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="mb-4"
+          >
+            <Button 
+              onClick={() => navigate('/pets')} 
+              variant="outline"
+              size="sm"
+            >
+              <ArrowLeftIcon className="h-4 w-4 mr-2" />
+              Back to Pets
+            </Button>
+          </motion.div>
+
           {/* Header */}
           <motion.div
             initial={{ opacity: 0, y: -20 }}
             animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.1 }}
             className="mb-8"
           >
-            <div className="flex items-center mb-4">
-              <button
-                onClick={() => navigate('/pets')}
-                className="flex items-center text-gray-600 hover:text-gray-900 transition-colors"
-              >
-                <ArrowLeftIcon className="h-5 w-5 mr-2" />
-                Back to Pets
-              </button>
-            </div>
             
             <div className="bg-white rounded-lg shadow-md p-6">
               <div className="flex items-start justify-between">
@@ -280,7 +286,6 @@ const PetDetailPage = () => {
                 
                 {!isEditingNotes && (
                   <Button variant="outline" size="sm" onClick={handleEditNotes}>
-                    <PencilIcon className="h-4 w-4 mr-2" />
                     Edit Notes
                   </Button>
                 )}
@@ -290,8 +295,8 @@ const PetDetailPage = () => {
               <div className="mt-6 p-4 bg-gray-50 rounded-md">
                 <div className="flex items-center justify-between mb-2">
                   <h3 className="text-sm font-medium text-gray-900">
-                    Special Instructions for Groomer
-                  </h3>
+                    Special instructions for groomer
+                  </h3> 
                   {isEditingNotes && (
                     <div className="flex items-center space-x-2">
                       <Button
@@ -334,7 +339,7 @@ const PetDetailPage = () => {
                     />
                     <div className="flex justify-between items-center mt-2">
                       <p className="text-xs text-gray-500">
-                        These notes will be visible to the groomer when booking appointments.
+                        These instructions will be visible to the groomer when booking appointments.
                       </p>
                       <span className="text-xs text-gray-400">
                         {editedNotes.length}/500
@@ -381,7 +386,7 @@ const PetDetailPage = () => {
                 </div>
               ) : appointments.length === 0 ? (
                 <div className="text-center py-8">
-                  <CalendarDaysIcon className="h-12 w-12 mx-auto text-gray-300 mb-4" />
+                  <div className="text-6xl mb-4">📅</div>
                   <h3 className="text-lg font-medium text-gray-900 mb-2">
                     No grooming history yet
                   </h3>
@@ -389,7 +394,6 @@ const PetDetailPage = () => {
                     Book {pet?.name}'s first grooming appointment to get started!
                   </p>
                   <Button onClick={() => setShowBookingModal(true)}>
-                    <CalendarDaysIcon className="h-4 w-4 mr-2" />
                     Book First Appointment
                   </Button>
                 </div>

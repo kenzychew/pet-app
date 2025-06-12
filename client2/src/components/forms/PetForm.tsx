@@ -196,7 +196,7 @@ const PetForm = ({ pet, onSubmit, onCancel, isLoading = false }: PetFormProps) =
 
                 <div>
                   <label htmlFor="notes" className="block text-sm font-medium text-gray-700 mb-1">
-                    Notes (Optional)
+                    Special instructions for groomer (Optional)
                   </label>
                   <Field
                     as="textarea"
@@ -204,7 +204,7 @@ const PetForm = ({ pet, onSubmit, onCancel, isLoading = false }: PetFormProps) =
                     name="notes"
                     rows={3}
                     className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                    placeholder="Any special notes about your pet (behavior, allergies, preferences, etc.)"
+                    placeholder="Any special notes about your pet such as behavior, allergies, preferences, etc. (No worries, you can change this when booking an appointment.)"
                   />
                   {errors.notes && touched.notes && (
                     <p className="mt-1 text-sm text-red-600">{errors.notes}</p>

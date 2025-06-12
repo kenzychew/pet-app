@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { PlusIcon, MagnifyingGlassIcon, ExclamationTriangleIcon } from '@heroicons/react/24/outline';
+import { MagnifyingGlassIcon, ExclamationTriangleIcon } from '@heroicons/react/24/outline';
 import { useAuthStore } from '../store/authStore';
 import { petService } from '../services/petService';
 import { Button } from '../components/ui/button';
@@ -321,11 +321,10 @@ const PetPage = () => {
               className="text-center py-12"
             >
               <div className="text-6xl mb-4">🐾</div>
-              <h3 className="text-lg font-medium text-gray-900 mb-2">No pets yet</h3>
-              <p className="text-gray-600 mb-6">Add your first pet to get started!</p>
+              <h3 className="text-lg font-medium text-gray-900 mb-2">To book your first grooming appointment, you'll need to add your pet's information first.</h3>
+              <p className="text-gray-600 mb-6">This helps our groomers provide the best care tailored to your furry friend's needs.</p>
               <Button onClick={petFormModal.openForCreate}>
-                <PlusIcon className="h-5 w-5 mr-2" />
-                Add Your First Pet
+                Let's get started!
               </Button>
             </motion.div>
           ) : (
