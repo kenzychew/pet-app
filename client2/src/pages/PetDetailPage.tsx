@@ -158,23 +158,55 @@ const PetDetailPage = () => {
     });
   };
 
-  const getStatusIcon = (status: string) => {
-    switch (status) {
+  // use same visual status based on time (same logic as DashboardPage)
+  const getVisualStatus = (appointment: Appointment) => {
+    const now = new Date();
+    const start = new Date(appointment.startTime);
+    const end = new Date(appointment.endTime);
+    
+    // preserve manual overrides for all final statuses
+    if (['cancelled', 'completed', 'no_show'].includes(appointment.status)) {
+      return appointment.status;
+    }
+    
+    // time-based visual logic for active appointments
+    if (now >= start && now <= end && !['cancelled', 'no_show'].includes(appointment.status)) {
+      return 'in_progress';
+    }
+    
+    // change to complete if past end time (visual only)
+    if (now > end && appointment.status === 'confirmed') {
+      return 'completed';
+    }
+    
+    return appointment.status; // use actual status as fallback
+  };
+
+  const getStatusIcon = (appointment: Appointment) => {
+    const visualStatus = getVisualStatus(appointment);
+    
+    switch (visualStatus) {
       case 'completed':
         return <CheckCircleIcon className="h-5 w-5 text-green-500" />;
       case 'confirmed':
         return <ClockIcon className="h-5 w-5 text-blue-500" />;
+      case 'in_progress':
+        return <ClockIcon className="h-5 w-5 text-amber-500" />;
       default:
         return <XCircleIcon className="h-5 w-5 text-red-500" />;
     }
   };
 
-  const getStatusText = (status: string) => {
-    switch (status) {
+  const getStatusText = (appointment: Appointment) => {
+    const visualStatus = getVisualStatus(appointment);
+    
+    switch (visualStatus) {
       case 'completed':
         return 'Completed';
       case 'confirmed':
         return 'Upcoming';
+      case 'in_progress':
+        return 'In Progress';
       default:
         return 'Cancelled';
     }
@@ -337,7 +369,6 @@ const PetDetailPage = () => {
                   Grooming History for {pet?.name}
                 </h2>
                 <Button onClick={() => setShowBookingModal(true)} size="sm">
-                  <CalendarDaysIcon className="h-4 w-4 mr-2" />
                   Book Appointment
                 </Button>
               </div>
@@ -379,19 +410,21 @@ const PetDetailPage = () => {
                     >
                       <div className="flex items-center justify-between mb-2">
                         <div className="flex items-center">
-                          {getStatusIcon(appointment.status)}
+                          {getStatusIcon(appointment)}
                           <span className="ml-2 font-medium text-gray-900">
                             {getServiceTypeLabel(appointment.serviceType)}
                           </span>
                         </div>
                         <span className={`px-2 py-1 rounded-full text-xs font-medium ${
-                          appointment.status === 'completed' 
-                            ? 'bg-green-100 text-green-800'
-                            : appointment.status === 'confirmed'
-                            ? 'bg-blue-100 text-blue-800'
-                            : 'bg-red-100 text-red-800'
+                          getVisualStatus(appointment) === 'completed' 
+                            ? 'bg-green-100 text-green-600'
+                            : getVisualStatus(appointment) === 'confirmed'
+                            ? 'bg-blue-100 text-blue-600'
+                            : getVisualStatus(appointment) === 'in_progress'
+                            ? 'bg-amber-100 text-amber-600'
+                            : 'bg-red-100 text-red-600'
                         }`}>
-                          {getStatusText(appointment.status)}
+                          {getStatusText(appointment)}
                         </span>
                       </div>
                       

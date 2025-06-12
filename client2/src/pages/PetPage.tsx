@@ -279,7 +279,6 @@ const PetPage = () => {
                 onClick={petFormModal.openForCreate}
                 className="mt-4 sm:mt-0"
               >
-              <PlusIcon className="h-5 w-5 mr-2" />
                 Add Pet
               </Button>
             </motion.div>

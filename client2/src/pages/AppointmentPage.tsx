@@ -193,15 +193,46 @@ const AppointmentPage = () => {
     return 'Unknown Groomer';
   };
 
-  const getStatusBadge = (status: string, startTime: string) => {
+  // same visual states based on time
+  const getVisualStatus = (appointment: Appointment) => {
     const now = new Date();
-    const appointmentDate = new Date(startTime);
-    const isUpcoming = appointmentDate >= now;
+    const start = new Date(appointment.startTime);
+    const end = new Date(appointment.endTime);
     
-    if (status === 'completed') {
-      return <Badge variant="secondary">Completed</Badge>;
-    } else if (isUpcoming) {
-      return <Badge>Upcoming</Badge>;
+    // preserve manual overrides for all final statuses
+    if (['cancelled', 'completed', 'no_show'].includes(appointment.status)) {
+      return appointment.status;
+    }
+    
+    // time-based visual logic for active appointments
+    if (now >= start && now <= end && !['cancelled', 'no_show'].includes(appointment.status)) {
+      return 'in_progress';
+    }
+    
+    // change to complete if past end time (visual only)
+    if (now > end && appointment.status === 'confirmed') {
+      return 'completed';
+    }
+    
+    return appointment.status; // use actual status as fallback
+  };
+
+  const getStatusBadge = (appointment: Appointment) => {
+    const visualStatus = getVisualStatus(appointment);
+    
+    switch (visualStatus) {
+      case 'completed':
+        return <Badge className="bg-green-100 text-green-600 hover:bg-green-100">Completed</Badge>;
+      case 'confirmed':
+        return <Badge className="bg-blue-100 text-blue-600 hover:bg-blue-100">Upcoming</Badge>;
+      case 'in_progress':
+        return <Badge className="bg-amber-100 text-amber-600 hover:bg-amber-100">In Progress</Badge>;
+      case 'cancelled':
+        return <Badge className="bg-red-100 text-red-600 hover:bg-red-100">Cancelled</Badge>;
+      case 'no_show':
+        return <Badge className="bg-red-100 text-red-600 hover:bg-red-100">No Show</Badge>;
+      default:
+        return <Badge variant="secondary">Unknown</Badge>;
     }
   };
 
@@ -223,7 +254,7 @@ const AppointmentPage = () => {
 
     if (petAppointments.length === 0) return null;
 
-    // Get the most recent completed appointment
+    // get the most recent completed appointment
     const mostRecentAppointment = petAppointments.sort((a, b) => 
       new Date(b.endTime).getTime() - new Date(a.endTime).getTime()
     )[0];
@@ -269,7 +300,7 @@ const AppointmentPage = () => {
     const appointmentTime = new Date(appointment.startTime);
     const isUpcoming = appointmentTime > now;
     
-    // Check if it's less than 24 hours before appointment
+    // check if it's less than 24 hours before appointment
     const hoursDifference = (appointmentTime.getTime() - now.getTime()) / (1000 * 60 * 60);
     const canModify = hoursDifference > 24;
     
@@ -306,7 +337,7 @@ const AppointmentPage = () => {
         </div>
       </TableCell>
       <TableCell>
-        {getStatusBadge(appointment.status, appointment.startTime)}
+        {getStatusBadge(appointment)}
       </TableCell>
       {user?.role === 'owner' && (
         <TableCell>

@@ -6,7 +6,6 @@ import {
   ClockIcon,
   HeartIcon,
   CheckCircleIcon,
-  XCircleIcon,
   ExclamationTriangleIcon
 } from '@heroicons/react/24/outline';
 import { useAuthStore } from '../store/authStore';
@@ -27,7 +26,7 @@ import appointmentService from '../services/appointmentService';
 const DashboardPage = () => {
   const { user } = useAuthStore();
   
-  // Custom hooks for data management
+  // Ccstom hooks for data management
   const {
     appointments,
     loading: appointmentsLoading,
@@ -38,18 +37,18 @@ const DashboardPage = () => {
   const {
     pets,
     loading: petsLoading
-  } = usePetData(true); // Always load pets since this is owner dashboard
+  } = usePetData(true); // always load pets since owner
   
   const bookingModal = useModal();
 
   const loading = appointmentsLoading || petsLoading;
 
-  // State variables for cancel functionality
+  // state variables for cancel functionality
   const [showCancelDialog, setShowCancelDialog] = useState(false);
   const [cancellingAppointment, setCancellingAppointment] = useState<Appointment | null>(null);
   const [cancelLoading, setCancelLoading] = useState(false);
 
-  // State for editing appointment
+  // state for editing appointment
   const [editingAppointment, setEditingAppointment] = useState<Appointment | null>(null);
 
   const handleBookingSuccess = (appointment: Appointment) => {
@@ -62,7 +61,7 @@ const DashboardPage = () => {
     loadAppointments(); // rf to get any server-side updates
   };
 
-  // Add this helper to check if owner has pets
+  // add this helper to check if owner has pets
   const ownerHasPets = pets.length > 0;
   const ownerHasNoPets = pets.length === 0 && !petsLoading;
 
@@ -95,16 +94,46 @@ const DashboardPage = () => {
     }
   ];
 
-  const getAppointmentStatus = (appointment: Appointment) => {
+  // same visual status based on time
+  const getVisualStatus = (appointment: Appointment) => {
     const now = new Date();
-    const appointmentDate = new Date(appointment.startTime);
+    const start = new Date(appointment.startTime);
+    const end = new Date(appointment.endTime);
     
-    if (appointment.status === 'completed') {
-      return { label: 'Completed', color: 'text-green-600', icon: CheckCircleIcon };
-    } else if (appointmentDate > now) {
-      return { label: 'Upcoming', color: 'text-blue-600', icon: ClockIcon };
-    } else {
-      return { label: 'Past', color: 'text-gray-600', icon: XCircleIcon };
+    // preserve manual overrides for all final statuses
+    if (['cancelled', 'completed', 'no_show'].includes(appointment.status)) {
+      return appointment.status;
+    }
+    
+    // time-based visual logic for active appointments
+    if (now >= start && now <= end && !['cancelled', 'no_show'].includes(appointment.status)) {
+      return 'in_progress';
+    }
+    
+    // change to complete if past end time (visual only)
+    if (now > end && appointment.status === 'confirmed') {
+      return 'completed';
+    }
+    
+    return appointment.status;
+  };
+
+  const getAppointmentStatus = (appointment: Appointment) => {
+    const visualStatus = getVisualStatus(appointment);
+    
+    switch (visualStatus) {
+      case 'completed':
+        return { label: 'Completed', color: 'text-green-600', bgColor: 'bg-green-100', icon: CheckCircleIcon };
+      case 'confirmed':
+        return { label: 'Upcoming', color: 'text-blue-600', bgColor: 'bg-blue-100', icon: ClockIcon };
+      case 'in_progress':
+        return { label: 'In Progress', color: 'text-amber-600', bgColor: 'bg-amber-100', icon: ClockIcon };
+      case 'cancelled':
+        return { label: 'Cancelled', color: 'text-red-600', bgColor: 'bg-red-100', icon: CheckCircleIcon };
+      case 'no_show':
+        return { label: 'No Show', color: 'text-red-600', bgColor: 'bg-red-100', icon: CheckCircleIcon };
+      default:
+        return { label: 'Unknown', color: 'text-gray-600', bgColor: 'bg-gray-100', icon: ClockIcon };
     }
   };
 
@@ -127,7 +156,7 @@ const DashboardPage = () => {
     });
   };
 
-  // Add this new formatting function for clearer date display
+  // add this new formatting function for clearer date display
   const formatDateClear = (dateString: string) => {
     const date = new Date(dateString);
     const day = date.getDate();
@@ -207,9 +236,9 @@ const DashboardPage = () => {
     }
   };
 
-  // Add these new handler functions
+  // this handles reschedule and cancel
   const handleReschedule = (appointment: Appointment) => {
-    // Set the appointment to edit and open modal
+    // open the modal to edit the appointment
     setEditingAppointment(appointment);
     bookingModal.open();
   };
@@ -225,8 +254,8 @@ const DashboardPage = () => {
     try {
       setCancelLoading(true);
       await appointmentService.deleteAppointment(cancellingAppointment._id);
-      // Remove from local state
-      loadAppointments(); // Refresh appointments
+      // remove from local
+      loadAppointments(); // refresh appointments
       setShowCancelDialog(false);
       setCancellingAppointment(null);
     } catch (error) {
@@ -262,7 +291,7 @@ const DashboardPage = () => {
             </p>
           </motion.div>
 
-          {/* New Pet Owner Guide Message */}
+          {/* New pet owner guide msg */}
           {ownerHasNoPets && (
             <motion.div
               initial={{ opacity: 0, y: 20 }}
@@ -293,7 +322,7 @@ const DashboardPage = () => {
             </motion.div>
           )}
 
-          {/* Quick Actions */}
+          {/* Quick actions */}
           <motion.div
             variants={containerVariants}
             initial="hidden"
@@ -354,7 +383,7 @@ const DashboardPage = () => {
             ))}
           </motion.div>
 
-          {/* Recent Activity */}
+          {/* Recent activity */}
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
@@ -400,10 +429,10 @@ const DashboardPage = () => {
                           </div>
                           <div className="flex items-center space-x-4 text-right">
                             <div>
-                              <div className={`text-sm font-medium ${status.color}`}>
+                              <div className={`inline-flex items-center px-2 py-1 rounded-full text-xs font-medium ${status.bgColor} ${status.color}`}>
                                 {status.label}
                               </div>
-                              <div className="text-sm text-gray-500">
+                              <div className="text-sm text-gray-500 mt-1">
                                 {appointment.serviceType === 'basic' ? 'Basic' : 'Full'} ({getDuration(appointment.serviceType)})
                               </div>
                             </div>
@@ -513,7 +542,7 @@ const DashboardPage = () => {
         </div>
       </div>
 
-      {/* Booking Modal - Updated to handle rescheduling */}
+      {/* Booking modal - updated to handle rescheduling */}
       {bookingModal.isOpen && ownerHasPets && (
         <AppointmentBookingModal
           pets={pets}

@@ -70,19 +70,9 @@ export const petService = {
   // get appointments for a specific pet (grooming history)
   getPetAppointments: async (petId: string): Promise<Appointment[]> => {
     try {
-      // using general appointments endpoint and filter by petId
-      const response = await api.get<Appointment[]>('/appointments');
-      
-      // filter appointments for this specific pet
-      const petAppointments = response.data.filter(appointment => {
-        // handle both string and object petId formats
-        const appointmentPetId = typeof appointment.petId === 'string' 
-          ? appointment.petId 
-          : appointment.petId._id;
-        return appointmentPetId === petId;
-      });
-      
-      return petAppointments;
+      // use the dedicated pet appointments endpoint instead of filtering all appointments
+      const response = await api.get<Appointment[]>(`/pets/${petId}/appointments`);
+      return response.data;
     } catch (error) {
       console.error('Error fetching pet appointments:', error);
       throw error;
