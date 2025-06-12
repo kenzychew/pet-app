@@ -8,21 +8,32 @@ const logger = require("morgan");
 
 // Set up allowed origins from environment variables
 const allowedOrigins = [
-  process.env.CLIENT_URL, // primary client URL
   process.env.SECONDARY_URL, // optional secondary URL
+  process.env.CLIENT_URL, // primary client URL
   "http://localhost:5173", // local development (Vite default)
   "http://localhost:3000", // if client runs on 3000
-  "http://localhost:4173", // Vite preview
 ].filter(Boolean); // removes any undefined/null values
+
+console.log("Allowed CORS origins:", allowedOrigins);
+console.log("Environment CLIENT_URL:", process.env.CLIENT_URL);
 
 const corsOptions = {
   origin: function (origin, callback) {
-    // allow requests with no origin - mobile apps
-    if (!origin) return callback(null, true);
+    console.log("CORS check - Request origin:", origin);
+    console.log("CORS check - Allowed origins:", allowedOrigins);
 
-    if (allowedOrigins.indexOf(origin) !== -1 || !origin) {
+    // allow requests with no origin - mobile apps, Postman, etc.
+    if (!origin) {
+      console.log("CORS: Allowing request with no origin");
+      return callback(null, true);
+    }
+
+    if (allowedOrigins.indexOf(origin) !== -1) {
+      console.log("CORS: Origin allowed:", origin);
       callback(null, true);
     } else {
+      console.log("CORS: Origin NOT allowed:", origin);
+      console.log("CORS: Available origins:", allowedOrigins);
       callback(new Error("Not allowed by CORS"));
     }
   },

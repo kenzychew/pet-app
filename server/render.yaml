@@ -19,6 +19,8 @@ services:
         sync: false
       - key: JWT_SECRET
         sync: false
+      - key: SECONDARY_URL
+        value: https://furkids.vercel.app
       - key: CLIENT_URL
         value: https://pet-app-liart.vercel.app
     healthCheckPath: /health
