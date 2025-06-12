@@ -34,8 +34,21 @@ const getUserAppointments = async (): Promise<Appointment[]> => {
 };
 
 const getAppointmentById = async (appointmentId: string): Promise<Appointment> => {
-  const response = await api.get(`/appointments/${appointmentId}`);
-  return response.data;
+  try {
+    const response = await api.get(`/appointments/${appointmentId}`);
+    return response.data;
+  } catch (error: unknown) {
+    console.error('Error fetching appointment by id:', error);
+    const apiError = error as { response?: { data?: ApiError; status?: number } };
+    
+    // log details for debug
+    if (apiError.response) {
+      console.error('Response status:', apiError.response.status);
+      console.error('Response data:', apiError.response.data);
+    }
+    
+    throw apiError.response?.data || { error: "Failed to fetch appointment" };
+  }
 };
 
 const createAppointment = async (appointmentData: CreateAppointmentData): Promise<Appointment> => {
@@ -43,7 +56,17 @@ const createAppointment = async (appointmentData: CreateAppointmentData): Promis
     const response = await api.post('/appointments', appointmentData);
     return response.data.appointment || response.data;
   } catch (error: unknown) {
-    const apiError = error as { response?: { data?: ApiError } };
+    console.error('Error creating appointment:', error);
+    const apiError = error as { response?: { data?: ApiError; status?: number } };
+    
+    // log details for debug
+    if (apiError.response) {
+      console.error('Response status:', apiError.response.status);
+      console.error('Response data:', apiError.response.data);
+    } else {
+      console.error('Network or other error:', error);
+    }
+    
     throw apiError.response?.data || { error: "Failed to create appointment" };
   }
 };
@@ -65,7 +88,15 @@ const updateAppointment = async (appointmentId: string, appointmentData: UpdateA
     const response = await api.put(`/appointments/${appointmentId}`, appointmentData);
     return response.data.appointment || response.data;
   } catch (error: unknown) {
-    const apiError = error as { response?: { data?: ApiError } };
+    console.error('Error updating appointment:', error);
+    const apiError = error as { response?: { data?: ApiError; status?: number } };
+    
+    // log details for debug
+    if (apiError.response) {
+      console.error('Response status:', apiError.response.status);
+      console.error('Response data:', apiError.response.data);
+    }
+    
     throw apiError.response?.data || { error: "Failed to update appointment" };
   }
 };
@@ -75,16 +106,37 @@ const deleteAppointment = async (appointmentId: string): Promise<{ success: bool
     const response = await api.delete(`/appointments/${appointmentId}`);
     return response.data;
   } catch (error: unknown) {
-    const apiError = error as { response?: { data?: ApiError } };
+    console.error('Error deleting appointment:', error);
+    const apiError = error as { response?: { data?: ApiError; status?: number } };
+    
+    // log details for debug
+    if (apiError.response) {
+      console.error('Response status:', apiError.response.status);
+      console.error('Response data:', apiError.response.data);
+    }
+    
     throw apiError.response?.data || { error: "Failed to delete appointment" };
   }
 };
 
 const getAvailableTimeSlots = async (groomerId: string, date: string, duration: number): Promise<TimeSlot[]> => {
-  const response = await api.get(`/appointments/available-slots/${groomerId}`, {
-    params: { date, duration }
-  });
-  return response.data;
+  try {
+    const response = await api.get(`/appointments/available-slots/${groomerId}`, {
+      params: { date, duration }
+    });
+    return response.data;
+  } catch (error: unknown) {
+    console.error('Error fetching available time slots:', error);
+    const apiError = error as { response?: { data?: ApiError; status?: number } };
+    
+    // log details for debug
+    if (apiError.response) {
+      console.error('Response status:', apiError.response.status);
+      console.error('Response data:', apiError.response.data);
+    }
+    
+    throw apiError.response?.data || { error: "Failed to fetch available time slots" };
+  }
 };
 
 // workflow actions for groomers
@@ -94,17 +146,33 @@ const acknowledgeAppointment = async (appointmentId: string): Promise<Appointmen
     const response = await api.patch(`/appointments/${appointmentId}/acknowledge`);
     return response.data.appointment || response.data;
   } catch (error: unknown) {
-    const apiError = error as { response?: { data?: ApiError } };
+    console.error('Error acknowledging appointment:', error);
+    const apiError = error as { response?: { data?: ApiError; status?: number } };
+    
+    // log details for debug
+    if (apiError.response) {
+      console.error('Response status:', apiError.response.status);
+      console.error('Response data:', apiError.response.data);
+    }
+    
     throw apiError.response?.data || { error: "Failed to acknowledge appointment" };
   }
 };
-// set pricing for appt
+// set pricing for appt - unused for now
 const setPricing = async (appointmentId: string, pricingData: SetPricingData): Promise<Appointment> => {
   try {
     const response = await api.patch(`/appointments/${appointmentId}/pricing`, pricingData);
     return response.data.appointment || response.data;
   } catch (error: unknown) {
-    const apiError = error as { response?: { data?: ApiError } };
+    console.error('Error setting pricing:', error);
+    const apiError = error as { response?: { data?: ApiError; status?: number } };
+    
+    // log details for debug
+    if (apiError.response) {
+      console.error('Response status:', apiError.response.status);
+      console.error('Response data:', apiError.response.data);
+    }
+    
     throw apiError.response?.data || { error: "Failed to set pricing" };
   }
 };
@@ -114,7 +182,15 @@ const startService = async (appointmentId: string): Promise<Appointment> => {
     const response = await api.patch(`/appointments/${appointmentId}/start`);
     return response.data.appointment || response.data;
   } catch (error: unknown) {
-    const apiError = error as { response?: { data?: ApiError } };
+    console.error('Error starting service:', error);
+    const apiError = error as { response?: { data?: ApiError; status?: number } };
+    
+    // log details for debug
+    if (apiError.response) {
+      console.error('Response status:', apiError.response.status);
+      console.error('Response data:', apiError.response.data);
+    }
+    
     throw apiError.response?.data || { error: "Failed to start service" };
   }
 };
@@ -124,7 +200,15 @@ const completeService = async (appointmentId: string, completionData?: CompleteS
     const response = await api.patch(`/appointments/${appointmentId}/complete`, completionData || {});
     return response.data.appointment || response.data;
   } catch (error: unknown) {
-    const apiError = error as { response?: { data?: ApiError } };
+    console.error('Error completing service:', error);
+    const apiError = error as { response?: { data?: ApiError; status?: number } };
+    
+    // log details for debug
+    if (apiError.response) {
+      console.error('Response status:', apiError.response.status);
+      console.error('Response data:', apiError.response.data);
+    }
+    
     throw apiError.response?.data || { error: "Failed to complete service" };
   }
 };
