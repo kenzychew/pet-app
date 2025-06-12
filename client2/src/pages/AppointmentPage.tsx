@@ -2,7 +2,8 @@ import React, { useState } from 'react';
 import { motion } from 'framer-motion';
 import { 
   EyeIcon,
-  ExclamationTriangleIcon
+  ExclamationTriangleIcon,
+  ArrowLeftIcon
 } from '@heroicons/react/24/outline';
 import { useNavigate } from 'react-router-dom';
 import { useAuthStore } from '../store/authStore';
@@ -417,10 +418,27 @@ const AppointmentPage = () => {
     <PageTransition>
       <div className="min-h-screen bg-gray-50 py-8">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          {/* Back button */}
+          <motion.div
+            initial={{ opacity: 0, y: -20 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="mb-4"
+          >
+            <Button 
+              onClick={() => navigate('/dashboard')} 
+              variant="outline"
+              size="sm"
+            >
+              <ArrowLeftIcon className="h-4 w-4 mr-2" />
+              Back to Dashboard
+            </Button>
+          </motion.div>
+
           {/* Header */}
           <motion.div
             initial={{ opacity: 0, y: -20 }}
             animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.1 }}
             className="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-8"
           >
             <div>
@@ -455,21 +473,23 @@ const AppointmentPage = () => {
               transition={{ delay: 0.3 }}
               className="mb-6"
             >
-              <div className="flex items-center space-x-4">
-                <label className="text-sm font-medium text-gray-700">Filter by pet:</label>
-                  <Select value={selectedPetFilter} onValueChange={handlePetFilterChange}>
-                  <SelectTrigger className="w-48">
-                      <SelectValue placeholder="Select a pet" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="all">All Pets</SelectItem>
-                      {pets.map((pet) => (
-                        <SelectItem key={pet._id} value={pet._id}>
-                        {pet.name}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
+              <div className="bg-gradient-to-r from-white to-gray-50 rounded-xl border-2 border-gray-200 shadow-md p-4">
+                <div className="flex items-center space-x-4">
+                  <label className="text-sm font-bold text-gray-700">Filter by pet:</label>
+                    <Select value={selectedPetFilter} onValueChange={handlePetFilterChange}>
+                    <SelectTrigger className="w-48 border-2 border-blue-200 bg-white/80 backdrop-blur-sm">
+                        <SelectValue placeholder="Select a pet" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="all">All Pets</SelectItem>
+                        {pets.map((pet) => (
+                          <SelectItem key={pet._id} value={pet._id}>
+                          {pet.name}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </div>
                 </div>
             </motion.div>
             )}
@@ -479,15 +499,15 @@ const AppointmentPage = () => {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.4 }}
-            className="bg-white rounded-lg shadow-md"
+            className="bg-gradient-to-br from-white via-stone-50 to-amber-50 rounded-xl border-2 border-stone-200 shadow-lg hover:shadow-xl transition-all duration-300"
           >
                 <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-              <div className="border-b px-6 pt-6">
-                  <TabsList className="grid w-full grid-cols-2">
-                  <TabsTrigger value="upcoming" className="flex items-center">
+              <div className="border-b border-stone-200 px-6 pt-6 bg-gradient-to-r from-stone-50 to-amber-50 rounded-t-xl">
+                  <TabsList className="grid w-full grid-cols-2 bg-white/80 backdrop-blur-sm border-2 border-stone-200">
+                  <TabsTrigger value="upcoming" className="flex items-center font-semibold">
                     Upcoming ({upcomingAppointments.length})
                     </TabsTrigger>
-                  <TabsTrigger value="past" className="flex items-center">
+                  <TabsTrigger value="past" className="flex items-center font-semibold">
                     Past ({pastAppointments.length})
                     </TabsTrigger>
                   </TabsList>

@@ -297,7 +297,7 @@ const DashboardPage = () => {
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.6, delay: 0.1 }}
-              className="bg-gradient-to-r from-blue-50 to-indigo-50 border border-blue-200 rounded-lg p-6 mb-8"
+              className="bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50 border-2 border-blue-300 rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 p-6 mb-8"
             >
               <div className="flex items-start">
                 <div className="flex-shrink-0">
@@ -338,45 +338,45 @@ const DashboardPage = () => {
               >
                 {action.link ? (
                   <Link to={action.link}>
-                    <div className={`bg-white rounded-lg shadow-md p-6 hover:shadow-lg transition-shadow ${
+                    <div className={`bg-gradient-to-br from-white via-gray-50 to-blue-50 rounded-xl border-2 border-gray-200 shadow-lg hover:shadow-xl transition-all duration-300 p-6 hover:scale-[1.02] hover:border-blue-300 ${
                       ownerHasNoPets && action.title === 'Book Appointment' 
                         ? 'opacity-75 cursor-pointer' 
                         : ''
                     }`}>
                       <div className="flex items-center mb-4">
-                        <div className={`p-3 rounded-lg ${action.color} text-white`}>
+                        <div className={`p-3 rounded-xl ${action.color} text-white shadow-md`}>
                           <action.icon className="h-6 w-6" />
                         </div>
                         <div className="ml-4">
-                          <h3 className="text-lg font-semibold text-gray-900">
+                          <h3 className="text-lg font-bold text-gray-900">
                             {action.title}
                           </h3>
                         </div>
                       </div>
-                      <p className="text-gray-600">{action.description}</p>
+                      <p className="text-gray-700 font-medium">{action.description}</p>
 
                     </div>
                   </Link>
                 ) : (
                   <div 
                     onClick={action.action}
-                    className={`bg-white rounded-lg shadow-md p-6 hover:shadow-lg transition-shadow cursor-pointer ${
+                    className={`bg-gradient-to-br from-white via-gray-50 to-blue-50 rounded-xl border-2 border-gray-200 shadow-lg hover:shadow-xl transition-all duration-300 p-6 cursor-pointer hover:scale-[1.02] hover:border-blue-300 ${
                       ownerHasNoPets && action.title === 'Book Appointment' 
                         ? 'opacity-75 cursor-not-allowed' 
                         : ''
                     }`}
                   >
                     <div className="flex items-center mb-4">
-                      <div className={`p-3 rounded-lg ${action.color} text-white`}>
+                      <div className={`p-3 rounded-xl ${action.color} text-white shadow-md`}>
                         <action.icon className="h-6 w-6" />
                       </div>
                       <div className="ml-4">
-                        <h3 className="text-lg font-semibold text-gray-900">
+                        <h3 className="text-lg font-bold text-gray-900">
                           {action.title}
                         </h3>
                       </div>
                     </div>
-                    <p className="text-gray-600">{action.description}</p>
+                    <p className="text-gray-700 font-medium">{action.description}</p>
                   </div>
                 )}
               </motion.div>
@@ -388,9 +388,9 @@ const DashboardPage = () => {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6, delay: 0.3 }}
-            className="bg-white rounded-lg shadow-md p-6"
+            className="bg-gradient-to-br from-white via-stone-50 to-amber-50 rounded-xl border-2 border-stone-200 shadow-lg hover:shadow-xl transition-all duration-300 p-6"
           >
-            <h2 className="text-xl font-semibold text-gray-900 mb-4">
+            <h2 className="text-xl font-bold text-stone-900 mb-4">
               Recent Activity
             </h2>
             

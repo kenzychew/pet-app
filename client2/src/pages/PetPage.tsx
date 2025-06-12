@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { MagnifyingGlassIcon, ExclamationTriangleIcon } from '@heroicons/react/24/outline';
+import { MagnifyingGlassIcon, ExclamationTriangleIcon, ArrowLeftIcon } from '@heroicons/react/24/outline';
 import { useAuthStore } from '../store/authStore';
 import { petService } from '../services/petService';
 import { Button } from '../components/ui/button';
@@ -258,10 +258,27 @@ const PetPage = () => {
     <PageTransition>
       <div className="min-h-screen bg-gray-50 py-8">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          {/* Back button */}
+          <motion.div
+            initial={{ opacity: 0, y: -20 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="mb-4"
+          >
+            <Button 
+              onClick={() => navigate('/dashboard')} 
+              variant="outline"
+              size="sm"
+            >
+              <ArrowLeftIcon className="h-4 w-4 mr-2" />
+              Back to Dashboard
+            </Button>
+          </motion.div>
+
           {/* Header */}
           <motion.div
             initial={{ opacity: 0, y: -20 }}
             animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.1 }}
             className="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-8"
           >
             <div>
@@ -293,13 +310,13 @@ const PetPage = () => {
               className="mb-6"
             >
               <div className="relative max-w-md">
-                <MagnifyingGlassIcon className="absolute left-3 top-1/2 transform -translate-y-1/2 h-5 w-5 text-gray-400" />
+                <MagnifyingGlassIcon className="absolute left-3 top-1/2 transform -translate-y-1/2 h-5 w-5 text-blue-500" />
                 <input
                   type="text"
                   placeholder="Search pets..."
                   value={searchTerm}
                   onChange={(e) => setSearchTerm(e.target.value)}
-                  className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                  className="w-full pl-10 pr-4 py-3 border-2 border-blue-200 rounded-xl bg-gradient-to-r from-white to-blue-50 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 shadow-md hover:shadow-lg transition-all duration-300"
                 />
               </div>
             </motion.div>
@@ -318,11 +335,11 @@ const PetPage = () => {
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.4 }}
-              className="text-center py-12"
+              className="bg-gradient-to-br from-white via-stone-50 to-amber-50 rounded-xl border-2 border-stone-200 shadow-lg hover:shadow-xl transition-all duration-300 text-center py-12"
             >
               <div className="text-6xl mb-4">🐾</div>
-              <h3 className="text-lg font-medium text-gray-900 mb-2">To book your first grooming appointment, you'll need to add your pet's information first.</h3>
-              <p className="text-gray-600 mb-6">This helps our groomers provide the best care tailored to your furry friend's needs.</p>
+              <h3 className="text-lg font-medium text-stone-900 mb-2">To book your first grooming appointment, you'll need to add your pet's information first.</h3>
+              <p className="text-stone-600 mb-6">This helps our groomers provide the best care tailored to your furry friend's needs.</p>
               <Button onClick={petFormModal.openForCreate}>
                 Let's get started!
               </Button>
