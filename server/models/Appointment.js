@@ -209,14 +209,18 @@ AppointmentSchema.pre("save", function (next) {
   }
 
   const businessHours = this.constructor.getBusinessHours(appointmentDate);
-
+  //? Timezone conversion
+  //? Convert UTC to SGT: Add 8 hours
+  //? Extract UTC hours from the converted times to represent SG hours consistently
+  //? Same behaviour in development and production and should work for any server timezone
   // convert UTC times to Singapore time (UTC+8) for business hours validation
   const startTimeInSGT = new Date(this.startTime.getTime() + 8 * 60 * 60 * 1000);
   const endTimeInSGT = new Date(this.endTime.getTime() + 8 * 60 * 60 * 1000);
 
-  const startHour = startTimeInSGT.getHours();
-  const endHour = endTimeInSGT.getHours();
-  const endMinute = endTimeInSGT.getMinutes();
+  // use UTC hours/minutes on the converted times to avoid server timezone issues
+  const startHour = startTimeInSGT.getUTCHours();
+  const endHour = endTimeInSGT.getUTCHours();
+  const endMinute = endTimeInSGT.getUTCMinutes();
 
   // debug logging for timezone conversion
   console.log("Business Hours Validation Debug:", {
@@ -229,6 +233,7 @@ AppointmentSchema.pre("save", function (next) {
     endMinute,
     businessHours,
     dayOfWeek: appointmentDate.getDay(),
+    serverTimezone: Intl.DateTimeFormat().resolvedOptions().timeZone,
   });
 
   if (
