@@ -4,6 +4,7 @@ import { Link } from 'react-router-dom';
 import { 
   CalendarDaysIcon, 
   ClockIcon,
+  PlayIcon,
   HeartIcon,
   CheckCircleIcon,
   ExclamationTriangleIcon
@@ -127,7 +128,7 @@ const DashboardPage = () => {
       case 'confirmed':
         return { label: 'Upcoming', color: 'text-blue-600', bgColor: 'bg-blue-100', icon: ClockIcon };
       case 'in_progress':
-        return { label: 'In Progress', color: 'text-amber-600', bgColor: 'bg-amber-100', icon: ClockIcon };
+        return { label: 'In Progress', color: 'text-amber-600', bgColor: 'bg-amber-100', icon: PlayIcon };
       case 'cancelled':
         return { label: 'Cancelled', color: 'text-red-600', bgColor: 'bg-red-100', icon: CheckCircleIcon };
       case 'no_show':
