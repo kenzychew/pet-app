@@ -274,21 +274,20 @@ AppointmentSchema.statics.getAvailableTimeSlots = async function (groomerId, dat
   // generate time slots based on business hours for this day
   for (let hour = businessHours.start; hour < businessHours.end; hour++) {
     for (let minute = 0; minute < 60; minute += 60) {
-      // create date in Singapore timezone (UTC+8)
-      // convert Singapore time to UTC for storage
-      const slotStart = new Date(dayDate);
-      slotStart.setUTCHours(hour - 8, minute, 0, 0); // minus 8 hours to convert SGT to UTC
+      // check if slot (start + duration) fits within business hours in SGT BEFORE creating the slot
+      const slotStartSGT = hour + minute / 60; // start time in SGT (as decimal hours)
+      const slotEndSGT = slotStartSGT + duration / 60; // end time in SGT (as decimal hours)
 
-      const slotEnd = new Date(slotStart);
-      slotEnd.setMinutes(slotStart.getMinutes() + duration);
+      // only create slot if the ENTIRE appointment (start to end) fits within business hours
+      if (slotEndSGT <= businessHours.end) {
+        // create date in Singapore timezone (UTC+8)
+        // convert Singapore time to UTC for storage
+        const slotStart = new Date(dayDate);
+        slotStart.setUTCHours(hour - 8, minute, 0, 0); // minus 8 hours to convert SGT to UTC
 
-      // check if slot end time is within business hours
-      const slotEndHour = slotEnd.getHours();
-      const slotEndMinute = slotEnd.getMinutes();
-      const endTimeInMinutes = slotEndHour * 60 + slotEndMinute;
-      const businessEndInMinutes = businessHours.end * 60;
+        const slotEnd = new Date(slotStart);
+        slotEnd.setMinutes(slotStart.getMinutes() + duration);
 
-      if (endTimeInMinutes <= businessEndInMinutes) {
         slots.push({
           start: slotStart,
           end: slotEnd,
