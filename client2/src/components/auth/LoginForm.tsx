@@ -208,12 +208,6 @@ export function LoginForm({
                       Sign up
                     </Link>
                   </div>
-                  
-                  <div className="text-center text-sm">
-                    <Link to="/forgot-password" className="text-muted-foreground underline underline-offset-4 hover:text-primary">
-                      Forgot your password?
-                    </Link>
-                  </div>
                 </div>
               </Form>
             )}
