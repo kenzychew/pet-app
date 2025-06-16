@@ -37,6 +37,7 @@ import AppointmentBookingModal from '../components/appointments/AppointmentBooki
 import type { Appointment, Pet } from '../types';
 import { useAppointmentData, usePetData, useModal } from '../hooks';
 import appointmentService from '../services/appointmentService';
+import { toast } from "sonner";
 
 const AppointmentPage = () => {
   const { user } = useAuthStore();
@@ -126,10 +127,23 @@ const AppointmentPage = () => {
       removeAppointment(cancellingAppointment._id);
       setShowCancelDialog(false);
       setCancellingAppointment(null);
+      
+      // show success toast
+      toast.success("Appointment Cancelled", {
+        description: "A cancellation confirmation has been sent to your email.",
+        duration: 8000, // 8 seconds
+        action: {
+          label: "Got it",
+          onClick: () => {},
+        }
+      });
     } catch (error) {
       console.error('Error cancelling appointment:', error);
       const errorMessage = error instanceof Error ? error.message : 'Failed to cancel appointment';
-      alert(errorMessage);
+      toast.error("Cancellation Failed", {
+        description: errorMessage,
+        duration: 8000 // for errors
+      });
     } finally {
       setCancelLoading(false);
     }

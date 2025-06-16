@@ -141,7 +141,7 @@ const AppointmentBookingModal = ({
           `${isEditing ? 'Rescheduling' : 'Booking'} Failed`, 
           {
             description: errorMessage || `Failed to ${isEditing ? 'update' : 'book'} appointment`,
-            duration: 8000 // 8 seconds for errors
+            duration: 8000 // for errors
           }
         );
         

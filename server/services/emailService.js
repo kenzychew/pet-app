@@ -392,7 +392,7 @@ const sendGroomerNotificationEmail = async (groomerEmail, groomerName, appointme
               Questions? Contact us at furkidshome1@gmail.com or call +65 9123 4567
             </p>
             <p style="color: #9ca3af; font-size: 12px; margin: 0;">
-              This is an automated notification from Furkids. Please do not reply to this email.
+              This is an automated email from Furkids. Please do not reply to this email.
             </p>
           </div>
         </div>
@@ -408,8 +408,233 @@ const sendGroomerNotificationEmail = async (groomerEmail, groomerName, appointme
   }
 };
 
+// send cancellation notification email
+const sendCancellationEmails = async (
+  ownerEmail,
+  ownerName,
+  groomerEmail,
+  groomerName,
+  appointmentDetails
+) => {
+  try {
+    const transporter = createTransporter();
+
+    const { bookingReference, petName, petBreed, serviceType, startTime, endTime, duration } =
+      appointmentDetails;
+
+    // format date and time
+    const appointmentDate = new Date(startTime);
+    const formattedDate = appointmentDate.toLocaleDateString("en-US", {
+      weekday: "long",
+      year: "numeric",
+      month: "long",
+      day: "numeric",
+    });
+    const formattedTime = appointmentDate.toLocaleTimeString("en-US", {
+      hour: "2-digit",
+      minute: "2-digit",
+      hour12: true,
+    });
+    const endDateTime = new Date(endTime);
+    const formattedEndTime = endDateTime.toLocaleTimeString("en-US", {
+      hour: "2-digit",
+      minute: "2-digit",
+      hour12: true,
+    });
+
+    const serviceDisplayName = serviceType === "basic" ? "Basic Grooming" : "Full Service Grooming";
+
+    // Send email to owner
+    const ownerMailOptions = {
+      from: process.env.EMAIL_USER || "your-email@gmail.com",
+      to: ownerEmail,
+      subject: `Appointment Cancelled - Booking reference ${bookingReference}`,
+      html: `
+        <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; background-color: #f9fafb;">
+          <!-- Header -->
+          <div style="background-color: #ef4444; color: white; padding: 30px 20px; text-align: center;">
+            <h1 style="margin: 0; font-size: 28px;">❌ Appointment Cancelled</h1>
+            <p style="margin: 10px 0 0 0; font-size: 16px; opacity: 0.9;">
+              Your pet grooming appointment has been cancelled
+            </p>
+          </div>
+
+          <!-- Main Content -->
+          <div style="background-color: white; padding: 30px 20px;">
+            <p style="font-size: 16px; color: #374151; margin-bottom: 20px;">
+              Hello ${ownerName},
+            </p>
+            <p style="font-size: 16px; color: #374151; margin-bottom: 30px;">
+              Your grooming appointment for <strong>${petName}</strong> has been cancelled. Here are the details:
+            </p>
+
+            <!-- Booking Reference -->
+            <div style="background-color: #f3f4f6; border-left: 4px solid #ef4444; padding: 15px; margin: 20px 0;">
+              <h3 style="margin: 0 0 5px 0; color: #111827; font-size: 14px; text-transform: uppercase; letter-spacing: 1px;">
+                Booking Reference
+              </h3>
+              <p style="margin: 0; font-size: 20px; font-weight: bold; color: #ef4444; font-family: monospace;">
+                #${bookingReference}
+              </p>
+            </div>
+
+            <!-- Cancelled Appointment Details -->
+            <div style="border: 1px solid #e5e7eb; border-radius: 8px; padding: 20px; margin: 20px 0;">
+              <h3 style="margin: 0 0 15px 0; color: #111827; font-size: 18px;">
+                📅 Cancelled Appointment Details
+              </h3>
+              
+              <table style="width: 100%; border-collapse: collapse;">
+                <tr>
+                  <td style="padding: 8px 0; color: #6b7280; font-weight: 500; width: 30%;">Date:</td>
+                  <td style="padding: 8px 0; color: #111827; font-weight: 600;">${formattedDate}</td>
+                </tr>
+                <tr>
+                  <td style="padding: 8px 0; color: #6b7280; font-weight: 500;">Time:</td>
+                  <td style="padding: 8px 0; color: #111827; font-weight: 600;">${formattedTime} - ${formattedEndTime}</td>
+                </tr>
+                <tr>
+                  <td style="padding: 8px 0; color: #6b7280; font-weight: 500;">Service:</td>
+                  <td style="padding: 8px 0; color: #111827; font-weight: 600;">${serviceDisplayName}</td>
+                </tr>
+                <tr>
+                  <td style="padding: 8px 0; color: #6b7280; font-weight: 500;">Pet:</td>
+                  <td style="padding: 8px 0; color: #111827; font-weight: 600;">${petName} (${petBreed})</td>
+                </tr>
+              </table>
+            </div>
+
+            <!-- Book New Appointment -->
+            <div style="text-align: center; margin: 30px 0;">
+              <p style="color: #6b7280; margin-bottom: 15px;">
+                Would you like to book a new appointment?
+              </p>
+              <a href="${process.env.SECONDARY_URL}/appointments" 
+                 style="background-color: #ef4444; color: white; padding: 12px 24px; 
+                        text-decoration: none; border-radius: 6px; display: inline-block; font-weight: 600;">
+                Book New Appointment
+              </a>
+            </div>
+          </div>
+
+          <!-- Footer -->
+          <div style="background-color: #f9fafb; padding: 20px; text-align: center; border-top: 1px solid #e5e7eb;">
+            <p style="color: #6b7280; font-size: 14px; margin: 0 0 10px 0;">
+              Questions? Contact us at furkidshome1@gmail.com or call +65 9123 4567
+            </p>
+            <p style="color: #9ca3af; font-size: 12px; margin: 0;">
+              This is an automated email from Furkids. Please do not reply to this email.
+            </p>
+          </div>
+        </div>
+      `,
+    };
+
+    // send email to groomer
+    const groomerMailOptions = {
+      from: process.env.EMAIL_USER || "your-email@gmail.com",
+      to: groomerEmail,
+      subject: `Appointment Cancelled - ${formattedDate} at ${formattedTime}`,
+      html: `
+        <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; background-color: #f9fafb;">
+          <!-- Header -->
+          <div style="background-color: #ef4444; color: white; padding: 30px 20px; text-align: center;">
+            <h1 style="margin: 0; font-size: 28px;">❌ Appointment Cancelled</h1>
+            <p style="margin: 10px 0 0 0; font-size: 16px; opacity: 0.9;">
+              A client has cancelled their appointment
+            </p>
+          </div>
+
+          <!-- Main Content -->
+          <div style="background-color: white; padding: 30px 20px;">
+            <p style="font-size: 16px; color: #374151; margin-bottom: 20px;">
+              Hello ${groomerName},
+            </p>
+            <p style="font-size: 16px; color: #374151; margin-bottom: 30px;">
+              An appointment has been cancelled. Here are the details:
+            </p>
+
+            <!-- Booking Reference -->
+            <div style="background-color: #f3f4f6; border-left: 4px solid #ef4444; padding: 15px; margin: 20px 0;">
+              <h3 style="margin: 0 0 5px 0; color: #111827; font-size: 14px; text-transform: uppercase; letter-spacing: 1px;">
+                Booking Reference
+              </h3>
+              <p style="margin: 0; font-size: 20px; font-weight: bold; color: #ef4444; font-family: monospace;">
+                #${bookingReference}
+              </p>
+            </div>
+
+            <!-- Cancelled Appointment Details -->
+            <div style="border: 1px solid #e5e7eb; border-radius: 8px; padding: 20px; margin: 20px 0;">
+              <h3 style="margin: 0 0 15px 0; color: #111827; font-size: 18px;">
+                📅 Cancelled Appointment Details
+              </h3>
+              
+              <table style="width: 100%; border-collapse: collapse;">
+                <tr>
+                  <td style="padding: 8px 0; color: #6b7280; font-weight: 500; width: 30%;">Date:</td>
+                  <td style="padding: 8px 0; color: #111827; font-weight: 600;">${formattedDate}</td>
+                </tr>
+                <tr>
+                  <td style="padding: 8px 0; color: #6b7280; font-weight: 500;">Time:</td>
+                  <td style="padding: 8px 0; color: #111827; font-weight: 600;">${formattedTime} - ${formattedEndTime}</td>
+                </tr>
+                <tr>
+                  <td style="padding: 8px 0; color: #6b7280; font-weight: 500;">Service:</td>
+                  <td style="padding: 8px 0; color: #111827; font-weight: 600;">${serviceDisplayName}</td>
+                </tr>
+                <tr>
+                  <td style="padding: 8px 0; color: #6b7280; font-weight: 500;">Pet:</td>
+                  <td style="padding: 8px 0; color: #111827; font-weight: 600;">${petName} (${petBreed})</td>
+                </tr>
+                <tr>
+                  <td style="padding: 8px 0; color: #6b7280; font-weight: 500;">Owner:</td>
+                  <td style="padding: 8px 0; color: #111827; font-weight: 600;">${ownerName}</td>
+                </tr>
+              </table>
+            </div>
+
+            <!-- View Schedule -->
+            <div style="text-align: center; margin: 30px 0;">
+              <p style="color: #6b7280; margin-bottom: 15px;">
+                View your updated schedule
+              </p>
+              <a href="${process.env.SECONDARY_URL}/dashboard" 
+                 style="background-color: #ef4444; color: white; padding: 12px 24px; 
+                        text-decoration: none; border-radius: 6px; display: inline-block; font-weight: 600;">
+                View Schedule
+              </a>
+            </div>
+          </div>
+
+          <!-- Footer -->
+          <div style="background-color: #f9fafb; padding: 20px; text-align: center; border-top: 1px solid #e5e7eb;">
+            <p style="color: #6b7280; font-size: 14px; margin: 0 0 10px 0;">
+              Questions? Contact us at furkidshome1@gmail.com or call +65 9123 4567
+            </p>
+            <p style="color: #9ca3af; font-size: 12px; margin: 0;">
+              This is an automated notification from Furkids. Please do not reply to this email.
+            </p>
+          </div>
+        </div>
+      `,
+    };
+
+    // send emails to both parties
+    await transporter.sendMail(ownerMailOptions);
+    await transporter.sendMail(groomerMailOptions);
+
+    console.log("Cancellation emails sent successfully");
+    return true;
+  } catch (error) {
+    console.error("Error sending cancellation emails:", error);
+    throw new Error("Failed to send cancellation emails");
+  }
+};
+
 module.exports = {
   sendPasswordResetEmail,
   sendBookingConfirmationEmail,
   sendGroomerNotificationEmail,
+  sendCancellationEmails,
 };

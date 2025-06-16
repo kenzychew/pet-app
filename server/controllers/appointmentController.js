@@ -4,6 +4,7 @@ const Pet = require("../models/Pet");
 const {
   sendBookingConfirmationEmail,
   sendGroomerNotificationEmail,
+  sendCancellationEmails,
 } = require("../services/emailService");
 
 exports.createAppointment = async (req, res) => {
@@ -437,13 +438,17 @@ exports.deleteAppointment = async (req, res) => {
   try {
     const appointmentId = req.params.id;
 
-    const appointment = await Appointment.findById(appointmentId);
+    const appointment = await Appointment.findById(appointmentId)
+      .populate("petId", "name species breed")
+      .populate("ownerId", "name email")
+      .populate("groomerId", "name email");
+
     if (!appointment) {
       return res.status(404).json({ error: "Appointment not found" });
     }
 
     // check user is owner of appt
-    if (appointment.ownerId.toString() !== req.user.id) {
+    if (appointment.ownerId._id.toString() !== req.user.id) {
       return res.status(403).json({ error: "Not authorized to delete this appointment" });
     }
 
@@ -453,6 +458,32 @@ exports.deleteAppointment = async (req, res) => {
         error: "Cannot delete appointments less than 24 hours before start time",
       });
     }
+
+    // prepare appt details for email
+    const appointmentDetails = {
+      bookingReference: appointment._id.toString().slice(-8).toUpperCase(),
+      petName: appointment.petId?.name || "Pet",
+      petBreed: appointment.petId?.breed || "Unknown breed",
+      serviceType: appointment.serviceType,
+      startTime: appointment.startTime,
+      endTime: appointment.endTime,
+      duration: appointment.duration,
+    };
+
+    // send cancellation emails
+    try {
+      await sendCancellationEmails(
+        appointment.ownerId.email,
+        appointment.ownerId.name,
+        appointment.groomerId.email,
+        appointment.groomerId.name,
+        appointmentDetails
+      );
+      console.log("Cancellation emails sent for appointment:", appointment._id);
+    } catch (emailError) {
+      console.error("Failed to send cancellation emails:", emailError);
+    }
+
     // delete appt
     await Appointment.deleteOne({ _id: appointmentId });
 
