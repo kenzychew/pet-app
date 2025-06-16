@@ -264,7 +264,7 @@ const DashboardPage = () => {
       // show success toast
       toast.success("Appointment Cancelled", {
         description: "A cancellation confirmation has been sent to your email.",
-        duration: 8000, // 8 seconds
+        duration: 10000, // 10 seconds
         action: {
           label: "Got it",
           onClick: () => {},
@@ -275,7 +275,7 @@ const DashboardPage = () => {
       const errorMessage = error instanceof Error ? error.message : 'Failed to cancel appointment';
       toast.error("Cancellation Failed", {
         description: errorMessage,
-        duration: 8000 // for errors
+        duration: 10000 // for errors
       });
     } finally {
       setCancelLoading(false);

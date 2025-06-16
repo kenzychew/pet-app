@@ -131,7 +131,7 @@ const AppointmentPage = () => {
       // show success toast
       toast.success("Appointment Cancelled", {
         description: "A cancellation confirmation has been sent to your email.",
-        duration: 8000, // 8 seconds
+        duration: 10000, // 10 seconds
         action: {
           label: "Got it",
           onClick: () => {},
