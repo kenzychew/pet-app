@@ -487,6 +487,7 @@ const AppointmentBookingModal = ({
                       Preferred date <span className="text-red-500">*</span>
                     </label>
                     <DatePicker
+                      disableDate={date => date.getDay() === 3}
                       value={formik.values.selectedDate}
                       onChange={(value) => formik.setFieldValue('selectedDate', value)}
                       onBlur={() => formik.setFieldTouched('selectedDate', true)}

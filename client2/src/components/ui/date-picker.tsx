@@ -22,6 +22,7 @@ interface DatePickerProps {
   minDate?: string
   maxDate?: string
   error?: boolean
+  disableDate?: (date: Date) => boolean
 }
 
 export function DatePicker({
@@ -33,7 +34,8 @@ export function DatePicker({
   className,
   minDate,
   maxDate,
-  error = false
+  error = false,
+  disableDate
 }: DatePickerProps) {
   const [open, setOpen] = React.useState(false)
   
@@ -85,6 +87,7 @@ export function DatePicker({
           disabled={(date) => {
             if (minDateObj && date < minDateObj) return true
             if (maxDateObj && date > maxDateObj) return true
+            if (disableDate && disableDate(date)) return true
             return false
           }}
           initialFocus
