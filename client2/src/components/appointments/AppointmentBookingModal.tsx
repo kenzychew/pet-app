@@ -32,7 +32,6 @@ interface TimeSlot {
   available: boolean;
 }
 
-// Define booking steps
 type BookingStep = 'selection' | 'summary' | 'confirmation';
 
 const AppointmentBookingModal = ({
@@ -47,6 +46,9 @@ const AppointmentBookingModal = ({
   const [loading, setLoading] = useState(false);
   const [loadingSlots, setLoadingSlots] = useState(false);
   const [currentStep, setCurrentStep] = useState<BookingStep>('selection');
+  const [editingInstructions, setEditingInstructions] = useState(false);
+  const [editedInstructions, setEditedInstructions] = useState('');
+  const [saveInstructionsLoading, setSaveInstructionsLoading] = useState(false);
 
   const isEditing = !!editingAppointment;
 
@@ -88,7 +90,7 @@ const AppointmentBookingModal = ({
           startTime: values.selectedTimeSlot
         };
 
-        // Update pet's notes if special instructions have changed
+        // update pet notes if special instructions provided
         const currentPet = pets.find(pet => pet._id === values.petId);
         if (currentPet && values.specialInstructions !== currentPet.notes) {
           try {
@@ -97,7 +99,6 @@ const AppointmentBookingModal = ({
             });
           } catch (error) {
             console.error('Error updating pet notes:', error);
-            // Continue with appointment booking even if notes update fails
           }
         }
 
@@ -194,7 +195,7 @@ const AppointmentBookingModal = ({
     loadTimeSlots();
   }, [formik.values.groomerId, formik.values.selectedDate, formik.values.serviceType]);
 
-  // Update special instructions when pet is selected
+  // update special instructions
   useEffect(() => {
     if (formik.values.petId && !isEditing) {
       const selectedPet = pets.find(pet => pet._id === formik.values.petId);
@@ -204,7 +205,7 @@ const AppointmentBookingModal = ({
     }
   }, [formik.values.petId, pets, isEditing]);
 
-  // Helper functionsssss
+  // helper functions
   const getMinDate = () => {
     const today = new Date();
     return today.toISOString().split('T')[0];
@@ -328,15 +329,6 @@ const AppointmentBookingModal = ({
             {/* Header */}
             <div className="flex items-center justify-between p-6 border-b">
               <div className="flex items-center">
-                {currentStep === 'summary' && (
-                  <button
-                    onClick={handleBackToSelection}
-                    className="mr-3 text-gray-400 hover:text-gray-600 transition-colors"
-                    disabled={loading}
-                  >
-                    <ArrowLeftIcon className="h-5 w-5" />
-                  </button>
-                )}
                 <h3 className="text-lg font-semibold text-gray-900">
                   {currentStep === 'selection' && (isEditing ? 'Reschedule Appointment' : 'Book New Appointment')}
                   {currentStep === 'summary' && (isEditing ? 'Reschedule Summary' : 'Booking Summary')}
@@ -501,36 +493,6 @@ const AppointmentBookingModal = ({
                     )}
                   </div>
 
-                  {/* Special instructions */}
-                  {formik.values.petId && (
-                    <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-2">
-                        Special Instructions for Groomer
-                      </label>
-                      <textarea
-                        name="specialInstructions"
-                        value={formik.values.specialInstructions}
-                        onChange={formik.handleChange}
-                        onBlur={formik.handleBlur}
-                        placeholder="Add any special instructions for the groomer (e.g., sensitive areas, behavioral notes, specific styling preferences...)"
-                        className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 resize-none"
-                        rows={3}
-                        maxLength={500}
-                      />
-                      <div className="flex justify-between items-center mt-1">
-                        <p className="text-xs text-gray-500">
-                          These notes will be visible to the groomer and saved to your pet's profile.
-                        </p>
-                        <span className="text-xs text-gray-400">
-                          {formik.values.specialInstructions.length}/500
-                        </span>
-                      </div>
-                      {formik.touched.specialInstructions && formik.errors.specialInstructions && (
-                        <p className="mt-1 text-sm text-red-600">{formik.errors.specialInstructions}</p>
-                      )}
-                    </div>
-                  )}
-
                   {/* Time slot selection */}
                   {formik.values.groomerId && formik.values.selectedDate && formik.values.serviceType && (
                     <div>
@@ -645,29 +607,92 @@ const AppointmentBookingModal = ({
                     <div className="mt-6 pt-4 border-t border-gray-200">
                       <div className="flex items-center justify-between mb-2">
                         <p className="text-sm font-medium text-gray-500">Special instructions for groomer</p>
-                        <button
-                          type="button"
-                          onClick={handleBackToSelection}
-                          className="text-sm text-blue-600 hover:text-blue-800 underline"
-                        >
-                          Edit
-                        </button>
-                      </div>
-                      {formik.values.specialInstructions ? (
-                        <div className="bg-white p-3 rounded border">
-                          <p className="text-gray-900 whitespace-pre-wrap">{formik.values.specialInstructions}</p>
-                        </div>
-                      ) : (
-                        <div className="bg-gray-50 p-3 rounded border border-dashed border-gray-300">
-                          <p className="text-gray-500 italic">No special instructions provided.</p>
+                        {!editingInstructions && (
                           <button
                             type="button"
-                            onClick={handleBackToSelection}
-                            className="text-sm text-blue-600 hover:text-blue-800 underline mt-1"
+                            onClick={() => {
+                              setEditingInstructions(true);
+                              setEditedInstructions(formik.values.specialInstructions);
+                            }}
+                            className="text-sm text-blue-600 hover:text-blue-800 underline"
                           >
-                            Add instructions
+                            Edit
                           </button>
+                        )}
+                      </div>
+                      {editingInstructions ? (
+                        <div>
+                          <textarea
+                            value={editedInstructions}
+                            onChange={e => setEditedInstructions(e.target.value)}
+                            placeholder="Add any special instructions for the groomer (e.g., sensitive areas, behavioral notes, specific styling preferences...)"
+                            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 resize-none"
+                            rows={3}
+                            maxLength={500}
+                            disabled={saveInstructionsLoading}
+                          />
+                          <div className="flex justify-between items-center mt-1">
+                            <p className="text-xs text-gray-500">
+                              These notes will be visible to the groomer and saved to your pet's profile.
+                            </p>
+                            <span className="text-xs text-gray-400">
+                              {editedInstructions.length}/500
+                            </span>
+                          </div>
+                          <div className="flex space-x-2 mt-2">
+                            <Button
+                              size="sm"
+                              className="bg-green-600 hover:bg-green-700"
+                              onClick={async () => {
+                                setSaveInstructionsLoading(true);
+                                try {
+                                  const petId = formik.values.petId;
+                                  await petService.updatePet(petId, { notes: editedInstructions.trim() });
+                                  formik.setFieldValue('specialInstructions', editedInstructions.trim());
+                                  setEditingInstructions(false);
+                                } catch {
+                                  toast.error('Failed to update instructions. Please try again.');
+                                } finally {
+                                  setSaveInstructionsLoading(false);
+                                }
+                              }}
+                              disabled={saveInstructionsLoading}
+                            >
+                              Save
+                            </Button>
+                            <Button
+                              size="sm"
+                              variant="outline"
+                              onClick={() => {
+                                setEditingInstructions(false);
+                                setEditedInstructions(formik.values.specialInstructions);
+                              }}
+                              disabled={saveInstructionsLoading}
+                            >
+                              Cancel
+                            </Button>
+                          </div>
                         </div>
+                      ) : (
+                        formik.values.specialInstructions ? (
+                          <div className="bg-white p-3 rounded border">
+                            <p className="text-gray-900 whitespace-pre-wrap">{formik.values.specialInstructions}</p>
+                          </div>
+                        ) : (
+                          <div className="bg-gray-50 p-3 rounded border border-dashed border-gray-300">
+                            <p className="text-gray-500 italic">No special instructions provided.</p>
+                            <button
+                              type="button"
+                              onClick={() => {
+                                setEditingInstructions(true);
+                                setEditedInstructions('');
+                              }}
+                              className="text-sm text-blue-600 hover:text-blue-800 underline mt-1"
+                            >
+                              Add instructions
+                            </button>
+                          </div>
+                        )
                       )}
                     </div>
                   </div>
@@ -690,42 +715,32 @@ const AppointmentBookingModal = ({
                   </div>
 
                   {/* Action buttons */}
-                  <div className="flex justify-between pt-6 border-t">
+                  <div className="flex flex-row flex-wrap gap-2 justify-between items-center w-full pt-6 border-t">
                     <Button
                       type="button"
                       variant="outline"
                       onClick={handleBackToSelection}
                       disabled={loading}
+                      className="flex-1 min-w-0"
                     >
                       <ArrowLeftIcon className="h-4 w-4 mr-2" />
                       Back to Edit
                     </Button>
-                    
-                    <div className="space-x-3">
-                      <Button
-                        type="button"
-                        variant="outline"
-                        onClick={onClose}
-                        disabled={loading}
-                      >
-                        Cancel
-                      </Button>
-                      <Button
-                        type="button"
-                        onClick={() => formik.handleSubmit()}
-                        disabled={loading}
-                        className="min-w-[140px] bg-green-600 hover:bg-green-700"
-                      >
-                        {loading ? (
-                          <LoadingSpinner size="sm" />
-                        ) : (
-                          <>
-                            <CalendarDaysIcon className="h-4 w-4 mr-2" />
-                            {isEditing ? 'Confirm Reschedule' : 'Confirm Booking'}
-                          </>
-                        )}
-                      </Button>
-                    </div>
+                    <Button
+                      type="button"
+                      onClick={() => formik.handleSubmit()}
+                      disabled={loading}
+                      className="flex-1 min-w-0 bg-green-600 hover:bg-green-700"
+                    >
+                      {loading ? (
+                        <LoadingSpinner size="sm" />
+                      ) : (
+                        <>
+                          <CalendarDaysIcon className="h-4 w-4 mr-2" />
+                          {isEditing ? 'Confirm Reschedule' : 'Confirm Booking'}
+                        </>
+                      )}
+                    </Button>
                   </div>
                 </div>
               )}
