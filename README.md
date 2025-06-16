@@ -2,7 +2,25 @@
 
 ## Overview
 
-A minimalist web application for pet grooming appointment bookings. This MVP enables pet owners to schedule grooming appointments and helps groomers manage their schedule.
+Furkids is a modern web application that streamlines the pet grooming appointment booking process. It provides a seamless digital solution for both pet owners and groomers, eliminating the need for manual scheduling through messaging apps.
+
+### Key Benefits
+
+#### For Pet Owners
+
+- Real-time appointment booking with instant confirmation
+- View and manage appointments at your convenience
+- Track pet grooming history and special instructions
+- Automated reminders and notifications
+
+#### For Groomers
+
+- Digital schedule management with calendar view
+- Automated availability tracking and time block management
+- Business hours and appointment conflict prevention
+- Streamlined client communication and service tracking
+
+The application features a dual-interface system, with separate dashboards for pet owners and groomers, ensuring each user type has access to the tools they need while maintaining appropriate access controls.
 
 ##
 
@@ -30,16 +48,37 @@ Frontend deployed on vercel. Backend is hosted separately on Render.
 
 ## Technology Stack
 
-- **Frontend**: React with Material UI components
-- **Backend**: Express.js with REST API
-- **Database**: MongoDB (hosted on MongoDB Atlas)
+- **Frontend**: Modern React frontend leveraging Vite for fast development and optimized builds, TypeScript for type safety, and shadcn/ui for accessible, customizable components.
+- **Backend**: Node.js/Express REST API
+- **Database**: MongoDB (utilized MongoDB Atlas)
 - **Authentication**: JWT-based authentication
-- **Deployment**: Frontend (client) deployed on Vercel, Backend (server) deployed on Render
+- **Deployment**: Frontend (client) deployed on Vercel, Backend (server) deployed on Render, UptimeRobot utilized to
 
 ## Screenshot
 
 ![Landing Page](./assets/screenshots/v2-home.png)
 _Landing Page_
+
+![Login Page](./assets/screenshots/v2-login.png)
+_Login Page_
+
+![Owner Dashboard](./assets/screenshots/v2-ownerdash.png)
+_Owner Dashboard - after initial setup by adding pet(s), users (pet owners) should be able to manage appointments all from this page_
+
+![Booking Form](./assets/screenshots/v2-bookingform.png)
+_Booking Form - users (pet owners) able to view available time slots of their preferred groomer and add pet-specific instructions which will be passed on to groomers_
+
+![Booking Summary](./assets/screenshots/v2-bookingsummary.png)
+_Booking Summary - users (pet owners) able to view a summary of their booking before confirmation_
+
+![Booking Confirmation](./assets/screenshots/v2-bookingconfirmation.png)
+_Booking Confirmation - quick 2s screen to show booking confirmation, users will also see a toast showing confirmation and will also receive notification email with their booking details_
+
+![Groomer Dashboard](./assets/screenshots/v2-groomerdash.png)
+_Groomer Dashboard - users (groomers) have an at-a-glance view of their appointments for the day, also able to click individual appointments to view incoming pet details_
+
+![Groomer Calendar](./assets/screenshots/v2-groomercal.png)
+_Groomer Calendar - users (groomers) able to view their appointments in a calendar format and block time off_
 
 ## User Stories
 
@@ -49,13 +88,11 @@ _Landing Page_
 
 - I want to register for an account so that I can book grooming appointments
 - I want to log in to my account so that I can access the booking system
-- I want to log out of my account to keep my information secure
 
 #### As a new user (groomer)
 
-- I want to register as a groomer so that I can provide grooming services
-- I want to log in to my groomer account to manage my appointments
-- I want to log out of my account when I'm done for the day
+- I want to register as a groomer so I can provide grooming services
+- I want to log in to my account to view my schedule and manage my availability
 
 ### Pet Management
 
@@ -64,21 +101,19 @@ _Landing Page_
 - I want to add a new pet to my profile so I can book appointments for them
 - I want to view all my pets in one place for easy management
 - I want to see my pet's grooming history to track previous services
-- I want to be able to update notes for my pet so the groomer will be better prepared
+- I want to be able to update instructions my pets so that they will be well cared for during appointments
 
 ### Appointment Management
 
 #### As a pet owner
 
-- I want to select either Basic (60 minutes) or Full (120 minutes) grooming options
-- I want to be able to add a pet so I can send it for grooming
-- I want to see a list of appointments to remember when to bring my pet
+- I want to select from various grooming options - currently only 2, Basic (60 mins) and Full (120 mins)
+- I want to see a list of upcoming appointments to remember when to bring my pet
 - I want to see a list of past appointments to track my pet's grooming history
-- I want to be create an grooming appointment for a pet by selecting a specific groomer
-- I want to know what time slots are available for the groomer by selecting a date
+- I want to know what time slots are available for my preferred groomer
 - I want to to be able to reschedule an appointment (more than 24 hours before the start time)
 - I want to to be able to cancel an appointment (more than 24 hours before the start time)
-- I want to be see notifications when I create, reschedule or cancel an appointment
+- I want to be see/receive notifications when managing my appointments
 
 #### As a groomer
 
@@ -90,7 +125,7 @@ _Landing Page_
 
 #### As a groomer
 
-- I want to be able to manage my availability by setting my work hours/days (Stretch)
+- I want to be able to manage my availability by setting my work hours/days.
 
 ## Getting Started
 
@@ -134,22 +169,25 @@ _Landing Page_
 
 ```
 pet-app/
-├── client/               # Frontend React application
-│   ├── public/
-│   └── src/
-│       ├── components/   # UI components
-│       ├── config/       # Centralized API config
-│       ├── contexts/     # React context for state management
-│       ├── hooks/        # Custom Hooks
-│       ├── pages/        # Page components
-│       └── services/     # API service calls
-│       └── utils/        # Utility functions
-├── server/               # Backend Express application
-│   ├── controllers/      # Request handlers
-│   ├── middleware/       # Express Middleware
-│   ├── models/           # Database models
-│   ├── routes/           # API routes
-│   └── utils/            # Utility functions
+├── client2/              # Frontend React application (TypeScript + Vite)
+│   ├── public/          # Static assets
+│   │   ├── components/  # Reusable UI components (shadcn/ui)
+│   │   ├── hooks/      # Custom React hooks for data fetching and state management
+│   │   ├── layout/     # Layout components and page transitions
+│   │   ├── pages/      # Page components and routing
+│   │   ├── services/   # API service calls and data fetching
+│   │   ├── store/      # State management (Zustand)
+│   │   ├── types/      # TypeScript type definitions
+│   │   └── utils/      # Utility functions and helpers
+│   ├── components.json # shadcn/ui configuration
+│   └── tailwind.config.js # Tailwind CSS configuration
+├── server/              # Backend Express application
+│   ├── controllers/    # Request handlers and business logic
+│   ├── middleware/     # Express middleware (auth, role checks)
+│   ├── models/         # MongoDB models and schemas
+│   ├── routes/         # API route definitions
+│   ├── services/       # Business logic and external service integration
+│   └── utils/          # Utility functions and helpers
 └── README.md
 ```
 
@@ -159,28 +197,39 @@ pet-app/
 
 - `POST /api/auth/register` - Register a new user (owner or groomer)
 - `POST /api/auth/login` - User login
+- `POST /api/auth/forgot-password` - Request password reset
+- `POST /api/auth/reset-password/:token` - Reset password with token
+- `GET /api/auth/me` - Get current user details (protected)
 
 ### Pet Management
 
-- `GET /api/pets` - Get all pets for the current user (owner)
+- `GET /api/pets` - Get all pets for the current user (owner only)
+- `GET /api/pets/deleted` - Get soft-deleted pets (owner only)
 - `GET /api/pets/:id` - Get a specific pet by ID
-- `POST /api/pets` - Create a new pet (owners only)
-- `PUT /api/pets/:id` - Update a pet
-- `DELETE /api/pets/:id` - Delete a pet
+- `POST /api/pets` - Create a new pet (owner only)
+- `PUT /api/pets/:id` - Update a pet (owner only)
+- `DELETE /api/pets/:id` - Soft delete a pet (owner only)
+- `PUT /api/pets/:id/restore` - Restore a soft-deleted pet (owner only)
+- `GET /api/pets/:id/appointments` - Get appointments for a specific pet
 
-### Groomer Availability
+### Groomer Management
 
 - `GET /api/groomers` - List all available groomers
 - `GET /api/groomers/:id` - Get details for a specific groomer
-- `GET /api/groomers/:id/availability?date=YYYY-MM-DD&duration=60` - Get available appointment slots
+- `GET /api/groomers/:id/availability` - Get available slots for a groomer
+- `GET /api/groomers/:id/schedule` - Get groomer's schedule (calendar view)
+- `POST /api/groomers/time-blocks` - Create time block (groomer only)
+- `PUT /api/groomers/time-blocks/:timeBlockId` - Update time block (groomer only)
+- `DELETE /api/groomers/time-blocks/:timeBlockId` - Delete time block (groomer only)
 
 ### Appointments
 
-- `POST /api/appointments` - Book a new appointment (owners only)
+- `POST /api/appointments` - Book a new appointment (owner only)
 - `GET /api/appointments` - Get all appointments for the current user
 - `GET /api/appointments/:id` - Get a specific appointment by ID
-- `PUT /api//appointments/:id` - Reschedule appointment (owners only)
-- `DELETE /api/appointments/:id` - Delete appointment (owners only)
+- `PUT /api/appointments/:id` - Update appointment (owner only)
+- `DELETE /api/appointments/:id` - Cancel appointment (owner only)
+- `GET /api/appointments/available-slots/:groomerId` - Get available slots for a groomer
 
 ## Database Schema
 
@@ -223,91 +272,35 @@ pet-app/
 
 - **Instance Methods**:
 
-  - `canModify()`: Checks if appointment can be modified (>24h before start)
-  - `shouldBeCompleted()`: Checks if appointment should be marked as completed
+  - `canModify()`: Checks if appointment can be modified (>24h before start time)
+  - `shouldBeCompleted()`: Checks if appointment should be marked as completed based on end time
 
 - **Static Methods**:
-  - `updateCompletedAppointments(appointments)`: Updates status of confirmed appointments that have ended
+
+  - `isBusinessDay(date)`: Checks if a given date is a business day
+  - `getBusinessHours(date)`: Returns business hours for a specific day
+  - `updateCompletedAppointments(appointments)`: Updates status of confirmed/in-progress appointments that have ended
   - `checkForConflicts(groomerId, startTime, endTime, excludeAppointmentId)`: Checks for time conflicts with existing appointments
-  - `getGroomerAvailability(groomerId, date)`: Gets all confirmed appointments for a groomer on a given day
-  - `getAvailableTimeSlots(groomerId, date, duration)`: Generates available time slots based on business hours and existing appointments
+  - `getGroomerConfirmedAppointments(groomerId, date)`: Gets all confirmed appointments for a groomer on a given day
+  - `getAvailableTimeSlots(groomerId, date, duration)`: Generates available time slots based on:
+    - Business hours
+    - Existing appointments
+    - Groomer time blocks
+    - Past time slots
 
-```
-// Time Slot Calculation
-// added these static methods to simplify availability checks, controller will be a lot cleaner
-// get all confirmed appointments for a groomer on a given day
-AppointmentSchema.statics.getGroomerAvailability = async function (groomerId, date) {
-  // convert date to start/end of day
-  const startOfDay = new Date(date);
-  startOfDay.setHours(0, 0, 0, 0);
+- **TimeBlock Methods**:
 
-  const endOfDay = new Date(date);
-  endOfDay.setHours(23, 59, 59, 999);
+  - `getGroomerTimeBlocks(groomerId, date)`: Gets all time blocks for a groomer on a specific date
+  - `checkForTimeBlockConflicts(groomerId, startTime, endTime, excludeBlockId)`: Checks for conflicts with existing time blocks
 
-  // find all appointments with confirmed status for this groomer on this day
-  // sort by startTime
-  const appointments = await this.find({
-    groomerId,
-    status: "confirmed",
-    startTime: { $gte: startOfDay, $lte: endOfDay },
-  }).sort({ startTime: 1 });
-
-  return appointments;
-};
-
-AppointmentSchema.statics.getAvailableTimeSlots = async function (groomerId, date, duration) {
-  // biz hours (should be variable but lets hardcode this for now)
-  const businessStart = 9;
-  const businessEnd = 17;
-
-  // get all appointments for this day
-  const appointments = await this.getGroomerAvailability(groomerId, date);
-
-  // start with full day slots in 60-minute increments
-  const dayDate = new Date(date); // 2024-03-16 => 2024-03-16T00:00:00
-  const slots = [];
-
-  // generate all possible time slots during biz hours
-  for (let hour = businessStart; hour < businessEnd; hour++) {
-    for (let minute = 0; minute < 60; minute += 60) {
-      const slotStart = new Date(dayDate); // Date obj for start time
-      slotStart.setHours(hour, minute, 0, 0); // set seconds and ms to 0
-
-      const slotEnd = new Date(slotStart);
-      slotEnd.setMinutes(slotStart.getMinutes() + duration);
-
-      // do not add slots that extend beyond biz hrs
-      if (
-        slotEnd.getHours() < businessEnd || // if end time before 5pm
-        (slotEnd.getHours() === businessEnd && slotEnd.getMinutes() === 0) // if end time is exactly 5:00pm
-      ) {
-        slots.push({
-          start: new Date(slotStart),
-          end: new Date(slotEnd),
-          available: true,
-        }); // get array of slot objs
-      }
-    }
-  }
-
-  // mark slots as unavailable if they conflict with existing appointments
-  // loop through all existing (confirmed) appointments
-  for (const appointment of appointments) {
-    const appointmentStart = new Date(appointment.startTime);
-    const appointmentEnd = new Date(appointment.endTime);
-    // loop through all possible slots
-    for (const slot of slots) {
-      // check if proposed slot overlaps with existing appointment
-      if (slot.start < appointmentEnd && slot.end > appointmentStart) {
-        slot.available = false;
-      }
-    }
-  }
-
-  // filter and return only available slots
-  return slots.filter((slot) => slot.available);
-};
-```
+- **Business Hours Configuration**:
+  - Sunday: 10am-7pm SGT
+  - Monday: 11am-8pm SGT
+  - Tuesday: 11am-8pm SGT
+  - Wednesday: Closed
+  - Thursday: 11am-8pm SGT
+  - Friday: 11am-8pm SGT
+  - Saturday: 10am-7pm SGT
 
 ## Service Structure
 
@@ -318,27 +311,29 @@ AppointmentSchema.statics.getAvailableTimeSlots = async function (groomerId, dat
   - Selected at the time of booking as a property of the appointment
 
 - **Groomer Availability**:
-  - All groomers are available from 09:00 to 17:00 daily by default
   - All groomers provide both basic and full grooming services
+  - All groomers are available from during business hours by default (Weekdays: 11am - 8pm, Weekends: 10am - 7pm)
+  - Groomer able to use time block feature to set their recurring off hours (lunch, maintenance etc)
 
 ## Appointment Rules
 
 - **Creation**:
 
   - Only pet owners can create bookings
-  - Appointments must fall within groomer's available timeslots (09:00-17:00)
   - System must check for existing appointments to avoid conflicts
+  - Subject to groomer's available timeslots
+  - Owners receive confirmation upon successful booking, notification emails sent to both parties (owner and groomer)
 
 - **Updates**:
 
   - Only allowed more than 24 hours before the appointment
   - Subject to groomer's available timeslots
-  - Updates by owners are reflected on the groomer's dashboard
+  - Updates by owners are reflected on the groomer's dashboard and notification emails sent to both parties (owner and groomer)
 
 - **Cancellation**:
 
   - Only allowed more than 24 hours before the appointment
-  - Cancellations by owners are reflected on the groomer's dashboard
+  - Cancellations by owners are reflected on the groomer's dashboard - current business logic had reducing friction with regard to users making appointments, but it may make more sense for cancellations to be updated as a status for appointments (soft delete)
 
 - **Status Types**:
   - Confirmed
@@ -346,11 +341,10 @@ AppointmentSchema.statics.getAvailableTimeSlots = async function (groomerId, dat
 
 ## Future Enhancements (Post-MVP)
 
-- Payment processing integration
-- Advanced reporting and analytics
+- Payment processing integration (perhaps by collecting a booking fee with the rest payable upon completion, may deter users though)
 - Customer reviews and ratings
-- Recurring appointment scheduling
-- Mobile app version
+- Advanced reporting and analytics (CRM for groomers, add value to their business)
+- Groomers able to send a service completion notification email to users with before and after pictures
 
 ## Attributions
 
