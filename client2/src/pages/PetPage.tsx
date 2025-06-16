@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { MagnifyingGlassIcon, ExclamationTriangleIcon, ArrowLeftIcon } from '@heroicons/react/24/outline';
+import { MagnifyingGlassIcon, ExclamationTriangleIcon, ArrowLeftIcon, HeartIcon } from '@heroicons/react/24/outline';
 import { useAuthStore } from '../store/authStore';
 import { petService } from '../services/petService';
 import { Button } from '../components/ui/button';
@@ -337,7 +337,9 @@ const PetPage = () => {
               transition={{ delay: 0.4 }}
               className="bg-gradient-to-br from-white via-stone-50 to-amber-50 rounded-xl border-2 border-stone-200 shadow-lg hover:shadow-xl transition-all duration-300 text-center py-12"
             >
-              <div className="text-6xl mb-4">🐾</div>
+              <div className="flex justify-center mb-4">
+                <HeartIcon className="h-16 w-16 text-amber-500" />
+              </div>
               <h3 className="text-lg font-medium text-stone-900 mb-2">To book your first grooming appointment, you'll need to add your pet's information first.</h3>
               <p className="text-stone-600 mb-6">This helps our groomers provide the best care tailored to your furry friend's needs.</p>
               <Button onClick={petFormModal.openForCreate}>
