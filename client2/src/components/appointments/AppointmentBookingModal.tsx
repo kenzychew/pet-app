@@ -63,7 +63,7 @@ const AppointmentBookingModal = ({
     initialValues: {
       petId: editingAppointment ? 
         (typeof editingAppointment.petId === 'string' ? editingAppointment.petId : editingAppointment.petId._id) :
-        selectedPetId || '',
+        selectedPetId || (pets.length === 1 ? pets[0]._id : ''),
       groomerId: editingAppointment ? 
         (typeof editingAppointment.groomerId === 'string' ? editingAppointment.groomerId : editingAppointment.groomerId._id) :
         '',
