@@ -7,7 +7,8 @@ import {
   PlayIcon,
   HeartIcon,
   CheckCircleIcon,
-  ExclamationTriangleIcon
+  ExclamationTriangleIcon,
+  UserIcon
 } from '@heroicons/react/24/outline';
 import { useAuthStore } from '../store/authStore';
 import { Button } from '../components/ui/button';
@@ -456,34 +457,34 @@ const DashboardPage = () => {
                       </AccordionTrigger>
                       <AccordionContent>
                         <div className="pt-4 pl-9 space-y-3">
-                          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
+                          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                            <div className="flex items-start space-x-4">
+                              <CalendarDaysIcon className="h-5 w-5 text-black-500 mt-1" />
                             <div>
-                              <span className="font-medium text-gray-700">Pet:</span>
-                              <span className="ml-2 text-gray-600">{getPetName(appointment.petId)}</span>
+                                <h4 className="font-semibold text-gray-900">Date</h4>
+                                <p className="text-gray-600">{formatDate(appointment.startTime)}</p>
+                              </div>
                             </div>
+                            <div className="flex items-start space-x-4">
+                              <ClockIcon className="h-5 w-5 text-black-500 mt-1" />
                             <div>
-                              <span className="font-medium text-gray-700">Service:</span>
-                              <span className="ml-2 text-gray-600">
-                                {appointment.serviceType === 'basic' ? 'Basic' : 'Full'} Grooming
-                              </span>
+                                <h4 className="font-semibold text-gray-900">Time</h4>
+                                <p className="text-gray-600">{formatTime(appointment.startTime)} - {formatTime(appointment.endTime)}</p>
+                              </div>
                             </div>
+                            <div className="flex items-start space-x-4">
+                              <HeartIcon className="h-5 w-5 text--500 mt-1" />
                             <div>
-                              <span className="font-medium text-gray-700">Groomer:</span>
-                              <span className="ml-2 text-gray-600">{getGroomerName(appointment.groomerId)}</span>
+                                <h4 className="font-semibold text-gray-900">Pet</h4>
+                                <p className="text-gray-600">{getPetName(appointment.petId)}</p>
                             </div>
-                            <div>
-                              <span className="font-medium text-gray-700">Duration:</span>
-                              <span className="ml-2 text-gray-600">{getDuration(appointment.serviceType)}</span>
                             </div>
+                            <div className="flex items-start space-x-4">
+                              <UserIcon className="h-5 w-5 text-black-500 mt-1" />
                             <div>
-                              <span className="font-medium text-gray-700">Date:</span>
-                              <span className="ml-2 text-gray-600">{formatDate(appointment.startTime)}</span>
+                                <h4 className="font-semibold text-gray-900">Groomer</h4>
+                                <p className="text-gray-600">{getGroomerName(appointment.groomerId)}</p>
                             </div>
-                            <div>
-                              <span className="font-medium text-gray-700">Time:</span>
-                              <span className="ml-2 text-gray-600">
-                                {formatTime(appointment.startTime)} - {formatTime(appointment.endTime)}
-                              </span>
                             </div>
                           </div>
                           
