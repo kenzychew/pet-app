@@ -203,7 +203,7 @@ const sendBookingConfirmationEmail = async (
               <p style="color: #6b7280; margin-bottom: 15px;">
                 Need to make changes to your appointment?
               </p>
-              <a href="${process.env.CLIENT_URL || "http://localhost:5173"}/appointments" 
+              <a href="${process.env.SECONDARY_URL}/appointments" 
                  style="background-color: ${
                    isRescheduled ? "#3b82f6" : "#10b981"
                  }; color: white; padding: 12px 24px; 
@@ -378,7 +378,7 @@ const sendGroomerNotificationEmail = async (groomerEmail, groomerName, appointme
               <p style="color: #6b7280; margin-bottom: 15px;">
                 Access your dashboard to manage this appointment
               </p>
-              <a href="${process.env.CLIENT_URL || "http://localhost:5173"}/dashboard" 
+              <a href="${process.env.SECONDARY_URL}/dashboard" 
                  style="background-color: #2563eb; color: white; padding: 12px 24px; 
                         text-decoration: none; border-radius: 6px; display: inline-block; font-weight: 600;">
                 View Details
