@@ -1,5 +1,3 @@
-**This client is deprecated and archived. Please use `/client2` for all development, deployment, and production use.**
-
 # React + Vite
 
 This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
