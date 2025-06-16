@@ -7,7 +7,8 @@ import {
   CheckCircleIcon,
   XCircleIcon,
   CheckIcon,
-  XMarkIcon
+  XMarkIcon,
+  CalendarIcon
 } from '@heroicons/react/24/outline';
 import { petService } from '../services/petService';
 import { Button } from '../components/ui/button';
@@ -386,7 +387,7 @@ const PetDetailPage = () => {
                 </div>
               ) : appointments.length === 0 ? (
                 <div className="text-center py-8">
-                  <div className="text-6xl mb-4">📅</div>
+                  <CalendarIcon className="h-16 w-16 mx-auto text-gray-400 mb-4" />
                   <h3 className="text-lg font-medium text-gray-900 mb-2">
                     No grooming history yet
                   </h3>
