@@ -22,12 +22,13 @@ Furkids is a modern web application that streamlines the pet grooming appointmen
 
 The application features a dual-interface system, with separate dashboards for pet owners and groomers, ensuring each user type has access to the tools they need while maintaining appropriate access controls.
 
-##
+## Technology Stack
 
-In today's fast-paced world, everyone is busy doing something. Caring for a pet means having to send them for regular grooming appointments. However, most groomers require you to contact them via WhatsApp in order to book appointments. This creates unnecessary friction in what should be a straightforward process.
-Pet owners must interrupt their day to send messages, wait for responses, and negotiate available time slots through back-and-forth conversations. This outdated booking method wastes valuable time for both pet owners and groomers alike.
-Wouldn't it be great to be able to simply login and book an available time slot to send your pet for grooming? A digital solution that displays real-time availability, eliminating communication lag time and reduce scheduling errors would give owners the convenience of managing their appointments around their own schedule.
-This would also be a benefit to groomers looking to digitize and streamline their daily operations, by providing an overview of their daily, weekly and monthly appointments at a glance. Gain valuable business insights by identifying peak hours and available slots, reducing double booking and scheduling errors that lead to unsatisfied customers and lost sales. With a digital appointment scheduling system, your resource planning capabilities become more effective: allocate staff better, plan assistant coverage, maximize use of grooming stations, bathing areas and drying equipment.
+- **Frontend**: Modern React frontend leveraging Vite for fast development and optimized builds, TypeScript for type safety, and shadcn/ui for accessible, customizable components.
+- **Backend**: Node.js/Express REST API
+- **Database**: MongoDB (utilized MongoDB Atlas)
+- **Authentication**: JWT-based authentication
+- **Deployment**: Frontend (client2) deployed on Vercel, Backend (server) deployed on Render
 
 ## Features
 
@@ -44,15 +45,7 @@ This would also be a benefit to groomers looking to digitize and streamline thei
 
 - **[furkids.vercel.app](https://furkids.vercel.app)** - features a revamped ui using ts + shadcn [client2]
 
-Frontend deployed on vercel. Backend is hosted separately on Render.
-
-## Technology Stack
-
-- **Frontend**: Modern React frontend leveraging Vite for fast development and optimized builds, TypeScript for type safety, and shadcn/ui for accessible, customizable components.
-- **Backend**: Node.js/Express REST API
-- **Database**: MongoDB (utilized MongoDB Atlas)
-- **Authentication**: JWT-based authentication
-- **Deployment**: Frontend (client) deployed on Vercel, Backend (server) deployed on Render, UptimeRobot utilized to
+Frontend deployed on Vercel. Backend is hosted separately on Render.
 
 ## Screenshot
 
@@ -333,10 +326,11 @@ pet-app/
 - **Cancellation**:
 
   - Only allowed more than 24 hours before the appointment
-  - Cancellations by owners are reflected on the groomer's dashboard - current business logic had reducing friction with regard to users making appointments, but it may make more sense for cancellations to be updated as a status for appointments (soft delete)
+  - Cancellations by owners are reflected on the groomer's dashboard - current logic uses a delete, but it may make more sense for cancellations to be updated as a status for appointments (soft delete) in order for groomers to better track cancellations
 
 - **Status Types**:
   - Confirmed
+  - In Progress
   - Completed
 
 ## Future Enhancements (Post-MVP)
