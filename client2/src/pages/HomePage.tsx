@@ -7,7 +7,8 @@ import {
   StarIcon,
   ShieldCheckIcon,
   UserGroupIcon,
-  SparklesIcon
+  SparklesIcon,
+  FaceSmileIcon
 } from '@heroicons/react/24/outline';
 import { Button } from '../components/ui/button';
 import { useAuthStore } from '../store/authStore';
@@ -80,7 +81,7 @@ const HomePage = () => {
       description: 'Our groomers have years of experience with all breeds and temperaments.'
     },
     {
-      icon: SparklesIcon,
+      icon: FaceSmileIcon,
       title: 'Stress-Free Environment',
       description: 'We create a calm, comfortable environment that pets actually enjoy visiting.'
     }
@@ -101,9 +102,9 @@ const HomePage = () => {
 
   return (
     <PageTransition>
-      <div className="min-h-screen bg-gray-50">
+      <div className="min-h-screen bg-stone-50">
         {/* Hero section with img */}
-        <section className="relative overflow-hidden bg-white">
+        <section className="relative overflow-hidden bg-gradient-to-br from-gray-100 to-stone-50">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
               {/* Hero content */}
@@ -123,7 +124,7 @@ const HomePage = () => {
                   <Button size="lg" className="bg-blue-600 hover:bg-blue-700" onClick={handleBookAppointment}>
                     Book Appointment
                   </Button>
-                  <Button asChild variant="outline" size="lg">
+                  <Button asChild variant="outline" size="lg" className="text-gray-700 border-gray-300 hover:bg-gray-50">
                     <Link to="/service-rates">
                       View Our Services
                     </Link>
@@ -146,8 +147,8 @@ const HomePage = () => {
                   />
                   {/* Expertise Message Overlay */}
                   <div className="absolute bottom-6 left-6 right-6">
-                    <div className="bg-white/40 backdrop-blur-sm rounded-lg p-6">
-                      <p className="text-center text-lg font-medium text-black leading-relaxed">
+                    <div className="bg-white/90 backdrop-blur-sm rounded-lg p-6 border border-blue-100">
+                      <p className="text-center text-lg font-medium text-gray-900 leading-relaxed">
                         "With over a decade of grooming expertise—your pet is in safe, caring hands from start to finish"
                       </p>
                     </div>
@@ -159,7 +160,7 @@ const HomePage = () => {
         </section>
 
         {/* Features */}
-        <section className="py-16 bg-gray-50">
+        <section className="py-16 bg-gradient-to-b from-stone-50 to-gray-100">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <motion.div
               initial={{ opacity: 0, y: 50 }}
@@ -184,7 +185,7 @@ const HomePage = () => {
                   whileInView={{ opacity: 1, y: 0 }}
                   transition={{ duration: 0.6, delay: index * 0.1 }}
                   viewport={{ once: true }}
-                  className="bg-white rounded-lg p-8 shadow-sm border hover:shadow-md transition-shadow"
+                  className="bg-stone-50/80 backdrop-blur-sm rounded-lg p-8 shadow-sm border border-stone-200 hover:shadow-md hover:border-blue-200 transition-all duration-300"
                 >
                   <div className="flex items-center justify-center w-16 h-16 bg-blue-100 rounded-lg mb-6 mx-auto">
                     <feature.icon className="h-8 w-8 text-blue-600" />
@@ -202,7 +203,7 @@ const HomePage = () => {
         </section>
 
         {/* Services */}
-        <section className="py-16 bg-white">
+        <section className="py-16 bg-gradient-to-b from-gray-100 to-stone-100">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <motion.div
               initial={{ opacity: 0, y: 50 }}
@@ -227,22 +228,22 @@ const HomePage = () => {
                   whileInView={{ opacity: 1, y: 0 }}
                   transition={{ duration: 0.6, delay: index * 0.1 }}
                   viewport={{ once: true }}
-                  className="bg-gray-50 rounded-lg p-8 hover:shadow-md transition-shadow"
+                  className="bg-white/90 backdrop-blur-sm rounded-lg p-8 border border-stone-200 hover:shadow-md hover:border-blue-200 transition-all duration-300"
                 >
                   <div className="flex items-center justify-between mb-6">
                     <h3 className="text-2xl font-semibold text-gray-900">{service.title}</h3>
-                    <span className="text-lg font-medium text-blue-600">{service.duration}</span>
+                    <span className="text-lg font-medium text-blue-600 bg-blue-50 px-3 py-1 rounded-full">{service.duration}</span>
                   </div>
                   <ul className="space-y-3">
                     {service.features.map((feature, idx) => (
                       <li key={idx} className="flex items-center text-gray-600">
-                        <SparklesIcon className="h-5 w-5 text-green-500 mr-3" />
+                        <SparklesIcon className="h-5 w-5 text-blue-500 mr-3" />
                         {feature}
                       </li>
                     ))}
                   </ul>
                   <Button
-                    className="w-full mt-6"
+                    className="w-full mt-6 bg-blue-600 hover:bg-blue-700"
                     onClick={handleBookAppointment}
                   >
                     Book now
@@ -258,7 +259,7 @@ const HomePage = () => {
               viewport={{ once: true }}
               className="text-center mt-12"
             >
-              <Button asChild size="lg" className="bg-blue-600 hover:bg-blue-700">
+              <Button asChild variant="outline" size="lg" className="text-gray-700 border-gray-300 hover:bg-gray-50">
                 <Link to="/service-rates">
                   View All Services & Pricing
                 </Link>
