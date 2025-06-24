@@ -1,15 +1,7 @@
 import { useState, useEffect } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { 
-  HeartIcon, 
-  ClockIcon, 
-  StarIcon,
-  ShieldCheckIcon,
-  UserGroupIcon,
-  SparklesIcon,
-  FaceSmileIcon
-} from '@heroicons/react/24/outline';
+import { SparklesIcon } from '@heroicons/react/24/outline';
 import { Button } from '../components/ui/button';
 import { useAuthStore } from '../store/authStore';
 import PageTransition from '../components/layout/PageTransition';
@@ -17,11 +9,20 @@ import petGroomingImage from '../assets/pet_grooming.webp';
 import AppointmentBookingModal from '../components/appointments/AppointmentBookingModal';
 import { petService } from '../services/petService';
 import type { Pet } from '../types';
+import lovingCareImage from '../assets/loving-unsplash.jpg';
+import professionalServiceImage from '../assets/professional-unsplash.jpg';
+import convenientBookingImage from '../assets/convenient-unsplash.jpg';
+import licensedInsuredImage from '../assets/insured.png';
+import experiencedTeamImage from '../assets/team.png';
+import stressFreeImage from '../assets/nostress-unsplash.jpg';
+import basicGroomingImage from '../assets/basic-unsplash.jpg';
+import fullGroomingImage from '../assets/full-unsplash.jpg';
 
 const HomePage = () => {
   const { isAuthenticated, user } = useAuthStore();
   const [showBookingModal, setShowBookingModal] = useState(false);
   const [userPets, setUserPets] = useState<Pet[]>([]);
+  const navigate = useNavigate();
 
   // load user pets if authenticated
   useEffect(() => {
@@ -45,7 +46,7 @@ const HomePage = () => {
 
   const handleBookAppointment = () => {
     if (!isAuthenticated) {
-      window.location.href = '/login';
+      navigate('/login');
       return;
     }
     
@@ -56,32 +57,38 @@ const HomePage = () => {
 
   const combinedFeatures = [
     {
-      icon: HeartIcon,
+      image: lovingCareImage,
+      alt: 'Gentle groomer providing loving care to a dog',
       title: 'Loving Care',
       description: 'Every pet receives personalized attention and gentle handling from our experienced groomers.'
     },
     {
-      icon: StarIcon,
+      image: professionalServiceImage,
+      alt: 'Professional pet groomer working with expertise',
       title: 'Professional Service',
       description: 'Our certified groomers use premium products and industry-best practices for exceptional results.'
     },
     {
-      icon: ClockIcon,
+      image: convenientBookingImage,
+      alt: 'Easy and convenient pet appointment booking',
       title: 'Convenient Booking',
       description: 'Easy online scheduling that fits your busy lifestyle. Book appointments 24/7 through our platform.'
     },
     {
-      icon: ShieldCheckIcon,
+      image: licensedInsuredImage,
+      alt: 'Licensed and insured pet grooming facility',
       title: 'Licensed & Insured',
       description: 'Fully licensed pet grooming facility with comprehensive insurance coverage for your peace of mind.'
     },
     {
-      icon: UserGroupIcon,
+      image: experiencedTeamImage,
+      alt: 'Experienced team of professional pet groomers',
       title: 'Experienced Team',
       description: 'Our groomers have years of experience with all breeds and temperaments.'
     },
     {
-      icon: FaceSmileIcon,
+      image: stressFreeImage,
+      alt: 'Calm and relaxed dog in stress-free grooming environment',
       title: 'Stress-Free Environment',
       description: 'We create a calm, comfortable environment that pets actually enjoy visiting.'
     }
@@ -91,11 +98,15 @@ const HomePage = () => {
     {
       title: 'Basic Grooming',
       duration: '60 min',
+      image: basicGroomingImage,
+      alt: 'Happy dog enjoying a basic grooming bath service',
       features: ['Bath & Dry', 'Nail Clipping', 'Ear Cleaning', 'Basic Trimming']
     },
     {
       title: 'Full Grooming',
-      duration: '120 min', 
+      duration: '120 min',
+      image: fullGroomingImage,
+      alt: 'Beautifully styled poodle after full grooming service',
       features: ['Everything in Basic', 'Full Styling', 'Breed-Specific Cuts', 'Premium Products']
     }
   ];
@@ -185,17 +196,27 @@ const HomePage = () => {
                   whileInView={{ opacity: 1, y: 0 }}
                   transition={{ duration: 0.6, delay: index * 0.1 }}
                   viewport={{ once: true }}
-                  className="bg-stone-50/80 backdrop-blur-sm rounded-lg p-8 shadow-sm border border-stone-200 hover:shadow-md hover:border-blue-200 transition-all duration-300"
+                  className="bg-stone-50/80 backdrop-blur-sm rounded-lg overflow-hidden shadow-sm border border-stone-200 hover:shadow-lg hover:border-blue-200 hover:-translate-y-1 transition-all duration-300 group"
                 >
-                  <div className="flex items-center justify-center w-16 h-16 bg-blue-100 rounded-lg mb-6 mx-auto">
-                    <feature.icon className="h-8 w-8 text-blue-600" />
+                  {/* Image - top */}
+                  <div className="w-full h-48 overflow-hidden">
+                    <img 
+                      src={feature.image} 
+                      alt={feature.alt} 
+                      className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                      loading="lazy"
+                    />
                   </div>
-                  <h3 className="text-xl font-semibold text-gray-900 mb-4 text-center">
-                    {feature.title}
-                  </h3>
-                  <p className="text-gray-600 text-center leading-relaxed">
-                    {feature.description}
-                  </p>
+                  
+                  {/* Content - bottom */}
+                  <div className="p-6">
+                    <h3 className="text-xl font-semibold text-gray-900 mb-3 text-center group-hover:text-blue-700 transition-colors duration-300">
+                      {feature.title}
+                    </h3>
+                    <p className="text-gray-600 text-center leading-relaxed text-sm">
+                      {feature.description}
+                    </p>
+                  </div>
                 </motion.div>
               ))}
             </div>
@@ -228,26 +249,46 @@ const HomePage = () => {
                   whileInView={{ opacity: 1, y: 0 }}
                   transition={{ duration: 0.6, delay: index * 0.1 }}
                   viewport={{ once: true }}
-                  className="bg-white/90 backdrop-blur-sm rounded-lg p-8 border border-stone-200 hover:shadow-md hover:border-blue-200 transition-all duration-300"
+                  className="bg-white/90 backdrop-blur-sm rounded-lg overflow-hidden shadow-sm border border-stone-200 hover:shadow-lg hover:border-blue-200 hover:-translate-y-1 transition-all duration-300 group"
                 >
-                  <div className="flex items-center justify-between mb-6">
-                    <h3 className="text-2xl font-semibold text-gray-900">{service.title}</h3>
-                    <span className="text-lg font-medium text-blue-600 bg-blue-50 px-3 py-1 rounded-full">{service.duration}</span>
+                  {/* Image */}
+                  <div className="w-full h-48 overflow-hidden relative">
+                    <img 
+                      src={service.image} 
+                      alt={service.alt} 
+                      className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                      loading="lazy"
+                    />
+                    {/* Duration badge */}
+                    <div className="absolute top-4 right-4 bg-blue-600 text-white px-3 py-1 rounded-full text-sm font-medium">
+                      {service.duration}
+                    </div>
                   </div>
-                  <ul className="space-y-3">
-                    {service.features.map((feature, idx) => (
-                      <li key={idx} className="flex items-center text-gray-600">
-                        <SparklesIcon className="h-5 w-5 text-blue-500 mr-3" />
-                        {feature}
-                      </li>
-                    ))}
-                  </ul>
-                  <Button
-                    className="w-full mt-6 bg-blue-600 hover:bg-blue-700"
-                    onClick={handleBookAppointment}
-                  >
-                    Book now
-                  </Button>
+                  
+                  {/* Content */}
+                  <div className="p-6">
+                    <h3 className="text-xl font-semibold text-gray-900 mb-4 text-center group-hover:text-blue-700 transition-colors duration-300">
+                      {service.title}
+                    </h3>
+                    
+                    {/* Features list */}
+                    <ul className="space-y-2 mb-6">
+                      {service.features.map((feature, idx) => (
+                        <li key={idx} className="flex items-center text-gray-600 text-sm">
+                          <SparklesIcon className="h-4 w-4 text-blue-500 mr-3 flex-shrink-0" />
+                          {feature}
+                        </li>
+                      ))}
+                    </ul>
+                    
+                    {/* Book button */}
+                    <Button
+                      className="w-full bg-blue-600 hover:bg-blue-700"
+                      onClick={handleBookAppointment}
+                    >
+                      Book {service.title}
+                    </Button>
+                  </div>
                 </motion.div>
               ))}
             </div>
